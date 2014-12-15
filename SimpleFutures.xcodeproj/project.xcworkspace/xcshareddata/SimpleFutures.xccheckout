@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>F546E491-9C58-433D-8A24-8E080C5A0A22</string>
+	<key>IDESourceControlProjectName</key>
+	<string>SimpleFutures</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>768C56257B0D1A24F9D605320914447ECB1D5286</key>
+		<string>github.com:troystribling/SimpleFutures.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>SimpleFutures.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>768C56257B0D1A24F9D605320914447ECB1D5286</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>github.com:troystribling/SimpleFutures.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>768C56257B0D1A24F9D605320914447ECB1D5286</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>768C56257B0D1A24F9D605320914447ECB1D5286</string>
+			<key>IDESourceControlWCCName</key>
+			<string>SimpleFutures</string>
+		</dict>
+	</array>
+</dict>
+</plist>

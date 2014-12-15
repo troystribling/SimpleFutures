@@ -20,20 +20,6 @@
                ReferencedContainer = "container:SimpleFutures.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "057C3E8E1A3E2379005147CD"
-               BuildableName = "SimpleFuturesTests.xctest"
-               BlueprintName = "SimpleFuturesTests"
-               ReferencedContainer = "container:SimpleFutures.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -42,26 +28,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "057C3E8E1A3E2379005147CD"
-               BuildableName = "SimpleFuturesTests.xctest"
-               BlueprintName = "SimpleFuturesTests"
-               ReferencedContainer = "container:SimpleFutures.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "057C3E831A3E2379005147CD"
-            BuildableName = "SimpleFutures.framework"
-            BlueprintName = "SimpleFutures"
-            ReferencedContainer = "container:SimpleFutures.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </TestAction>
    <LaunchAction
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"

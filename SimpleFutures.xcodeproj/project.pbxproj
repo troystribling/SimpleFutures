@@ -9,10 +9,11 @@
 /* Begin PBXBuildFile section */
 		057C3E8A1A3E2379005147CD /* SimpleFutures.h in Headers */ = {isa = PBXBuildFile; fileRef = 057C3E891A3E2379005147CD /* SimpleFutures.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		057C3E901A3E2379005147CD /* SimpleFutures.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 057C3E841A3E2379005147CD /* SimpleFutures.framework */; };
-		057C3E971A3E2379005147CD /* SimpleFuturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3E961A3E2379005147CD /* SimpleFuturesTests.swift */; };
+		057C3E971A3E2379005147CD /* FutureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3E961A3E2379005147CD /* FutureTests.swift */; };
 		057C3EA31A3E2424005147CD /* ExecutionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3EA01A3E2424005147CD /* ExecutionContext.swift */; };
 		057C3EA41A3E2424005147CD /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3EA11A3E2424005147CD /* Future.swift */; };
 		057C3EA51A3E2424005147CD /* FutureStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3EA21A3E2424005147CD /* FutureStream.swift */; };
+		057C3EA71A3E40A6005147CD /* FutureSreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3EA61A3E40A6005147CD /* FutureSreamTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,10 +32,12 @@
 		057C3E891A3E2379005147CD /* SimpleFutures.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimpleFutures.h; sourceTree = "<group>"; };
 		057C3E8F1A3E2379005147CD /* SimpleFuturesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimpleFuturesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		057C3E951A3E2379005147CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		057C3E961A3E2379005147CD /* SimpleFuturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleFuturesTests.swift; sourceTree = "<group>"; };
+		057C3E961A3E2379005147CD /* FutureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureTests.swift; sourceTree = "<group>"; };
 		057C3EA01A3E2424005147CD /* ExecutionContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExecutionContext.swift; sourceTree = "<group>"; };
 		057C3EA11A3E2424005147CD /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Future.swift; sourceTree = "<group>"; };
 		057C3EA21A3E2424005147CD /* FutureStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureStream.swift; sourceTree = "<group>"; };
+		057C3EA61A3E40A6005147CD /* FutureSreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureSreamTests.swift; sourceTree = "<group>"; };
+		057C3EA81A3E665A005147CD /* SimpleFutures.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = SimpleFutures.playground; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +84,7 @@
 				057C3EA11A3E2424005147CD /* Future.swift */,
 				057C3EA21A3E2424005147CD /* FutureStream.swift */,
 				057C3E891A3E2379005147CD /* SimpleFutures.h */,
+				057C3EA81A3E665A005147CD /* SimpleFutures.playground */,
 				057C3E871A3E2379005147CD /* Supporting Files */,
 			);
 			path = SimpleFutures;
@@ -97,7 +101,8 @@
 		057C3E931A3E2379005147CD /* SimpleFuturesTests */ = {
 			isa = PBXGroup;
 			children = (
-				057C3E961A3E2379005147CD /* SimpleFuturesTests.swift */,
+				057C3EA61A3E40A6005147CD /* FutureSreamTests.swift */,
+				057C3E961A3E2379005147CD /* FutureTests.swift */,
 				057C3E941A3E2379005147CD /* Supporting Files */,
 			);
 			path = SimpleFuturesTests;
@@ -228,7 +233,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				057C3E971A3E2379005147CD /* SimpleFuturesTests.swift in Sources */,
+				057C3E971A3E2379005147CD /* FutureTests.swift in Sources */,
+				057C3EA71A3E40A6005147CD /* FutureSreamTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -407,6 +413,7 @@
 				057C3E9C1A3E2379005147CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		057C3E9D1A3E2379005147CD /* Build configuration list for PBXNativeTarget "SimpleFuturesTests" */ = {
 			isa = XCConfigurationList;
@@ -415,6 +422,7 @@
 				057C3E9F1A3E2379005147CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
