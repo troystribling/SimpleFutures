@@ -10,6 +10,10 @@ import UIKit
 import XCTest
 import SimpleFutures
 
+struct TestFailure {
+    static let error = NSError(domain:"SimpleFutures", code:100, userInfo:[NSLocalizedDescriptionKey:"Testing"])
+}
+
 class FuturesSuccessTests: XCTestCase {
     
     override func setUp() {
@@ -54,11 +58,11 @@ class FuturesSuccessTests: XCTestCase {
 
     func testImmediateAndDelayed() {
         let future = Future<Bool>()
-        let expectation_immediate = expectationWithDescription("Immediate future success")
-        let expectation_delayed = expectationWithDescription("Delayed future success")
+        let expectationImmediate = expectationWithDescription("Immediate future success")
+        let expectationDelayed = expectationWithDescription("Delayed future success")
         future.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
-            expectation_immediate.fulfill()
+            expectationImmediate.fulfill()
         }
         future.onFailure {error in
             XCTAssert(false, "onFailure called")
@@ -66,7 +70,7 @@ class FuturesSuccessTests: XCTestCase {
         future.success(true)
         future.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
-            expectation_delayed.fulfill()
+            expectationDelayed.fulfill()
         }
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
@@ -93,8 +97,6 @@ class FuturesSuccessTests: XCTestCase {
 
 class FutureFailureTests: XCTestCase {
     
-    let error = NSError(domain:"SimpleFutures", code:100, userInfo:[NSLocalizedDescriptionKey:"Testing"])
-    
     override func setUp() {
         super.setUp()
     }
@@ -106,7 +108,7 @@ class FutureFailureTests: XCTestCase {
     func testImediate() {
         let future = Future<Bool>()
         let expectation = expectationWithDescription("Imediate future failure")
-        future.failure(self.error)
+        future.failure(TestFailure.error)
         future.onSuccess {value in
             XCTAssert(false, "onSuccess called")
         }
@@ -129,7 +131,7 @@ class FutureFailureTests: XCTestCase {
             XCTAssertEqual(error.code, 100, "\(error)")
             expectation.fulfill()
         }
-        future.failure(self.error)
+        future.failure(TestFailure.error)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -137,19 +139,19 @@ class FutureFailureTests: XCTestCase {
     
     func testImmediateAndDelayed() {
         let future = Future<Bool>()
-        let expectation_immediate = expectationWithDescription("Immediate future success")
-        let expectation_delayed = expectationWithDescription("Delayed future success")
+        let expectationImmediate = expectationWithDescription("Immediate future success")
+        let expectationDelayed = expectationWithDescription("Delayed future success")
         future.onSuccess {value in
             XCTAssert(false, "onSuccess called")
         }
         future.onFailure {error in
             XCTAssertEqual(error.code, 100, "\(error)")
-            expectation_immediate.fulfill()
+            expectationImmediate.fulfill()
         }
-        future.failure(self.error)
+        future.failure(TestFailure.error)
         future.onFailure {error in
             XCTAssertEqual(error.code, 100, "\(error)")
-            expectation_delayed.fulfill()
+            expectationDelayed.fulfill()
         }
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
@@ -166,11 +168,82 @@ class FutureFailureTests: XCTestCase {
             XCTAssertEqual(error.code, 100, "\(error)")
             expectation.fulfill()
         }
-        promise.failure(self.error)
+        promise.failure(TestFailure.error)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
     }
     
+}
+
+class FutureCompleteTests : XCTestCase {
+  
+    override func setUp() {
+        super.setUp()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+    }
+    
+    func testImmediateSuccess() {
+        let future = Future<Bool>()
+        let expectationOnComlpete = expectationWithDescription("Immediate onComplete fullfilled")
+        let expectationOnSuccess = expectationWithDescription("Immediate onSuccess fullfilled")
+        future.complete(Try(true))
+        future.onComplete {result in
+            switch result {
+            case .Success(let resultWrapper):
+                XCTAssert(resultWrapper.value, "Invalid value")
+                expectationOnComlpete.fulfill()
+            case .Failure(let error):
+                XCTAssert(false, "Failure value")
+            }
+        }
+        future.onSuccess {value in
+            XCTAssert(value, "onSuccess value invalid")
+            expectationOnSuccess.fulfill()
+        }
+        future.onFailure {error in
+            XCTAssert(false, "onFailure called")
+        }
+        waitForExpectationsWithTimeout(2) {error in
+            XCTAssertNil(error, "\(error)")
+        }
+    }
+    
+    func testImmediateFailure() {
+        let future = Future<Bool>()
+        let excpectationOnComplete = expectationWithDescription("Immediate onComplete fullfilled")
+        let excpectationOnFailure = expectationWithDescription("Immediate onFailure fullfilled")
+        future.failure(TestFailure.error)
+        waitForExpectationsWithTimeout(2) {error in
+            XCTAssertNil(error, "\(error)")
+        }
+    }
+    
+    func testDelayedSuccess() {
+        
+    }
+    
+    func testDelayedFailure() {
+        
+    }
+    
+    func testImmediateAndDelayedSuccess() {
+        
+    }
+    
+    func testImmediateAndDelayedFailure() {
+    
+    }
+    
+    func testPromiseSuccess() {
+        
+    }
+    
+    func testPromiseFailure() {
+        
+    }
 }
 
