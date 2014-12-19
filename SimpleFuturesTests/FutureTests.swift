@@ -613,104 +613,80 @@ class FutureFlatmapTests : XCTestCase {
     }
 }
 
-//class FutureAndThenTests : XCTestCase {
-//    
-//    override func setUp() {
-//        super.setUp()
-//    }
-//    
-//    override func tearDown() {
-//        super.tearDown()
-//    }
-//    
-//    func testSuccessfulAndThen() {
-//        let future = Future<Bool>()
-//        let expectationAndThen = expectationWithDescription("OnSuccess fulfilled for mapped future")
-//        let expectation = expectationWithDescription("OnSuccess fulfilled")
-//        future.onSuccess {value in
-//            XCTAssert(value, "future onSuccess value invalid")
-//            expectation.fulfill()
-//        }
-//        future.onFailure {error in
-//            XCTAssert(false, "future onFailure called")
-//        }
-//        let andThen = future.andThen {result in
-//            switch result {
-//            case .Success(let resultWrapper):
-//                promise.success(1)
-//            case .Failure(let error):
-//                XCTAssert(false, "andThen Faulure")
-//                promise.failure(TestFailure.error)
-//            }
-//        }
-//        mapped.onSuccess {value in
-//            XCTAssertEqual(value, 1, "mapped onSuccess value invalid")
-//            expectationMapped.fulfill()
-//        }
-//        mapped.onFailure {error in
-//            XCTAssert(false, "mapped onFailure called")
-//        }
-//        future.success(true)
-//        waitForExpectationsWithTimeout(2) {error in
-//            XCTAssertNil(error, "\(error)")
-//        }
-//    }
-//    
-//    func testFailedAndThen() {
-//        let future = Future<Bool>()
-//        let expectationMapped = expectationWithDescription("OnFailure fulfilled for mapped future")
-//        let expectation = expectationWithDescription("OnSuccess fulfilled")
-//        future.onSuccess {value in
-//            XCTAssert(value, "future onSuccess value invalid")
-//            expectation.fulfill()
-//        }
-//        future.onFailure {error in
-//            XCTAssert(false, "future onFailure called")
-//        }
-//        let mapped = future.flatmap {value -> Future<Int> in
-//            let promise = Promise<Int>()
-//            promise.failure(TestFailure.error)
-//            return promise.future
-//        }
-//        mapped.onSuccess {value in
-//            XCTAssert(false, "mapped onSuccess called")
-//        }
-//        mapped.onFailure {error in
-//            expectationMapped.fulfill()
-//        }
-//        future.success(true)
-//        waitForExpectationsWithTimeout(2) {error in
-//            XCTAssertNil(error, "\(error)")
-//        }
-//    }
-//    
-//    func testFailedFuture() {
-//        let future = Future<Bool>()
-//        let expectationMapped = expectationWithDescription("OnFailure fulfilled for mapped future")
-//        let expectation = expectationWithDescription("OnFailure fulfilled")
-//        future.onSuccess {value in
-//            XCTAssert(false, "future onSucces called")
-//        }
-//        future.onFailure {error in
-//            expectation.fulfill()
-//        }
-//        let mapped = future.flatmap {value -> Future<Int> in
-//            XCTAssert(false, "mapping called")
-//            let promise = Promise<Int>()
-//            promise.success(1)
-//            return promise.future
-//        }
-//        mapped.onSuccess {value in
-//            XCTAssert(false, "mapped onSuccess called")
-//        }
-//        mapped.onFailure {error in
-//            expectationMapped.fulfill()
-//        }
-//        future.failure(TestFailure.error)
-//        waitForExpectationsWithTimeout(2) {error in
-//            XCTAssertNil(error, "\(error)")
-//        }
-//    }
+class FutureAndThenTests : XCTestCase {
+    
+    override func setUp() {
+        super.setUp()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+    }
+    
+    func testSuccessfulAndThen() {
+        let future = Future<Bool>()
+        let expectationAndThen = expectationWithDescription("OnSuccess fulfilled for mapped future")
+        let expectationAndThenOnSuccess = expectationWithDescription("OnSuccess fulfilled for mapped future")
+        let expectation = expectationWithDescription("OnSuccess fulfilled")
+        future.onSuccess {value in
+            XCTAssert(value, "future onSuccess value invalid")
+            expectation.fulfill()
+        }
+        future.onFailure {error in
+            XCTAssert(false, "future onFailure called")
+        }
+        let andThen = future.andThen {result in
+            switch result {
+            case .Success(let resultWrapper):
+                expectationAndThen.fulfill()
+            case .Failure(let error):
+                XCTAssert(false, "andThen Faulure")
+            }
+        }
+        andThen.onSuccess {value in
+            XCTAssert(value, "andThen onSuccess value invalid")
+            expectationAndThenOnSuccess.fulfill()
+        }
+        andThen.onFailure {error in
+            XCTAssert(false, "andThen onFailure called")
+        }
+        future.success(true)
+        waitForExpectationsWithTimeout(2) {error in
+            XCTAssertNil(error, "\(error)")
+        }
+    }
+    
+    func testFailedAndThen() {
+        let future = Future<Bool>()
+        let expectationAndThen = expectationWithDescription("OnSuccess fulfilled for mapped future")
+        let expectationAndThenOnFailure = expectationWithDescription("OnSuccess fulfilled for mapped future")
+        let expectation = expectationWithDescription("OnSuccess fulfilled")
+        future.onSuccess {value in
+            XCTAssert(false, "future onSuccess value invalid")
+        }
+        future.onFailure {error in
+            expectation.fulfill()
+        }
+        let andThen = future.andThen {result in
+            switch result {
+            case .Success(let resultWrapper):
+                XCTAssert(false, "andThen Faulure")
+            case .Failure(let error):
+                expectationAndThen.fulfill()
+            }
+        }
+        andThen.onSuccess {value in
+            XCTAssert(false, "mapped onFailure called")
+        }
+        andThen.onFailure {error in
+            expectationAndThenOnFailure.fulfill()
+        }
+        future.failure(TestFailure.error)
+        waitForExpectationsWithTimeout(2) {error in
+            XCTAssertNil(error, "\(error)")
+        }
+    }
+    
 }
 
 
