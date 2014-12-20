@@ -84,7 +84,7 @@ class FutureMapTests : XCTestCase {
             expectation.fulfill()
         }
         let mapped = future.map {value -> Try<Int> in
-            XCTAssert(false, "mapping called")
+            XCTAssert(false, "map called")
             return Try(Int(1))
         }
         mapped.onSuccess {value in
