@@ -10,7 +10,7 @@ import Foundation
 
 public class StreamPromise<T> {
 
-    let future = FutureStream<T>()
+    public let future = FutureStream<T>()
     
     public init() {
     }

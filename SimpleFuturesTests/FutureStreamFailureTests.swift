@@ -88,6 +88,28 @@ class FutureStreamFailureTests : XCTestCase {
         }
     }
     
+    func testStreamPromise() {
+        var count = 0
+        let promise = StreamPromise<Bool>()
+        let expectation = expectationWithDescription("onFailure fulfilled for future stream")
+        promise.future.onSuccess {value in
+            XCTAssert(false, "onSuccess called")
+        }
+        promise.future.onFailure {error in
+            ++count
+            if count == 1 {
+                expectation.fulfill()
+            } else if count > 1 {
+                XCTAssert(false, "onFailure called more than 2 times")
+            }
+        }
+        promise.failure(TestFailure.error)
+        waitForExpectationsWithTimeout(2) {error in
+            XCTAssertNil(error, "\(error)")
+        }
+
+    }
+
     func testWtiteUncompletedFuture() {
         let stream = FutureStream<Bool>()
         let expectation = expectationWithDescription("onFailure fulfilled for future stream")

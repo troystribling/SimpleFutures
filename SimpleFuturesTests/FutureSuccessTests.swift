@@ -1,5 +1,5 @@
 //
-//  FuturesSuccessTests.swift
+//  FutureSuccessTests.swift
 //  SimpleFuturesTests
 //
 //  Created by Troy Stribling on 12/14/14.
@@ -10,7 +10,7 @@ import UIKit
 import XCTest
 import SimpleFutures
 
-class FuturesSuccessTests: XCTestCase {
+class FutureSuccessTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
