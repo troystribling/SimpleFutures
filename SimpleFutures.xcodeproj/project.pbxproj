@@ -7,13 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0547D1EF1A45E72B005DCD53 /* FutureStreamSuccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0547D1EE1A45E72B005DCD53 /* FutureStreamSuccessTests.swift */; };
+		055F8D761A45EF000094271A /* FutureRecoverWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D751A45EF000094271A /* FutureRecoverWithTests.swift */; };
+		055F8D781A45F5090094271A /* FutureConstructTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D771A45F5090094271A /* FutureConstructTests.swift */; };
+		055F8D7A1A45F54A0094271A /* FutureChainingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D791A45F54A0094271A /* FutureChainingTests.swift */; };
+		055F8D7E1A45FD520094271A /* FutureFailureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D7D1A45FD520094271A /* FutureFailureTests.swift */; };
+		055F8D801A45FD910094271A /* FutureMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D7F1A45FD910094271A /* FutureMapTests.swift */; };
+		055F8D821A45FDD60094271A /* FutureFlatmapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D811A45FDD60094271A /* FutureFlatmapTests.swift */; };
+		055F8D841A45FE100094271A /* FutureAndThenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D831A45FE100094271A /* FutureAndThenTests.swift */; };
+		055F8D861A45FE3D0094271A /* FutureRecoverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D851A45FE3D0094271A /* FutureRecoverTests.swift */; };
+		055F8D8A1A45FEB30094271A /* FutureStreamFailureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D891A45FEB30094271A /* FutureStreamFailureTests.swift */; };
+		055F8D8C1A45FF110094271A /* TestHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D8B1A45FF110094271A /* TestHelper.swift */; };
+		055F8D8E1A4603570094271A /* FutureStreamMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D8D1A4603570094271A /* FutureStreamMapTests.swift */; };
+		055F8D901A4603750094271A /* FutureStreamFlatmapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D8F1A4603750094271A /* FutureStreamFlatmapTests.swift */; };
 		057C3E8A1A3E2379005147CD /* SimpleFutures.h in Headers */ = {isa = PBXBuildFile; fileRef = 057C3E891A3E2379005147CD /* SimpleFutures.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		057C3E901A3E2379005147CD /* SimpleFutures.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 057C3E841A3E2379005147CD /* SimpleFutures.framework */; };
-		057C3E971A3E2379005147CD /* FutureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3E961A3E2379005147CD /* FutureTests.swift */; };
+		057C3E971A3E2379005147CD /* FuturesSuccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3E961A3E2379005147CD /* FuturesSuccessTests.swift */; };
 		057C3EA31A3E2424005147CD /* ExecutionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3EA01A3E2424005147CD /* ExecutionContext.swift */; };
 		057C3EA41A3E2424005147CD /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3EA11A3E2424005147CD /* Future.swift */; };
 		057C3EA51A3E2424005147CD /* FutureStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3EA21A3E2424005147CD /* FutureStream.swift */; };
-		057C3EA71A3E40A6005147CD /* FutureSreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3EA61A3E40A6005147CD /* FutureSreamTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,16 +39,28 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0547D1EE1A45E72B005DCD53 /* FutureStreamSuccessTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureStreamSuccessTests.swift; sourceTree = "<group>"; };
+		055F8D751A45EF000094271A /* FutureRecoverWithTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureRecoverWithTests.swift; sourceTree = "<group>"; };
+		055F8D771A45F5090094271A /* FutureConstructTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureConstructTests.swift; sourceTree = "<group>"; };
+		055F8D791A45F54A0094271A /* FutureChainingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureChainingTests.swift; sourceTree = "<group>"; };
+		055F8D7D1A45FD520094271A /* FutureFailureTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFailureTests.swift; sourceTree = "<group>"; };
+		055F8D7F1A45FD910094271A /* FutureMapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureMapTests.swift; sourceTree = "<group>"; };
+		055F8D811A45FDD60094271A /* FutureFlatmapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFlatmapTests.swift; sourceTree = "<group>"; };
+		055F8D831A45FE100094271A /* FutureAndThenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureAndThenTests.swift; sourceTree = "<group>"; };
+		055F8D851A45FE3D0094271A /* FutureRecoverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureRecoverTests.swift; sourceTree = "<group>"; };
+		055F8D891A45FEB30094271A /* FutureStreamFailureTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureStreamFailureTests.swift; sourceTree = "<group>"; };
+		055F8D8B1A45FF110094271A /* TestHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestHelper.swift; sourceTree = "<group>"; };
+		055F8D8D1A4603570094271A /* FutureStreamMapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureStreamMapTests.swift; sourceTree = "<group>"; };
+		055F8D8F1A4603750094271A /* FutureStreamFlatmapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureStreamFlatmapTests.swift; sourceTree = "<group>"; };
 		057C3E841A3E2379005147CD /* SimpleFutures.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SimpleFutures.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		057C3E881A3E2379005147CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		057C3E891A3E2379005147CD /* SimpleFutures.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimpleFutures.h; sourceTree = "<group>"; };
 		057C3E8F1A3E2379005147CD /* SimpleFuturesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimpleFuturesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		057C3E951A3E2379005147CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		057C3E961A3E2379005147CD /* FutureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureTests.swift; sourceTree = "<group>"; };
+		057C3E961A3E2379005147CD /* FuturesSuccessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuturesSuccessTests.swift; sourceTree = "<group>"; };
 		057C3EA01A3E2424005147CD /* ExecutionContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExecutionContext.swift; sourceTree = "<group>"; };
 		057C3EA11A3E2424005147CD /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Future.swift; sourceTree = "<group>"; };
 		057C3EA21A3E2424005147CD /* FutureStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureStream.swift; sourceTree = "<group>"; };
-		057C3EA61A3E40A6005147CD /* FutureSreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureSreamTests.swift; sourceTree = "<group>"; };
 		057C3EA81A3E665A005147CD /* SimpleFutures.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = SimpleFutures.playground; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -59,6 +83,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		055F8D871A45FE690094271A /* FutureTests */ = {
+			isa = PBXGroup;
+			children = (
+				055F8D831A45FE100094271A /* FutureAndThenTests.swift */,
+				055F8D791A45F54A0094271A /* FutureChainingTests.swift */,
+				055F8D771A45F5090094271A /* FutureConstructTests.swift */,
+				055F8D7D1A45FD520094271A /* FutureFailureTests.swift */,
+				055F8D811A45FDD60094271A /* FutureFlatmapTests.swift */,
+				055F8D7F1A45FD910094271A /* FutureMapTests.swift */,
+				055F8D851A45FE3D0094271A /* FutureRecoverTests.swift */,
+				055F8D751A45EF000094271A /* FutureRecoverWithTests.swift */,
+				057C3E961A3E2379005147CD /* FuturesSuccessTests.swift */,
+			);
+			name = FutureTests;
+			sourceTree = "<group>";
+		};
+		055F8D881A45FE850094271A /* FutureStream */ = {
+			isa = PBXGroup;
+			children = (
+				055F8D891A45FEB30094271A /* FutureStreamFailureTests.swift */,
+				055F8D8F1A4603750094271A /* FutureStreamFlatmapTests.swift */,
+				055F8D8D1A4603570094271A /* FutureStreamMapTests.swift */,
+				0547D1EE1A45E72B005DCD53 /* FutureStreamSuccessTests.swift */,
+			);
+			name = FutureStream;
+			sourceTree = "<group>";
+		};
 		057C3E7A1A3E2378005147CD = {
 			isa = PBXGroup;
 			children = (
@@ -101,9 +152,10 @@
 		057C3E931A3E2379005147CD /* SimpleFuturesTests */ = {
 			isa = PBXGroup;
 			children = (
-				057C3EA61A3E40A6005147CD /* FutureSreamTests.swift */,
-				057C3E961A3E2379005147CD /* FutureTests.swift */,
+				055F8D881A45FE850094271A /* FutureStream */,
+				055F8D871A45FE690094271A /* FutureTests */,
 				057C3E941A3E2379005147CD /* Supporting Files */,
+				055F8D8B1A45FF110094271A /* TestHelper.swift */,
 			);
 			path = SimpleFuturesTests;
 			sourceTree = "<group>";
@@ -233,8 +285,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				057C3E971A3E2379005147CD /* FutureTests.swift in Sources */,
-				057C3EA71A3E40A6005147CD /* FutureSreamTests.swift in Sources */,
+				055F8D781A45F5090094271A /* FutureConstructTests.swift in Sources */,
+				055F8D8E1A4603570094271A /* FutureStreamMapTests.swift in Sources */,
+				055F8D861A45FE3D0094271A /* FutureRecoverTests.swift in Sources */,
+				055F8D841A45FE100094271A /* FutureAndThenTests.swift in Sources */,
+				0547D1EF1A45E72B005DCD53 /* FutureStreamSuccessTests.swift in Sources */,
+				057C3E971A3E2379005147CD /* FuturesSuccessTests.swift in Sources */,
+				055F8D801A45FD910094271A /* FutureMapTests.swift in Sources */,
+				055F8D7A1A45F54A0094271A /* FutureChainingTests.swift in Sources */,
+				055F8D901A4603750094271A /* FutureStreamFlatmapTests.swift in Sources */,
+				055F8D761A45EF000094271A /* FutureRecoverWithTests.swift in Sources */,
+				055F8D7E1A45FD520094271A /* FutureFailureTests.swift in Sources */,
+				055F8D821A45FDD60094271A /* FutureFlatmapTests.swift in Sources */,
+				055F8D8A1A45FEB30094271A /* FutureStreamFailureTests.swift in Sources */,
+				055F8D8C1A45FF110094271A /* TestHelper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

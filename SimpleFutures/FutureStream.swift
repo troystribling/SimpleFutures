@@ -168,10 +168,10 @@ public class FutureStream<T> {
         return promise.future
     }
     
-    internal init() {
+    public init() {
     }
     
-    internal func write(future:Future<T>) {
+    public func write(future:Future<T>) {
         if future.isCompleted == false {
             future.failure(NSError(domain:SimpleFuturesError.domain,
                 code:SimpleFuturesError.FutureNotCompleted.code,
