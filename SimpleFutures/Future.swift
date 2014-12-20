@@ -260,7 +260,7 @@ public class Future<T> {
     
     public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T>) -> Future<T> {
         let promise = Promise<T>()
-        promise.future.onComplete(executionContext) {result in
+        self.onComplete(executionContext) {result in
             switch result {
             case .Success(let resultWrapper):
                 promise.success(resultWrapper.value)
@@ -277,7 +277,7 @@ public class Future<T> {
     
     public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> Future<T> {
         let promise = Promise<T>()
-        promise.future.onComplete(executionContext) {result in
+            self.onComplete(executionContext) {result in
             switch result {
             case .Success(let resultWrapper):
                 promise.success(resultWrapper.value)

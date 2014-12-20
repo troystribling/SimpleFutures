@@ -727,62 +727,56 @@ class FutureRecoverTests : XCTestCase {
         }
     }
 
-//    func testSuccessfulRecovery() {
-//        let future = Future<Bool>()
-//        let expectationRecovery = expectationWithDescription("OnSuccess fulfilled for recovered future")
-//        let expectation = expectationWithDescription("OnSuccess fulfilled")
-//        future.onSuccess {value in
-//            XCTAssert(value, "future onSuccess value invalid")
-//            expectation.fulfill()
-//        }
-//        future.onFailure {error in
-//            XCTAssert(false, "future onFailure called")
-//        }
-//        let mapped = future.flatmap {value -> Future<Int> in
-//            let promise = Promise<Int>()
-//            promise.success(1)
-//            return promise.future
-//        }
-//        mapped.onSuccess {value in
-//            XCTAssertEqual(value, 1, "mapped onSuccess value invalid")
-//            expectationMapped.fulfill()
-//        }
-//        mapped.onFailure {error in
-//            XCTAssert(false, "mapped onFailure called")
-//        }
-//        future.success(true)
-//        waitForExpectationsWithTimeout(2) {error in
-//            XCTAssertNil(error, "\(error)")
-//        }
-//    }
-//
-//    func testFailedRecovery() {
-//        let future = Future<Bool>()
-//        let expectationMapped = expectationWithDescription("OnFailure fulfilled for mapped future")
-//        let expectation = expectationWithDescription("OnSuccess fulfilled")
-//        future.onSuccess {value in
-//            XCTAssert(value, "future onSuccess value invalid")
-//            expectation.fulfill()
-//        }
-//        future.onFailure {error in
-//            XCTAssert(false, "future onFailure called")
-//        }
-//        let mapped = future.flatmap {value -> Future<Int> in
-//            let promise = Promise<Int>()
-//            promise.failure(TestFailure.error)
-//            return promise.future
-//        }
-//        mapped.onSuccess {value in
-//            XCTAssert(false, "mapped onSuccess called")
-//        }
-//        mapped.onFailure {error in
-//            expectationMapped.fulfill()
-//        }
-//        future.success(true)
-//        waitForExpectationsWithTimeout(2) {error in
-//            XCTAssertNil(error, "\(error)")
-//        }
-//    }
+    func testSuccessfulRecovery() {
+        let future = Future<Bool>()
+        let expectationRecovery = expectationWithDescription("OnSuccess fulfilled for recovered future")
+        let expectation = expectationWithDescription("OnFailure fulfilled")
+        future.onSuccess {value in
+            XCTAssert(false, "future onSuccess called")
+        }
+        future.onFailure {error in
+            expectation.fulfill()
+        }
+        let recovered = future.recover {error -> Try<Bool> in
+            return Try(false)
+        }
+        recovered.onSuccess {value in
+            XCTAssertFalse(value, "recovered onSuccess invalid value")
+            expectationRecovery.fulfill()
+        }
+        recovered.onFailure {error in
+            XCTAssert(false, "recovered onFailure called")
+        }
+        future.failure(TestFailure.error)
+        waitForExpectationsWithTimeout(2) {error in
+            XCTAssertNil(error, "\(error)")
+        }
+    }
+
+    func testFailedRecovery() {
+        let future = Future<Bool>()
+        let expectationRecovery = expectationWithDescription("OnSuccess fulfilled for recovered future")
+        let expectation = expectationWithDescription("OnFailure fulfilled")
+        future.onSuccess {value in
+            XCTAssert(false, "future onSuccess called")
+        }
+        future.onFailure {error in
+            expectation.fulfill()
+        }
+        let recovered = future.recover {error -> Try<Bool> in
+            return Try<Bool>(TestFailure.error)
+        }
+        recovered.onSuccess {value in
+            XCTAssert(false, "recovered onSuccess callsd")
+        }
+        recovered.onFailure {error in
+            expectationRecovery.fulfill()
+        }
+        future.failure(TestFailure.error)
+        waitForExpectationsWithTimeout(2) {error in
+            XCTAssertNil(error, "\(error)")
+        }
+    }
     
 }
 
