@@ -121,7 +121,7 @@ public class FutureStream<T> {
         return promise.future
     }
     
-    public func flatMap<M>(mapping:T -> Future<M>) -> FutureStream<M> {
+    public func flatmap<M>(mapping:T -> Future<M>) -> FutureStream<M> {
         return self.flatMap(self.defaultExecutionContext, mapping)
     }
 
