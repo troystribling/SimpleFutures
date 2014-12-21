@@ -53,7 +53,7 @@ class FutureStreamMapTests: XCTestCase {
         mapped.onFailure {error in
             XCTAssert(false, "mapped onFailure called")
         }
-        writeSuccesfulFutures(stream, true)
+        writeSuccesfulFutures(stream, true, 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -91,7 +91,7 @@ class FutureStreamMapTests: XCTestCase {
                 XCTAssert(false, "mapped onFailure called more than 2 times")
             }
         }
-        writeSuccesfulFutures(stream, true)
+        writeSuccesfulFutures(stream, true, 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -129,7 +129,7 @@ class FutureStreamMapTests: XCTestCase {
                 XCTAssert(false, "mapped onFailure called more than 2 times")
             }
         }
-        writeFailedFutures(stream)
+        writeFailedFutures(stream, 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

@@ -103,14 +103,6 @@ public func future<T>(computeResult:Void -> Try<T>) -> Future<T> {
     return future(QueueContext.global, computeResult)
 }
 
-public func future<T>(computeResult:@autoclosure() -> Try<T>) -> Future<T> {
-    return future(QueueContext.global, computeResult)
-}
-
-public func future<T>(executionContext:ExecutionContext, computeResult:@autoclosure() -> Try<T>) -> Future<T> {
-    return future(executionContext, computeResult)
-}
-
 public func future<T>(executionContext:ExecutionContext, calculateResult:Void -> Try<T>) -> Future<T> {
     let promise = Promise<T>()
     executionContext.execute {

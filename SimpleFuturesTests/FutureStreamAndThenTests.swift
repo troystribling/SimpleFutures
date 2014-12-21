@@ -65,7 +65,7 @@ class FutureStreamAndThenTests: XCTestCase {
         andThen.onFailure {error in
             XCTAssert(false, "andThen onFailure called")
         }
-        writeSuccesfulFutures(stream, true)
+        writeSuccesfulFutures(stream, true, 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -114,7 +114,7 @@ class FutureStreamAndThenTests: XCTestCase {
                 XCTAssert(false, "andThen onFailure called more than 2 times")
             }
         }
-        writeFailedFutures(stream)
+        writeFailedFutures(stream, 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

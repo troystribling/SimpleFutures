@@ -24,7 +24,7 @@ class FutureStreamSuccessTests: XCTestCase {
         var count = 0
         let stream = FutureStream<Bool>()
         let expectation = expectationWithDescription("onSuccess fulfilled for future stream")
-        writeSuccesfulFutures(stream, true)
+        writeSuccesfulFutures(stream, true, 2)
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             ++count
@@ -58,7 +58,7 @@ class FutureStreamSuccessTests: XCTestCase {
         stream.onFailure {error in
             XCTAssert(false, "onFailure called")
         }
-        writeSuccesfulFutures(stream, true)
+        writeSuccesfulFutures(stream, true, 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -68,9 +68,7 @@ class FutureStreamSuccessTests: XCTestCase {
         var count = 0
         let stream = FutureStream<Bool>()
         let expectation = expectationWithDescription("onSuccess fulfilled for future stream")
-        let f1 = Future<Bool>()
-        f1.success(true)
-        stream.write(f1)
+        writeSuccesfulFutures(stream, true, 1)
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             ++count
@@ -80,9 +78,7 @@ class FutureStreamSuccessTests: XCTestCase {
                 XCTAssert(false, "onSuccess called more than 2 times")
             }
         }
-        let f2 = Future<Bool>()
-        f2.success(true)
-        stream.write(f2)
+        writeSuccesfulFutures(stream, true, 1)
         stream.onFailure {error in
             XCTAssert(false, "onFailure called")
         }
@@ -97,9 +93,7 @@ class FutureStreamSuccessTests: XCTestCase {
         let stream = FutureStream<Bool>()
         let expectationImmediate = expectationWithDescription("onSuccess immediate fulfilled for future stream")
         let expectationDelayed = expectationWithDescription("onSuccess delayed fulfilled for future stream")
-        let f1 = Future<Bool>()
-        f1.success(true)
-        stream.write(f1)
+        writeSuccesfulFutures(stream, true, 1)
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             ++countImmediate
@@ -109,9 +103,7 @@ class FutureStreamSuccessTests: XCTestCase {
                 XCTAssert(false, "onSuccess immediate called more than 2 times")
             }
         }
-        let f2 = Future<Bool>()
-        f2.success(true)
-        stream.write(f2)
+        writeSuccesfulFutures(stream, true, 1)
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             ++countDelayed
@@ -175,12 +167,8 @@ class FutureStreamSuccessTests: XCTestCase {
                 XCTAssert(false, "onFailure called more than 1 times")
             }
         }
-        let f1 = Future<Bool>()
-        f1.success(true)
-        stream.write(f1)
-        let f2 = Future<Bool>()
-        f2.failure(TestFailure.error)
-        stream.write(f2)
+        writeSuccesfulFutures(stream, true, 1)
+        writeFailedFutures(stream, 1)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

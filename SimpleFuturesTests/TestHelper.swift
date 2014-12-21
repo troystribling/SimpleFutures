@@ -13,21 +13,19 @@ struct TestFailure {
     static let error = NSError(domain:"SimpleFutures", code:100, userInfo:[NSLocalizedDescriptionKey:"Testing"])
 }
 
-func writeSuccesfulFutures<T>(stream:FutureStream<T>, value:T) {
-    let f1 = Future<T>()
-    f1.success(value)
-    let f2 = Future<T>()
-    f2.success(value)
-    stream.write(f1)
-    stream.write(f2)
+func writeSuccesfulFutures<T>(stream:FutureStream<T>, value:T, times:Int) {
+    for i in (1...times) {
+        let f1 = Future<T>()
+        f1.success(value)
+        stream.write(f1)
+    }
 }
 
-func writeFailedFutures<T>(stream:FutureStream<T>) {
-    let f1 = Future<T>()
-    f1.failure(TestFailure.error)
-    let f2 = Future<T>()
-    f2.failure(TestFailure.error)
-    stream.write(f1)
-    stream.write(f2)
+func writeFailedFutures<T>(stream:FutureStream<T>, times:Int) {
+    for i in (1...times) {
+        let f1 = Future<T>()
+        f1.failure(TestFailure.error)
+        stream.write(f1)
+    }
 }
 

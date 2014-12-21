@@ -24,7 +24,7 @@ class FutureStreamFailureTests : XCTestCase {
         var count = 0
         let stream = FutureStream<Bool>()
         let expectation = expectationWithDescription("onFailure fulfilled for future stream")
-        writeFailedFutures(stream)
+        writeFailedFutures(stream, 2)
         stream.onSuccess {value in
             XCTAssert(false, "onSuccess called")
         }
@@ -56,7 +56,7 @@ class FutureStreamFailureTests : XCTestCase {
                 XCTAssert(false, "onFailure called more than 2 times")
             }
         }
-        writeFailedFutures(stream)
+        writeFailedFutures(stream, 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -66,15 +66,11 @@ class FutureStreamFailureTests : XCTestCase {
         var count = 0
         let stream = FutureStream<Bool>()
         let expectation = expectationWithDescription("onFailure fulfilled for future stream")
-        let f1 = Future<Bool>()
-        f1.failure(TestFailure.error)
-        stream.write(f1)
+        writeFailedFutures(stream, 1)
         stream.onSuccess {value in
             XCTAssert(false, "onSuccess called")
         }
-        let f2 = Future<Bool>()
-        f2.failure(TestFailure.error)
-        stream.write(f2)
+        writeFailedFutures(stream, 1)
         stream.onFailure {error in
             ++count
             if count == 2 {

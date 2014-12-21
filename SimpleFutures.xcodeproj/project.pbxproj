@@ -10,7 +10,6 @@
 		0547D1EF1A45E72B005DCD53 /* FutureStreamSuccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0547D1EE1A45E72B005DCD53 /* FutureStreamSuccessTests.swift */; };
 		055F8D761A45EF000094271A /* FutureRecoverWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D751A45EF000094271A /* FutureRecoverWithTests.swift */; };
 		055F8D781A45F5090094271A /* FutureConstructTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D771A45F5090094271A /* FutureConstructTests.swift */; };
-		055F8D7A1A45F54A0094271A /* FutureChainingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D791A45F54A0094271A /* FutureChainingTests.swift */; };
 		055F8D7E1A45FD520094271A /* FutureFailureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D7D1A45FD520094271A /* FutureFailureTests.swift */; };
 		055F8D801A45FD910094271A /* FutureMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D7F1A45FD910094271A /* FutureMapTests.swift */; };
 		055F8D821A45FDD60094271A /* FutureFlatmapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D811A45FDD60094271A /* FutureFlatmapTests.swift */; };
@@ -43,7 +42,6 @@
 		0547D1EE1A45E72B005DCD53 /* FutureStreamSuccessTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureStreamSuccessTests.swift; sourceTree = "<group>"; };
 		055F8D751A45EF000094271A /* FutureRecoverWithTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureRecoverWithTests.swift; sourceTree = "<group>"; };
 		055F8D771A45F5090094271A /* FutureConstructTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureConstructTests.swift; sourceTree = "<group>"; };
-		055F8D791A45F54A0094271A /* FutureChainingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureChainingTests.swift; sourceTree = "<group>"; };
 		055F8D7D1A45FD520094271A /* FutureFailureTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFailureTests.swift; sourceTree = "<group>"; };
 		055F8D7F1A45FD910094271A /* FutureMapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureMapTests.swift; sourceTree = "<group>"; };
 		055F8D811A45FDD60094271A /* FutureFlatmapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFlatmapTests.swift; sourceTree = "<group>"; };
@@ -89,7 +87,6 @@
 			isa = PBXGroup;
 			children = (
 				055F8D831A45FE100094271A /* FutureAndThenTests.swift */,
-				055F8D791A45F54A0094271A /* FutureChainingTests.swift */,
 				055F8D771A45F5090094271A /* FutureConstructTests.swift */,
 				055F8D7D1A45FD520094271A /* FutureFailureTests.swift */,
 				055F8D811A45FDD60094271A /* FutureFlatmapTests.swift */,
@@ -104,11 +101,11 @@
 		055F8D881A45FE850094271A /* FutureStream */ = {
 			isa = PBXGroup;
 			children = (
+				055F8D911A460E220094271A /* FutureStreamAndThenTests.swift */,
 				055F8D891A45FEB30094271A /* FutureStreamFailureTests.swift */,
 				055F8D8F1A4603750094271A /* FutureStreamFlatmapTests.swift */,
 				055F8D8D1A4603570094271A /* FutureStreamMapTests.swift */,
 				0547D1EE1A45E72B005DCD53 /* FutureStreamSuccessTests.swift */,
-				055F8D911A460E220094271A /* FutureStreamAndThenTests.swift */,
 			);
 			name = FutureStream;
 			sourceTree = "<group>";
@@ -296,7 +293,6 @@
 				0547D1EF1A45E72B005DCD53 /* FutureStreamSuccessTests.swift in Sources */,
 				057C3E971A3E2379005147CD /* FutureSuccessTests.swift in Sources */,
 				055F8D801A45FD910094271A /* FutureMapTests.swift in Sources */,
-				055F8D7A1A45F54A0094271A /* FutureChainingTests.swift in Sources */,
 				055F8D901A4603750094271A /* FutureStreamFlatmapTests.swift in Sources */,
 				055F8D761A45EF000094271A /* FutureRecoverWithTests.swift in Sources */,
 				055F8D7E1A45FD520094271A /* FutureFailureTests.swift in Sources */,
