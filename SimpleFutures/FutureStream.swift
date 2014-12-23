@@ -81,8 +81,8 @@ public class FutureStream<T> {
     public func onSuccess(executionContext:ExecutionContext, success:T -> Void) {
         self.onComplete(executionContext) {result in
             switch result {
-            case .Success(let resultWrapper):
-                success(resultWrapper.value)
+            case .Success(let resultBox):
+                success(resultBox.value)
             default:
                 break
             }
@@ -111,12 +111,7 @@ public class FutureStream<T> {
     public func map<M>(executionContext:ExecutionContext, mapping:T -> Try<M>) -> FutureStream<M> {
         let promise = StreamPromise<M>()
         self.onComplete(executionContext) {result in
-            switch result {
-            case .Success(let resultWrapper):
-                promise.complete(mapping(resultWrapper.value))
-            case .Failure(let error):
-                promise.failure(error)
-            }
+            promise.complete(result.flatmap(mapping))
         }
         return promise.future
     }
@@ -129,8 +124,8 @@ public class FutureStream<T> {
         let promise = StreamPromise<M>()
         self.onComplete(executionContext) {result in
             switch result {
-            case .Success(let resultWrapper):
-                promise.completeWith(executionContext, future:mapping(resultWrapper.value))
+            case .Success(let resultBox):
+                promise.completeWith(executionContext, future:mapping(resultBox.value))
             case .Failure(let error):
                 promise.failure(error)
             }
@@ -145,12 +140,7 @@ public class FutureStream<T> {
     public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T>) -> FutureStream<T> {
         let promise = StreamPromise<T>()
         self.onComplete(executionContext) {result in
-            switch result {
-            case .Success(let resultWrapper):
-                promise.success(resultWrapper.value)
-            case .Failure(let error):
-                promise.complete(recovery(error))
-            }
+            promise.complete(result.recoverWith(recovery))
         }
         return promise.future
     }
@@ -164,6 +154,18 @@ public class FutureStream<T> {
         promise.future.onComplete(executionContext, complete:complete)
         self.onComplete(executionContext) {result in
             promise.complete(result)
+        }
+        return promise.future
+    }
+    
+    public func withFilter(filter:T -> Bool) -> FutureStream<T> {
+        return self.withFilter(self.defaultExecutionContext, filter:filter)
+    }
+    
+    public func withFilter(executionContext:ExecutionContext, filter:T -> Bool) -> FutureStream<T> {
+        let promise = StreamPromise<T>()
+        self.onComplete(executionContext) {result in
+            promise.complete(result.filter(filter))
         }
         return promise.future
     }

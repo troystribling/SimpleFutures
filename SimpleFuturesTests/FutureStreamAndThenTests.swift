@@ -42,7 +42,7 @@ class FutureStreamAndThenTests: XCTestCase {
         }
         let andThen = stream.andThen {result in
             switch result {
-            case .Success(let resultWrapper):
+            case .Success(let resultBox):
                 ++countAndThen
                 if countAndThen == 2 {
                     expectationAndThen.fulfill()
@@ -92,7 +92,7 @@ class FutureStreamAndThenTests: XCTestCase {
         }
         let andThen = stream.andThen {result in
             switch result {
-            case .Success(let resultWrapper):
+            case .Success(let resultBox):
                 XCTAssert(false, "andThen Success")
             case .Failure(let error):
                 ++countAndThen

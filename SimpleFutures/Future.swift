@@ -20,29 +20,6 @@ public struct SimpleFuturesError {
     }
 }
 
-public final class TryWrapper<T> {
-    public let value: T
-    
-    init(_ value: T) {
-        self.value = value
-    }
-}
-
-// Try
-public enum Try<T> {
-    case Success(TryWrapper<T>)
-    case Failure(NSError)
-    
-    public init(_ value: T) {
-        self = .Success(TryWrapper(value))
-    }
-    
-    public init(_ error: NSError) {
-        self = .Failure(error)
-    }
-    
-}
-
 // Promise
 public class Promise<T> {
     
@@ -154,8 +131,8 @@ public class Future<T> {
     public func onSuccess(executionContext:ExecutionContext, success:T -> Void){
         self.onComplete(executionContext) {result in
             switch result {
-            case .Success(let valueWrapper):
-                success(valueWrapper.value)
+            case .Success(let valueBox):
+                success(valueBox.value)
             default:
                 break
             }
@@ -200,32 +177,27 @@ public class Future<T> {
     
 
     public func map<M>(mapping:T -> Try<M>) -> Future<M> {
-        return map(self.defaultExecutionContext, mapping)
+        return map(self.defaultExecutionContext, mapping:mapping)
     }
     
     public func map<M>(executionContext:ExecutionContext, mapping:T -> Try<M>) -> Future<M> {
         let promise = Promise<M>()
         self.onComplete(executionContext) {result in
-            switch result {
-            case .Success(let resultWrapper):
-                promise.complete(mapping(resultWrapper.value))
-            case .Failure(let error):
-                promise.failure(error)
-            }
+            promise.complete(result.flatmap(mapping))
         }
         return promise.future
     }
     
     public func flatmap<M>(mapping:T -> Future<M>) -> Future<M> {
-        return self.flatmap(self.defaultExecutionContext, mapping)
+        return self.flatmap(self.defaultExecutionContext, mapping:mapping)
     }
 
     public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> Future<M>) -> Future<M> {
         let promise = Promise<M>()
         self.onComplete(executionContext) {result in
             switch result {
-            case .Success(let resultWrapper):
-                promise.completeWith(executionContext, future:mapping(resultWrapper.value))
+            case .Success(let resultBox):
+                promise.completeWith(executionContext, future:mapping(resultBox.value))
             case .Failure(let error):
                 promise.failure(error)
             }
@@ -234,7 +206,7 @@ public class Future<T> {
     }
     
     public func andThen(complete:Try<T> -> Void) -> Future<T> {
-        return self.andThen(self.defaultExecutionContext, complete)
+        return self.andThen(self.defaultExecutionContext, complete:complete)
     }
     
     public func andThen(executionContext:ExecutionContext, complete:Try<T> -> Void) -> Future<T> {
@@ -247,35 +219,42 @@ public class Future<T> {
     }
     
     public func recover(recovery: NSError -> Try<T>) -> Future<T> {
-        return self.recover(self.defaultExecutionContext, recovery)
+        return self.recover(self.defaultExecutionContext, recovery:recovery)
     }
     
     public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T>) -> Future<T> {
         let promise = Promise<T>()
         self.onComplete(executionContext) {result in
-            switch result {
-            case .Success(let resultWrapper):
-                promise.success(resultWrapper.value)
-            case .Failure(let error):
-                promise.complete(recovery(error))
-            }
+            promise.complete(result.recoverWith(recovery))
         }
         return promise.future
     }
     
     public func recoverWith(recovery:NSError -> Future<T>) -> Future<T> {
-        return self.recoverWith(self.defaultExecutionContext, recovery)
+        return self.recoverWith(self.defaultExecutionContext, recovery:recovery)
     }
     
     public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> Future<T> {
         let promise = Promise<T>()
-            self.onComplete(executionContext) {result in
+        self.onComplete(executionContext) {result in
             switch result {
-            case .Success(let resultWrapper):
-                promise.success(resultWrapper.value)
+            case .Success(let resultBox):
+                promise.success(resultBox.value)
             case .Failure(let error):
                 promise.completeWith(executionContext, future:recovery(error))
             }
+        }
+        return promise.future
+    }
+    
+    public func withFilter(filter:T -> Bool) -> Future<T> {
+        return self.withFilter(self.defaultExecutionContext, filter:filter)
+    }
+    
+    public func withFilter(executionContext:ExecutionContext, filter:T -> Bool) -> Future<T> {
+        let promise = Promise<T>()
+        self.onComplete(executionContext) {result in
+            promise.complete(result.filter(filter))
         }
         return promise.future
     }

@@ -10,7 +10,7 @@ import UIKit
 import SimpleFutures
 
 struct TestFailure {
-    static let error = NSError(domain:"SimpleFutures", code:100, userInfo:[NSLocalizedDescriptionKey:"Testing"])
+    static let error = NSError(domain:"SimpleFutures Tests", code:100, userInfo:[NSLocalizedDescriptionKey:"Testing"])
 }
 
 func writeSuccesfulFutures<T>(stream:FutureStream<T>, value:T, times:Int) {
