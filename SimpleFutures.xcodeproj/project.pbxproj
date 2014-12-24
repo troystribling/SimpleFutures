@@ -27,6 +27,7 @@
 		057C3EA41A3E2424005147CD /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3EA11A3E2424005147CD /* Future.swift */; };
 		057C3EA51A3E2424005147CD /* FutureStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3EA21A3E2424005147CD /* FutureStream.swift */; };
 		05DF1DD01A49C87100AC9925 /* FutureWithFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DF1DCF1A49C87100AC9925 /* FutureWithFilterTests.swift */; };
+		05DF1DD21A4A633500AC9925 /* FutureStreamWithFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DF1DD11A4A633500AC9925 /* FutureStreamWithFilter.swift */; };
 		05F2718C1A491F4C001DEAE9 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F271891A491F4C001DEAE9 /* Box.swift */; };
 		05F2718D1A491F4C001DEAE9 /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F2718A1A491F4C001DEAE9 /* Optional.swift */; };
 		05F2718E1A491F4C001DEAE9 /* Try.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F2718B1A491F4C001DEAE9 /* Try.swift */; };
@@ -67,6 +68,7 @@
 		057C3EA21A3E2424005147CD /* FutureStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureStream.swift; sourceTree = "<group>"; };
 		057C3EA81A3E665A005147CD /* SimpleFutures.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = SimpleFutures.playground; sourceTree = "<group>"; };
 		05DF1DCF1A49C87100AC9925 /* FutureWithFilterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureWithFilterTests.swift; sourceTree = "<group>"; };
+		05DF1DD11A4A633500AC9925 /* FutureStreamWithFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureStreamWithFilter.swift; sourceTree = "<group>"; };
 		05F271891A491F4C001DEAE9 /* Box.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
 		05F2718A1A491F4C001DEAE9 /* Optional.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Optional.swift; sourceTree = "<group>"; };
 		05F2718B1A491F4C001DEAE9 /* Try.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Try.swift; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 				055F8D8F1A4603750094271A /* FutureStreamFlatmapTests.swift */,
 				055F8D8D1A4603570094271A /* FutureStreamMapTests.swift */,
 				0547D1EE1A45E72B005DCD53 /* FutureStreamSuccessTests.swift */,
+				05DF1DD11A4A633500AC9925 /* FutureStreamWithFilter.swift */,
 			);
 			name = FutureStream;
 			sourceTree = "<group>";
@@ -316,6 +319,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				05DF1DD21A4A633500AC9925 /* FutureStreamWithFilter.swift in Sources */,
 				055F8D781A45F5090094271A /* FutureConstructTests.swift in Sources */,
 				055F8D8E1A4603570094271A /* FutureStreamMapTests.swift in Sources */,
 				055F8D861A45FE3D0094271A /* FutureRecoverTests.swift in Sources */,
