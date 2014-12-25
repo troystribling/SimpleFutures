@@ -23,7 +23,7 @@ class FutureFailureTests: XCTestCase {
     func testImediate() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectation = expectationWithDescription("Imediate future failure")
+        let expectation = expectationWithDescription("Imediate future onFailure fulfilled")
         promise.failure(TestFailure.error)
         future.onSuccess {value in
             XCTAssert(false, "onSuccess called")
@@ -40,7 +40,7 @@ class FutureFailureTests: XCTestCase {
     func testDelayed() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectation = expectationWithDescription("Delayed future success")
+        let expectation = expectationWithDescription("Delayed future onFailure fulfilled")
         future.onSuccess {value in
             XCTAssert(false, "onSuccess called")
         }
@@ -57,8 +57,8 @@ class FutureFailureTests: XCTestCase {
     func testImmediateAndDelayed() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectationImmediate = expectationWithDescription("Immediate future success")
-        let expectationDelayed = expectationWithDescription("Delayed future success")
+        let expectationImmediate = expectationWithDescription("Immediate future onFailure fulfilled")
+        let expectationDelayed = expectationWithDescription("Delayed future onFailure fulfilled")
         future.onSuccess {value in
             XCTAssert(false, "Delayed onSuccess called")
         }
