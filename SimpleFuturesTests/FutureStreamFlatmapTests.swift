@@ -23,9 +23,11 @@ class FutureStreamFlatmapTests: XCTestCase {
     func testSuccessfulMapping() {
         var count = 0
         var countMapped = 0
+        var countMappedFuture = 0
         let stream = FutureStream<Bool>()
-        let expectationMapped = expectationWithDescription("OnSuccess fulfilled for mapped future")
-        let expectation = expectationWithDescription("OnSuccess fulfilled")
+        let expectationMappedFuture = expectationWithDescription("OnSuccess fulfilled for mapped future")
+        let expectationMapped = expectationWithDescription("fulfilled for map")
+        let expectation = expectationWithDescription("OnFailure fulfilled")
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             ++count
@@ -39,16 +41,22 @@ class FutureStreamFlatmapTests: XCTestCase {
             XCTAssert(false, "future onFailure called")
         }
         let mapped = stream.flatmap {value -> Future<Int> in
+            ++countMapped
+            if countMapped == 2 {
+                expectationMapped.fulfill()
+            } else if countMapped > 2 {
+                XCTAssert(false, "map called more than 2 times")
+            }
             let future = Future<Int>()
             future.success(1)
             return future
         }
         mapped.onSuccess {value in
             XCTAssertEqual(value, 1, "mapped onSuccess value invalid")
-            ++countMapped
-            if countMapped == 2 {
-                expectationMapped.fulfill()
-            } else if countMapped > 2 {
+            ++countMappedFuture
+            if countMappedFuture == 2 {
+                expectationMappedFuture.fulfill()
+            } else if countMappedFuture > 2 {
                 XCTAssert(false, "mapped onSuccess called more than 2 times")
             }
         }
@@ -64,9 +72,11 @@ class FutureStreamFlatmapTests: XCTestCase {
     func testFailedMapping() {
         var count = 0
         var countMapped = 0
+        var countMappedFuture = 0
         let stream = FutureStream<Bool>()
-        let expectationMapped = expectationWithDescription("OnSuccess fulfilled for mapped future")
-        let expectation = expectationWithDescription("OnSuccess fulfilled")
+        let expectationMappedFuture = expectationWithDescription("OnFailure fulfilled for mapped future")
+        let expectationMapped = expectationWithDescription("fulfilled for map")
+        let expectation = expectationWithDescription("OnFailure fulfilled")
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             ++count
@@ -80,6 +90,12 @@ class FutureStreamFlatmapTests: XCTestCase {
             XCTAssert(false, "future onFailure called")
         }
         let mapped = stream.flatmap {value -> Future<Int> in
+            ++countMapped
+            if countMapped == 2 {
+                expectationMapped.fulfill()
+            } else if countMapped > 2 {
+                XCTAssert(false, "map called more than 2 times")
+            }
             let future = Future<Int>()
             future.failure(TestFailure.error)
             return future
@@ -88,10 +104,10 @@ class FutureStreamFlatmapTests: XCTestCase {
             XCTAssert(false, "mapped onSuccess called")
         }
         mapped.onFailure {error in
-            ++countMapped
-            if countMapped == 2 {
-                expectationMapped.fulfill()
-            } else if countMapped > 2 {
+            ++countMappedFuture
+            if countMappedFuture == 2 {
+                expectationMappedFuture.fulfill()
+            } else if countMappedFuture > 2 {
                 XCTAssert(false, "mapped onFailure called more than 2 times")
             }
         }

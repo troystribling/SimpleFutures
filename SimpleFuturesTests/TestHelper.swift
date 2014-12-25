@@ -15,17 +15,13 @@ struct TestFailure {
 
 func writeSuccesfulFutures<T>(stream:FutureStream<T>, value:T, times:Int) {
     for i in (1...times) {
-        let f1 = Future<T>()
-        f1.success(value)
-        stream.write(f1)
+        stream.success(value)
     }
 }
 
 func writeFailedFutures<T>(stream:FutureStream<T>, times:Int) {
     for i in (1...times) {
-        let f1 = Future<T>()
-        f1.failure(TestFailure.error)
-        stream.write(f1)
+        stream.failure(TestFailure.error)
     }
 }
 

@@ -105,22 +105,5 @@ class FutureStreamFailureTests : XCTestCase {
         }
 
     }
-
-    func testWtiteUncompletedFuture() {
-        let stream = FutureStream<Bool>()
-        let expectation = expectationWithDescription("onFailure fulfilled for future stream")
-        let f = Future<Bool>()
-        stream.write(f)
-        stream.onSuccess {value in
-            XCTAssert(false, "onSuccess called")
-        }
-        stream.onFailure {error in
-            expectation.fulfill()
-            XCTAssert(error.code == 2, "onFailure error invalid")
-        }
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
-    }
     
 }

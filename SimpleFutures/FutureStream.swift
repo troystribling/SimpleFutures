@@ -1,5 +1,5 @@
 //
-//  Stream.swift
+//  FutureStream.swift
 //  BlueCapKit
 //
 //  Created by Troy Stribling on 12/7/14.
@@ -16,21 +16,15 @@ public class StreamPromise<T> {
     }
     
     public func success(value:T) {
-        let promise = Promise<T>()
-        promise.success(value)
-        self.write(promise.future)
+        self.future.success(value)
     }
     
     public func failure(error:NSError) {
-        let promise = Promise<T>()
-        promise.failure(error)
-        self.write(promise.future)
+        self.future.failure(error)
     }
     
     public func complete(result:Try<T>) {
-        let promise = Promise<T>()
-        promise.complete(result)
-        self.write(promise.future)
+        self.future.complete(result)
     }
     
     public func completeWith(future:Future<T>) {
@@ -43,11 +37,6 @@ public class StreamPromise<T> {
         }
     }
     
-    public func write(future:Future<T>) {
-        self.future.write(future)
-    }
-    
-
 }
 
 public class FutureStream<T> {
@@ -58,10 +47,6 @@ public class FutureStream<T> {
     
     internal let defaultExecutionContext: ExecutionContext  = QueueContext.main
 
-    public func onComplete(complete:Try<T> -> Void) {
-        self.onComplete(self.defaultExecutionContext, complete)
-    }
-    
     public func onComplete(executionContext:ExecutionContext, complete:Try<T> -> Void) {
         Queue.simpleFutureStreams.sync {
             let futureComplete : InFuture = {future in
@@ -73,6 +58,11 @@ public class FutureStream<T> {
             }
         }
     }
+
+    public func onComplete(complete:Try<T> -> Void) {
+        self.onComplete(self.defaultExecutionContext, complete)
+    }
+    
 
     public func onSuccess(success:T -> Void) {
         self.onSuccess(self.defaultExecutionContext, success:success)
@@ -102,6 +92,25 @@ public class FutureStream<T> {
                 break
             }
         }
+    }
+    
+    public func complete(result:Try<T>) {
+        let future = Future<T>()
+        future.complete(result)
+        Queue.simpleFutureStreams.sync {
+            self.futures.append(future)
+            for complete in self.saveCompletes {
+                complete(future)
+            }
+        }
+    }
+    
+    public func success(value:T) {
+        self.complete(Try(value))
+    }
+    
+    public func failure(error:NSError) {
+        self.complete(Try<T>(error))
     }
     
     public func map<M>(mapping:T -> Try<M>) -> FutureStream<M> {
@@ -171,20 +180,6 @@ public class FutureStream<T> {
     }
     
     public init() {
-    }
-    
-    public func write(future:Future<T>) {
-        if future.isCompleted == false {
-            future.failure(NSError(domain:SimpleFuturesError.domain,
-                code:SimpleFuturesError.FutureNotCompleted.code,
-                userInfo:[NSLocalizedDescriptionKey:SimpleFuturesError.FutureNotCompleted.description]))
-        }
-        Queue.simpleFutureStreams.sync {
-            self.futures.append(future)
-            for complete in self.saveCompletes {
-                complete(future)
-            }
-        }
     }
     
 }

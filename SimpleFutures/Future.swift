@@ -60,19 +60,6 @@ public class Promise<T> {
         self.future.failure(error)
     }
     
-
-    public func tryComplete(result:Try<T>) -> Bool {
-        return self.future.tryComplete(result)
-    }
-    
-    public func trySuccess(value:T) -> Bool {
-        return self.future.trySuccess(value)
-    }
-    
-    public func tryError(error:NSError) -> Bool {
-        return self.future.tryError(error)
-    }
-    
 }
 
 // future construct
@@ -168,7 +155,7 @@ public class Future<T> {
         }
     }
 
-    public func failure(error: NSError) {
+    public func failure(error:NSError) {
         let succeeded = self.tryError(error)
         if succeeded == false {
             NSException(name:"Future failure error", reason: "Future previously completed.", userInfo: nil).raise()
@@ -259,40 +246,25 @@ public class Future<T> {
         return promise.future
     }
     
-    // internal interface
     internal func tryComplete(result:Try<T>) -> Bool {
-        switch result {
-        case .Success(let success):
-            return self.trySuccess(success.value)
-        case .Failure(let error):
-            return self.tryError(error)
+        return Queue.simpleFutures.sync {
+            if self.result != nil {
+                return false;
+            }
+            self.result = result
+            self.runSavedCompletions(self.result!)
+            return true;
         }
     }
     
-    
     internal func trySuccess(value:T) -> Bool {
-        return Queue.simpleFutures.sync {
-            if self.result != nil {
-                return false;
-            }
-            self.result = Try(value)
-            self.runSavedCompletions(self.result!)
-            return true;
-        };
+        return self.tryComplete(Try(value))
     }
     
     internal func tryError(error: NSError) -> Bool {
-        return Queue.simpleFutures.sync {
-            if self.result != nil {
-                return false;
-            }
-            self.result = Try(error)
-            self.runSavedCompletions(self.result!)
-            return true;
-        };
+        return self.tryComplete(Try<T>(error))
     }
     
-    // private interface
     private func runSavedCompletions(result:Try<T>) {
         for complete in self.saveCompletes {
             complete(result)
