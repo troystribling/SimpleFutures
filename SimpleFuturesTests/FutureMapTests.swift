@@ -21,7 +21,8 @@ class FutureMapTests : XCTestCase {
     }
     
     func testSuccessfulMapping() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationMapped = expectationWithDescription("OnSuccess fulfilled for mapped future")
         let expectation = expectationWithDescription("OnSuccess fulfilled")
         future.onSuccess {value in
@@ -41,14 +42,15 @@ class FutureMapTests : XCTestCase {
         mapped.onFailure {error in
             XCTAssert(false, "mapped onFailure called")
         }
-        future.success(true)
+        promise.success(true)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
     }
     
     func testFailedMapping() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationMapped = expectationWithDescription("OnFailure fulfilled for mapped future")
         let expectation = expectationWithDescription("OnSuccess fulfilled")
         future.onSuccess {value in
@@ -67,14 +69,15 @@ class FutureMapTests : XCTestCase {
         mapped.onFailure {error in
             expectationMapped.fulfill()
         }
-        future.success(true)
+        promise.success(true)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
     }
     
     func testMappingToFailedFuture() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationMapped = expectationWithDescription("OnFailure fulfilled for mapped future")
         let expectation = expectationWithDescription("OnFailure fulfilled")
         future.onSuccess {value in
@@ -93,7 +96,7 @@ class FutureMapTests : XCTestCase {
         mapped.onFailure {error in
             expectationMapped.fulfill()
         }
-        future.failure(TestFailure.error)
+        promise.failure(TestFailure.error)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

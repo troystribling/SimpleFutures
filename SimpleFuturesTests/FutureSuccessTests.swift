@@ -21,9 +21,10 @@ class FutureSuccessTests: XCTestCase {
     }
     
     func testImediate() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectation = expectationWithDescription("Imediate future success")
-        future.success(true)
+        promise.success(true)
         future.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             expectation.fulfill()
@@ -37,7 +38,8 @@ class FutureSuccessTests: XCTestCase {
     }
     
     func testDelayed() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectation = expectationWithDescription("Delayed future success")
         future.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
@@ -46,14 +48,15 @@ class FutureSuccessTests: XCTestCase {
         future.onFailure {error in
             XCTAssert(false, "onFailure called")
         }
-        future.success(true)
+        promise.success(true)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
     }
 
     func testImmediateAndDelayed() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationImmediate = expectationWithDescription("Immediate future success")
         let expectationDelayed = expectationWithDescription("Delayed future success")
         future.onSuccess {value in
@@ -63,7 +66,7 @@ class FutureSuccessTests: XCTestCase {
         future.onFailure {error in
             XCTAssert(false, "Delayed onFailure called")
         }
-        future.success(true)
+        promise.success(true)
         future.onSuccess {value in
             XCTAssertTrue(value, "Immediate Invalid value")
             expectationImmediate.fulfill()
@@ -76,21 +79,6 @@ class FutureSuccessTests: XCTestCase {
         }
     }
     
-    func testPromise() {
-        let promise = Promise<Bool>()
-        let expectation = expectationWithDescription("Success from promise")
-        promise.future.onSuccess {value in
-            XCTAssertTrue(value, "Invalid value")
-            expectation.fulfill()
-        }
-        promise.future.onFailure {error in
-            XCTAssert(false, "onFailure called")
-        }
-        promise.success(true)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
-    }
 }
 
     

@@ -21,7 +21,8 @@ class FutureRecoverTests : XCTestCase {
     }
     
     func testSuccessful() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationRecovery = expectationWithDescription("OnSuccess fulfilled for recovered future")
         let expectation = expectationWithDescription("OnSuccess fulfilled")
         future.onSuccess {value in
@@ -42,14 +43,15 @@ class FutureRecoverTests : XCTestCase {
         recovered.onFailure {error in
             XCTAssert(false, "recovered onFailure called")
         }
-        future.success(true)
+        promise.success(true)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
     }
     
     func testSuccessfulRecovery() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationRecovery = expectationWithDescription("OnSuccess fulfilled for recovered future")
         let expectation = expectationWithDescription("OnFailure fulfilled")
         future.onSuccess {value in
@@ -68,14 +70,15 @@ class FutureRecoverTests : XCTestCase {
         recovered.onFailure {error in
             XCTAssert(false, "recovered onFailure called")
         }
-        future.failure(TestFailure.error)
+        promise.failure(TestFailure.error)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
     }
     
     func testFailedRecovery() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationRecovery = expectationWithDescription("OnSuccess fulfilled for recovered future")
         let expectation = expectationWithDescription("OnFailure fulfilled")
         future.onSuccess {value in
@@ -93,7 +96,7 @@ class FutureRecoverTests : XCTestCase {
         recovered.onFailure {error in
             expectationRecovery.fulfill()
         }
-        future.failure(TestFailure.error)
+        promise.failure(TestFailure.error)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

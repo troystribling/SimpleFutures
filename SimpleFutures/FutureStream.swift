@@ -47,6 +47,9 @@ public class FutureStream<T> {
     
     internal let defaultExecutionContext: ExecutionContext  = QueueContext.main
 
+    public init() {
+    }
+    
     public func onComplete(executionContext:ExecutionContext, complete:Try<T> -> Void) {
         Queue.simpleFutureStreams.sync {
             let futureComplete : InFuture = {future in
@@ -63,7 +66,6 @@ public class FutureStream<T> {
         self.onComplete(self.defaultExecutionContext, complete)
     }
     
-
     public func onSuccess(success:T -> Void) {
         self.onSuccess(self.defaultExecutionContext, success:success)
     }
@@ -78,7 +80,7 @@ public class FutureStream<T> {
             }
         }
     }
-    
+
     public func onFailure(failure:NSError -> Void) {
         self.onFailure(self.defaultExecutionContext, failure:failure)
     }
@@ -94,35 +96,16 @@ public class FutureStream<T> {
         }
     }
     
-    public func complete(result:Try<T>) {
-        let future = Future<T>()
-        future.complete(result)
-        Queue.simpleFutureStreams.sync {
-            self.futures.append(future)
-            for complete in self.saveCompletes {
-                complete(future)
-            }
-        }
-    }
-    
-    public func success(value:T) {
-        self.complete(Try(value))
-    }
-    
-    public func failure(error:NSError) {
-        self.complete(Try<T>(error))
-    }
-    
     public func map<M>(mapping:T -> Try<M>) -> FutureStream<M> {
         return self.map(self.defaultExecutionContext, mapping)
     }
     
     public func map<M>(executionContext:ExecutionContext, mapping:T -> Try<M>) -> FutureStream<M> {
-        let promise = StreamPromise<M>()
+        let future = FutureStream<M>()
         self.onComplete(executionContext) {result in
-            promise.complete(result.flatmap(mapping))
+            future.complete(result.flatmap(mapping))
         }
-        return promise.future
+        return future
     }
     
     public func flatmap<M>(mapping:T -> Future<M>) -> FutureStream<M> {
@@ -179,7 +162,33 @@ public class FutureStream<T> {
         return promise.future
     }
     
-    public init() {
+    public func complete(result:Try<T>) {
+        let future = Future<T>()
+        future.complete(result)
+        Queue.simpleFutureStreams.sync {
+            self.futures.append(future)
+            for complete in self.saveCompletes {
+                complete(future)
+            }
+        }
+    }
+    
+    public func completeWith(future:Future<T>) {
+        self.completeWith(self.defaultExecutionContext, future:future)
+    }
+    
+    public func completeWith(executionContext:ExecutionContext, future:Future<T>) {
+        future.onComplete(executionContext) {result in
+            self.complete(result)
+        }
+    }
+    
+    public func success(value:T) {
+        self.complete(Try(value))
+    }
+    
+    public func failure(error:NSError) {
+        self.complete(Try<T>(error))
     }
     
 }

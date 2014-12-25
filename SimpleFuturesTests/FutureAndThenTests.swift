@@ -21,7 +21,8 @@ class FutureAndThenTests : XCTestCase {
     }
     
     func testSuccessfulAndThen() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationAndThen = expectationWithDescription("andThen handler fulfilled")
         let expectationAndThenOnSuccess = expectationWithDescription("OnSuccess fulfilled for andThen future")
         let expectation = expectationWithDescription("OnSuccess fulfilled")
@@ -47,14 +48,15 @@ class FutureAndThenTests : XCTestCase {
         andThen.onFailure {error in
             XCTAssert(false, "andThen onFailure called")
         }
-        future.success(true)
+        promise.success(true)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
     }
     
     func testFailedAndThen() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationAndThen = expectationWithDescription("andThen handler fulfilled")
         let expectationAndThenOnFailure = expectationWithDescription("OnFailure fulfilled for andThen future")
         let expectation = expectationWithDescription("OnSuccess fulfilled")
@@ -78,7 +80,7 @@ class FutureAndThenTests : XCTestCase {
         andThen.onFailure {error in
             expectationAndThenOnFailure.fulfill()
         }
-        future.failure(TestFailure.error)
+        promise.failure(TestFailure.error)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

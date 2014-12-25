@@ -21,7 +21,8 @@ class FutureWithFilterTests: XCTestCase {
     }
     
     func testSuccessfulFilter() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationFilter = expectationWithDescription("fullfilled for filter")
         let expectationFilterFuture = expectationWithDescription("onSuccess fullfilled for filtered future")
         let expectation = expectationWithDescription("onSuccess fullfilled")
@@ -43,14 +44,15 @@ class FutureWithFilterTests: XCTestCase {
         filter.onFailure {error in
             XCTAssert(false, "filter future onFailure called")
         }
-        future.success(true)
+        promise.success(true)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
     }
     
     func testFailedFilter() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationFilter = expectationWithDescription("fullfilled for filter")
         let expectationFilterFuture = expectationWithDescription("onFailure fullfilled for filtered future")
         let expectation = expectationWithDescription("onSuccess fullfilled")
@@ -73,14 +75,15 @@ class FutureWithFilterTests: XCTestCase {
             XCTAssertEqual(error.code, 1, "filter future onFailure invalid error code")
             expectationFilterFuture.fulfill()
         }
-        future.success(false)
+        promise.success(false)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
     }
     
     func testFailedFuture() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationFilterFuture = expectationWithDescription("onFailure fullfilled for filtered future")
         let expectation = expectationWithDescription("onSuccess fullfilled")
         future.onSuccess {value in
@@ -101,7 +104,7 @@ class FutureWithFilterTests: XCTestCase {
             XCTAssertEqual(error.code, 100, "filter future onFailure invalid error code")
             expectationFilterFuture.fulfill()
         }
-        future.failure(TestFailure.error)
+        promise.failure(TestFailure.error)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

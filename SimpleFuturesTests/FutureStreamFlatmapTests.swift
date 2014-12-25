@@ -47,9 +47,9 @@ class FutureStreamFlatmapTests: XCTestCase {
             } else if countMapped > 2 {
                 XCTAssert(false, "map called more than 2 times")
             }
-            let future = Future<Int>()
-            future.success(1)
-            return future
+            let promise = Promise<Int>()
+            promise.success(1)
+            return promise.future
         }
         mapped.onSuccess {value in
             XCTAssertEqual(value, 1, "mapped onSuccess value invalid")
@@ -96,9 +96,9 @@ class FutureStreamFlatmapTests: XCTestCase {
             } else if countMapped > 2 {
                 XCTAssert(false, "map called more than 2 times")
             }
-            let future = Future<Int>()
-            future.failure(TestFailure.error)
-            return future
+            let promise = Promise<Int>()
+            promise.failure(TestFailure.error)
+            return promise.future
         }
         mapped.onSuccess {value in
             XCTAssert(false, "mapped onSuccess called")
@@ -136,9 +136,9 @@ class FutureStreamFlatmapTests: XCTestCase {
         }
         let mapped = stream.flatmap {value -> Future<Int> in
             XCTAssert(false, "flatmap called")
-            let future = Future<Int>()
-            future.failure(TestFailure.error)
-            return future
+            let promise = Promise<Int>()
+            promise.failure(TestFailure.error)
+            return promise.future
         }
         mapped.onSuccess {value in
             XCTAssert(false, "mapped onSuccess called")

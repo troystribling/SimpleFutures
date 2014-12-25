@@ -10,24 +10,18 @@ import Foundation
 
 public struct SimpleFuturesError {
     static let domain = "SimpleFutures"
-    struct FutureCompleted {
-        static let code = 1
-        static let description = "Future has been completed"
-    }
-    struct FutureNotCompleted {
-        static let code = 2
-        static let description = "Future has not been completed"
-    }
+    static let futureCompleted      = NSError(domain:domain, code:1, userInfo:[NSLocalizedDescriptionKey:"Future has been completed"])
+    static let futureNotCompleted   = NSError(domain:domain, code:2, userInfo:[NSLocalizedDescriptionKey:"Future has not been completed"])
+}
+
+public struct SimpleFuturesException {
+    static let futureCompleted = NSException(name:"Future complete error", reason: "Future previously completed.", userInfo:nil)
 }
 
 // Promise
 public class Promise<T> {
     
     public let future = Future<T>()
-    
-    public var isCompleted : Bool {
-        return self.future.isCompleted
-    }
     
     public init() {
     }
@@ -37,15 +31,7 @@ public class Promise<T> {
     }
     
     public func completeWith(executionContext:ExecutionContext, future:Future<T>) {
-        if self.isCompleted == false {
-            future.onComplete(executionContext) {result in
-                self.complete(result)
-            }
-        } else {
-            self.failure(NSError(domain:SimpleFuturesError.domain,
-                code:SimpleFuturesError.FutureCompleted.code,
-                userInfo:[NSLocalizedDescriptionKey:SimpleFuturesError.FutureCompleted.description]))
-        }
+        self.future.completeWith(executionContext, future:future)
     }
     
     public func complete(result:Try<T>) {
@@ -84,12 +70,7 @@ public class Future<T> {
     typealias OnComplete                                    = Try<T> -> Void
     private var saveCompletes                               = [OnComplete]()
     
-    // public interface
     public init() {
-    }
-    
-    public var isCompleted : Bool {
-        return self.result != nil
     }
     
     public func onComplete(complete:Try<T> -> Void) {
@@ -125,7 +106,7 @@ public class Future<T> {
             }
         }
     }
-    
+
     public func onFailure(failure:NSError -> Void) -> Void {
         return self.onFailure(self.defaultExecutionContext, failure)
     }
@@ -141,38 +122,16 @@ public class Future<T> {
         }
     }
 
-    public func complete(result:Try<T>) {
-        let succeeded = tryComplete(result)
-        if succeeded == false {
-            NSException(name:"Future complete error", reason: "Future previously completed.", userInfo: nil).raise()
-        }
-    }
-    
-    public func success(value:T) {
-        let succeeded = self.trySuccess(value)
-        if succeeded == false {
-            NSException(name:"Future success error", reason: "Future previously completed.", userInfo: nil).raise()
-        }
-    }
-
-    public func failure(error:NSError) {
-        let succeeded = self.tryError(error)
-        if succeeded == false {
-            NSException(name:"Future failure error", reason: "Future previously completed.", userInfo: nil).raise()
-        }
-    }
-    
-
     public func map<M>(mapping:T -> Try<M>) -> Future<M> {
         return map(self.defaultExecutionContext, mapping:mapping)
     }
     
     public func map<M>(executionContext:ExecutionContext, mapping:T -> Try<M>) -> Future<M> {
-        let promise = Promise<M>()
+        let future = Future<M>()
         self.onComplete(executionContext) {result in
-            promise.complete(result.flatmap(mapping))
+            future.complete(result.flatmap(mapping))
         }
-        return promise.future
+        return future
     }
     
     public func flatmap<M>(mapping:T -> Future<M>) -> Future<M> {
@@ -246,29 +205,42 @@ public class Future<T> {
         return promise.future
     }
     
-    internal func tryComplete(result:Try<T>) -> Bool {
-        return Queue.simpleFutures.sync {
+    internal func complete(result:Try<T>) {
+        Queue.simpleFutures.sync {
             if self.result != nil {
-                return false;
+                SimpleFuturesException.futureCompleted.raise()
             }
             self.result = result
-            self.runSavedCompletions(self.result!)
-            return true;
+            for complete in self.saveCompletes {
+                complete(result)
+            }
+            self.saveCompletes.removeAll()
         }
     }
     
-    internal func trySuccess(value:T) -> Bool {
-        return self.tryComplete(Try(value))
+    internal func completeWith(future:Future<T>) {
+        self.completeWith(self.defaultExecutionContext, future:future)
     }
     
-    internal func tryError(error: NSError) -> Bool {
-        return self.tryComplete(Try<T>(error))
-    }
-    
-    private func runSavedCompletions(result:Try<T>) {
-        for complete in self.saveCompletes {
-            complete(result)
+    internal func completeWith(executionContext:ExecutionContext, future:Future<T>) {
+        let isCompleted = Queue.simpleFutures.sync {Void -> Bool in
+            return self.result != nil
         }
-        self.saveCompletes.removeAll()
+        if isCompleted == false {
+            future.onComplete(executionContext) {result in
+                self.complete(result)
+            }
+        } else {
+            self.failure(SimpleFuturesError.futureCompleted)
+        }
     }
+    
+    internal func success(value:T) {
+        self.complete(Try(value))
+    }
+    
+    internal func failure(error:NSError) {
+        self.complete(Try<T>(error))
+    }
+    
 }

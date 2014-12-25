@@ -21,7 +21,8 @@ class FutureRecoverWithTests : XCTestCase {
     }
     
     func testSuccessful() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationRecovery = expectationWithDescription("OnSuccess fulfilled for recovered future")
         let expectation = expectationWithDescription("OnSuccess fulfilled")
         future.onSuccess {value in
@@ -42,14 +43,15 @@ class FutureRecoverWithTests : XCTestCase {
         recovered.onFailure {error in
             XCTAssert(false, "recovered onFailure called")
         }
-        future.success(true)
+        promise.success(true)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
     }
     
     func testSuccessfulRecovery() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationRecovery = expectationWithDescription("OnSuccess fulfilled for recovered future")
         let expectation = expectationWithDescription("OnFailure fulfilled")
         future.onSuccess {value in
@@ -59,9 +61,9 @@ class FutureRecoverWithTests : XCTestCase {
             expectation.fulfill()
         }
         let recovered = future.recoverWith {error -> Future<Bool> in
-            let recoveredFuture = Future<Bool>()
-            recoveredFuture.success(false)
-            return recoveredFuture
+            let promise = Promise<Bool>()
+            promise.success(false)
+            return promise.future
         }
         recovered.onSuccess {value in
             XCTAssertFalse(value, "recovered onSuccess invalid value")
@@ -70,14 +72,15 @@ class FutureRecoverWithTests : XCTestCase {
         recovered.onFailure {error in
             XCTAssert(false, "recovered onFailure called")
         }
-        future.failure(TestFailure.error)
+        promise.failure(TestFailure.error)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
     }
     
     func testFailedRecovery() {
-        let future = Future<Bool>()
+        let promise = Promise<Bool>()
+        let future = promise.future
         let expectationRecovery = expectationWithDescription("OnSuccess fulfilled for recovered future")
         let expectation = expectationWithDescription("OnFailure fulfilled")
         future.onSuccess {value in
@@ -87,9 +90,9 @@ class FutureRecoverWithTests : XCTestCase {
             expectation.fulfill()
         }
         let recovered = future.recoverWith {error -> Future<Bool> in
-            let recoveredFuture = Future<Bool>()
-            recoveredFuture.failure(TestFailure.error)
-            return recoveredFuture
+            let promise = Promise<Bool>()
+            promise.failure(TestFailure.error)
+            return promise.future
         }
         recovered.onSuccess {value in
             XCTAssert(false, "recovered onSuccess callsd")
@@ -97,7 +100,7 @@ class FutureRecoverWithTests : XCTestCase {
         recovered.onFailure {error in
             expectationRecovery.fulfill()
         }
-        future.failure(TestFailure.error)
+        promise.failure(TestFailure.error)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
