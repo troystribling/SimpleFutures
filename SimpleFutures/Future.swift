@@ -139,16 +139,16 @@ public class Future<T> {
     }
 
     public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> Future<M>) -> Future<M> {
-        let promise = Promise<M>()
+        let future = Future<M>()
         self.onComplete(executionContext) {result in
             switch result {
             case .Success(let resultBox):
-                promise.completeWith(executionContext, future:mapping(resultBox.value))
+                future.completeWith(executionContext, future:mapping(resultBox.value))
             case .Failure(let error):
-                promise.failure(error)
+                future.failure(error)
             }
         }
-        return promise.future
+        return future
     }
     
     public func andThen(complete:Try<T> -> Void) -> Future<T> {
@@ -156,12 +156,12 @@ public class Future<T> {
     }
     
     public func andThen(executionContext:ExecutionContext, complete:Try<T> -> Void) -> Future<T> {
-        let promise = Promise<T>()
-        promise.future.onComplete(executionContext, complete)
+        let future = Future<T>()
+        future.onComplete(executionContext, complete)
         self.onComplete(executionContext) {result in
-            promise.complete(result)
+            future.complete(result)
         }
-        return promise.future
+        return future
     }
     
     public func recover(recovery: NSError -> Try<T>) -> Future<T> {
@@ -169,11 +169,11 @@ public class Future<T> {
     }
     
     public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T>) -> Future<T> {
-        let promise = Promise<T>()
+        let future = Future<T>()
         self.onComplete(executionContext) {result in
-            promise.complete(result.recoverWith(recovery))
+            future.complete(result.recoverWith(recovery))
         }
-        return promise.future
+        return future
     }
     
     public func recoverWith(recovery:NSError -> Future<T>) -> Future<T> {
@@ -181,16 +181,16 @@ public class Future<T> {
     }
     
     public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> Future<T> {
-        let promise = Promise<T>()
+        let future = Future<T>()
         self.onComplete(executionContext) {result in
             switch result {
             case .Success(let resultBox):
-                promise.success(resultBox.value)
+                future.success(resultBox.value)
             case .Failure(let error):
-                promise.completeWith(executionContext, future:recovery(error))
+                future.completeWith(executionContext, future:recovery(error))
             }
         }
-        return promise.future
+        return future
     }
     
     public func withFilter(filter:T -> Bool) -> Future<T> {
@@ -198,11 +198,11 @@ public class Future<T> {
     }
     
     public func withFilter(executionContext:ExecutionContext, filter:T -> Bool) -> Future<T> {
-        let promise = Promise<T>()
+        let future = Future<T>()
         self.onComplete(executionContext) {result in
-            promise.complete(result.filter(filter))
+            future.complete(result.filter(filter))
         }
-        return promise.future
+        return future
     }
     
     internal func complete(result:Try<T>) {

@@ -22,9 +22,10 @@ class FutureStreamFailureTests : XCTestCase {
     
     func testWriteImmediate() {
         var count = 0
-        let stream = FutureStream<Bool>()
+        let promise = StreamPromise<Bool>()
+        let stream = promise.future
         let expectation = expectationWithDescription("onFailure fulfilled for future stream")
-        writeFailedFutures(stream, 2)
+        writeFailedFutures(promise, 2)
         stream.onSuccess {value in
             XCTAssert(false, "onSuccess called")
         }
@@ -43,7 +44,8 @@ class FutureStreamFailureTests : XCTestCase {
     
     func testWriteDelayed() {
         var count = 0
-        let stream = FutureStream<Bool>()
+        let promise = StreamPromise<Bool>()
+        let stream = promise.future
         let expectation = expectationWithDescription("onFailure fulfilled for future stream")
         stream.onSuccess {value in
             XCTAssert(false, "onSuccess called")
@@ -56,7 +58,7 @@ class FutureStreamFailureTests : XCTestCase {
                 XCTAssert(false, "onFailure called more than 2 times")
             }
         }
-        writeFailedFutures(stream, 2)
+        writeFailedFutures(promise, 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -64,13 +66,14 @@ class FutureStreamFailureTests : XCTestCase {
     
     func testWriteDelayedAndImmediate() {
         var count = 0
-        let stream = FutureStream<Bool>()
+        let promise = StreamPromise<Bool>()
+        let stream = promise.future
         let expectation = expectationWithDescription("onFailure fulfilled for future stream")
-        writeFailedFutures(stream, 1)
+        writeFailedFutures(promise, 1)
         stream.onSuccess {value in
             XCTAssert(false, "onSuccess called")
         }
-        writeFailedFutures(stream, 1)
+        writeFailedFutures(promise, 1)
         stream.onFailure {error in
             ++count
             if count == 2 {
@@ -82,28 +85,6 @@ class FutureStreamFailureTests : XCTestCase {
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
-    }
-    
-    func testStreamPromise() {
-        var count = 0
-        let promise = StreamPromise<Bool>()
-        let expectation = expectationWithDescription("onFailure fulfilled for future stream")
-        promise.future.onSuccess {value in
-            XCTAssert(false, "onSuccess called")
-        }
-        promise.future.onFailure {error in
-            ++count
-            if count == 1 {
-                expectation.fulfill()
-            } else if count > 1 {
-                XCTAssert(false, "onFailure called more than 2 times")
-            }
-        }
-        promise.failure(TestFailure.error)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
-
     }
     
 }

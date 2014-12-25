@@ -24,7 +24,8 @@ class FutureStreamWithFilter: XCTestCase {
         var count = 0
         var countFilter = 0
         var countFilterSuccess = 0
-        let stream = FutureStream<Bool>()
+        let promise = StreamPromise<Bool>()
+        let stream = promise.future
         let expectationFilter = expectationWithDescription("fullfilled for withFilter")
         let expectationFilterFuture = expectationWithDescription("onSuccess fullfilled for filtered future")
         let expectation = expectationWithDescription("onSuccess fullfilled")
@@ -61,7 +62,7 @@ class FutureStreamWithFilter: XCTestCase {
         stream.onFailure {error in
             XCTAssert(false, "filter future onFailure called")
         }
-        writeSuccesfulFutures(stream, true, 2)
+        writeSuccesfulFutures(promise, true, 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

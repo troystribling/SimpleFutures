@@ -24,7 +24,8 @@ class FutureStreamAndThenTests: XCTestCase {
         var countAndThen = 0
         var countAndThenOnSuccess = 0
         var count = 0
-        let stream = FutureStream<Bool>()
+        let promise = StreamPromise<Bool>()
+        let stream = promise.future
         let expectationAndThen = expectationWithDescription("andThen handler fulfilled")
         let expectationAndThenOnSuccess = expectationWithDescription("OnSuccess fulfilled for andThen future")
         let expectation = expectationWithDescription("OnSuccess fulfilled")
@@ -65,7 +66,7 @@ class FutureStreamAndThenTests: XCTestCase {
         andThen.onFailure {error in
             XCTAssert(false, "andThen onFailure called")
         }
-        writeSuccesfulFutures(stream, true, 2)
+        writeSuccesfulFutures(promise, true, 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -75,7 +76,8 @@ class FutureStreamAndThenTests: XCTestCase {
         var countAndThen = 0
         var countAndThenOnSuccess = 0
         var count = 0
-        let stream = FutureStream<Bool>()
+        let promise = StreamPromise<Bool>()
+        let stream = promise.future
         let expectationAndThen = expectationWithDescription("andThen handler fulfilled")
         let expectationAndThenOnSuccess = expectationWithDescription("OnSuccess fulfilled for andThen future")
         let expectation = expectationWithDescription("OnFailure fulfilled")
@@ -114,7 +116,7 @@ class FutureStreamAndThenTests: XCTestCase {
                 XCTAssert(false, "andThen onFailure called more than 2 times")
             }
         }
-        writeFailedFutures(stream, 2)
+        writeFailedFutures(promise, 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
