@@ -78,6 +78,9 @@ class FutureSuccessTests: XCTestCase {
             XCTAssertNil(error, "\(error)")
         }
     }
+
+    func testCompleted() {
+    }
     
 }
 

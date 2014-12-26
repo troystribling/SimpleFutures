@@ -230,8 +230,6 @@ public class Future<T> {
             future.onComplete(executionContext) {result in
                 self.complete(result)
             }
-        } else {
-            self.failure(SimpleFuturesError.futureCompleted)
         }
     }
     
