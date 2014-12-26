@@ -26,14 +26,17 @@ func writeFailedFutures<T>(promise:StreamPromise<T>, times:Int) {
     }
 }
 
-func fulfillAfterCalled(expectation:XCTestExpectation, maxCount:Int, message:String) -> Void -> Void {
-    var count = 0
-    return {
-        ++count
-        if count == maxCount {
-            expectation.fulfill()
-        } else if count > maxCount {
-            XCTAssert(false, message)
+extension XCTestCase {
+    func fulfillAfterCalled(maxCount:Int, message:String) -> Void -> Void {
+        let expectation = self.expectationWithDescription("\(message) fulfilled")
+        var count = 0
+        return {
+            ++count
+            if count == maxCount {
+                expectation.fulfill()
+            } else if count > maxCount {
+                XCTAssert(false, "\(message) called more than \(maxCount) times")
+            }
         }
     }
 }

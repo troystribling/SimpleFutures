@@ -21,22 +21,14 @@ class FutureStreamAndThenTests: XCTestCase {
     }
 
     func testSuccessfulAndThen() {
-        var countAndThen = 0
-        var countAndThenOnSuccess = 0
-        var count = 0
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        let expectationAndThen = expectationWithDescription("andThen handler fulfilled")
-        let expectationAndThenOnSuccess = expectationWithDescription("OnSuccess fulfilled for andThen future")
-        let expectation = expectationWithDescription("OnSuccess fulfilled")
+        let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
+        let andThenExpectation = fulfillAfterCalled(2, message:"andThen")
+        let onSuccessAndThenExpectation = fulfillAfterCalled(2, message:"onSuccess andThen future")
         stream.onSuccess {value in
             XCTAssert(value, "future onSuccess value invalid")
-            ++count
-            if count == 2 {
-                expectation.fulfill()
-            } else if count > 2 {
-                XCTAssert(false, "onSuccess called more than 2 times")
-            }
+            onSuccessExpectation()
         }
         stream.onFailure {error in
             XCTAssert(false, "future onFailure called")
@@ -44,24 +36,14 @@ class FutureStreamAndThenTests: XCTestCase {
         let andThen = stream.andThen {result in
             switch result {
             case .Success(let resultBox):
-                ++countAndThen
-                if countAndThen == 2 {
-                    expectationAndThen.fulfill()
-                } else if countAndThen > 2 {
-                    XCTAssert(false, "andThen called more than 2 times")
-                }
+                andThenExpectation()
             case .Failure(let error):
                 XCTAssert(false, "andThen Failure")
             }
         }
         andThen.onSuccess {value in
             XCTAssert(value, "andThen onSuccess value invalid")
-            ++countAndThenOnSuccess
-            if countAndThenOnSuccess == 2 {
-                expectationAndThenOnSuccess.fulfill()
-            } else if countAndThenOnSuccess > 2 {
-                XCTAssert(false, "andThen onSuccess called more than 2 times")
-            }
+            onSuccessAndThenExpectation()
         }
         andThen.onFailure {error in
             XCTAssert(false, "andThen onFailure called")
@@ -73,48 +55,30 @@ class FutureStreamAndThenTests: XCTestCase {
     }
     
     func testFailedAndThen() {
-        var countAndThen = 0
-        var countAndThenOnSuccess = 0
-        var count = 0
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        let expectationAndThen = expectationWithDescription("andThen handler fulfilled")
-        let expectationAndThenOnSuccess = expectationWithDescription("OnSuccess fulfilled for andThen future")
-        let expectation = expectationWithDescription("OnFailure fulfilled")
+        let onFailureExpectation = fulfillAfterCalled(2, message:"onFailure future")
+        let andThenExpectation = fulfillAfterCalled(2, message:"andThen")
+        let onFailureAndThenExpectation = fulfillAfterCalled(2, message:"onFailure andThen future")
         stream.onSuccess {value in
             XCTAssert(false, "future onSuccess called")
         }
         stream.onFailure {error in
-            ++count
-            if count == 2 {
-                expectation.fulfill()
-            } else if count > 2 {
-                XCTAssert(false, "onSuccess called more than 2 times")
-            }
+            onFailureExpectation()
         }
         let andThen = stream.andThen {result in
             switch result {
             case .Success(let resultBox):
                 XCTAssert(false, "andThen Success")
             case .Failure(let error):
-                ++countAndThen
-                if countAndThen == 2 {
-                    expectationAndThen.fulfill()
-                } else if countAndThen > 2 {
-                    XCTAssert(false, "andThen called more than 2 times")
-                }
+                andThenExpectation()
             }
         }
         andThen.onSuccess {value in
             XCTAssert(false, "andThen onSuccess called")
         }
         andThen.onFailure {error in
-            ++countAndThenOnSuccess
-            if countAndThenOnSuccess == 2 {
-                expectationAndThenOnSuccess.fulfill()
-            } else if countAndThenOnSuccess > 2 {
-                XCTAssert(false, "andThen onFailure called more than 2 times")
-            }
+            onFailureAndThenExpectation()
         }
         writeFailedFutures(promise, 2)
         waitForExpectationsWithTimeout(2) {error in

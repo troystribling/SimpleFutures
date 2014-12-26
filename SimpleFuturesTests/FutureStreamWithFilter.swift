@@ -21,43 +21,25 @@ class FutureStreamWithFilter: XCTestCase {
     }
 
     func testSuccessfulFilter() {
-        var count = 0
-        var countFilter = 0
-        var countFilterSuccess = 0
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        let expectationFilter = expectationWithDescription("fullfilled for withFilter")
-        let expectationFilterFuture = expectationWithDescription("onSuccess fullfilled for filtered future")
-        let expectation = expectationWithDescription("onSuccess fullfilled")
+        let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
+        let withFilterExpectation = fulfillAfterCalled(2, message:"withFilter")
+        let onSuccessFilterExpectation = fulfillAfterCalled(2, message:"onSuccess filter future")
         stream.onSuccess {value in
             XCTAssert(value, "future onSucces value invalid")
-            ++count
-            if count == 2 {
-                expectation.fulfill()
-            } else if count > 2 {
-                XCTAssert(false, "onSuccess called more than 2 times")
-            }
+            onSuccessExpectation()
         }
         stream.onFailure {error in
             XCTAssert(false, "future onFailure called")
         }
         let filter = stream.withFilter {value in
-            ++countFilter
-            if countFilter == 2 {
-                expectationFilter.fulfill()
-            } else if countFilter > 2 {
-                XCTAssert(false, "withFilter called more than 2 times")
-            }
+            withFilterExpectation()
             return value
         }
         stream.onSuccess {value in
             XCTAssert(value, "filter future onSuccess value invalid")
-            ++countFilterSuccess
-            if countFilterSuccess == 2 {
-                expectationFilterFuture.fulfill()
-            } else if countFilterSuccess > 2 {
-                XCTAssert(false, "withFilter onSuccess called more than 2 times")
-            }
+            onSuccessFilterExpectation()
         }
         stream.onFailure {error in
             XCTAssert(false, "filter future onFailure called")

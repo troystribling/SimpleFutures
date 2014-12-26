@@ -23,11 +23,11 @@ class FutureStreamSuccessTests: XCTestCase {
     func testImmediate() {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        let onSuccess = fulfillAfterCalled(expectationWithDescription("onSuccess fulfilled for future stream"), 2, "onSuccess called more than 2 times")
+        let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
         writeSuccesfulFutures(promise, true, 2)
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
-            onSuccess()
+            onSuccessExpectation()
         }
         stream.onFailure {error in
             XCTAssert(false, "onFailure called")
@@ -40,10 +40,10 @@ class FutureStreamSuccessTests: XCTestCase {
     func testDelayed() {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        let onSuccess = fulfillAfterCalled(expectationWithDescription("onSuccess fulfilled for future stream"), 2, "onSuccess called more than 2 times")
+        let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
-            onSuccess()
+            onSuccessExpectation()
         }
         stream.onFailure {error in
             XCTAssert(false, "onFailure called")
@@ -57,11 +57,11 @@ class FutureStreamSuccessTests: XCTestCase {
     func testDelayedAndImmediate() {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        let onSuccess = fulfillAfterCalled(expectationWithDescription("onSuccess fulfilled for future stream"), 2, "onSuccess called more than 2 times")
+        let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
         writeSuccesfulFutures(promise, true, 1)
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
-            onSuccess()
+            onSuccessExpectation()
         }
         writeSuccesfulFutures(promise, true, 1)
         stream.onFailure {error in
@@ -76,16 +76,16 @@ class FutureStreamSuccessTests: XCTestCase {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         writeSuccesfulFutures(promise, true, 1)
-        let onSuccessImmediate = fulfillAfterCalled(expectationWithDescription("onSuccess immediate fulfilled for future stream"), 2, "onSuccess immediate called more than 2 times")
-        let onSuccessDelayed = fulfillAfterCalled(expectationWithDescription("onSuccess immediate fulfilled for future stream"), 2, "onSuccess delayed called more than 2 times")
+        let onSuccessImmediateExpectation = fulfillAfterCalled(2, message:"onSuccess immediate future")
+        let onSuccessDelayedExpectation = fulfillAfterCalled(2, message:"onSuccess delayed future")
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
-            onSuccessImmediate()
+            onSuccessImmediateExpectation()
         }
         writeSuccesfulFutures(promise, true, 1)
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
-            onSuccessDelayed()
+            onSuccessDelayedExpectation()
         }
         stream.onFailure {error in
             XCTAssert(false, "onFailure called")
@@ -100,15 +100,15 @@ class FutureStreamSuccessTests: XCTestCase {
         var countFailure = 0
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        let onFailure = fulfillAfterCalled(expectationWithDescription("onFailure fulfilled for future stream"), 1, "onSuccess immediate called more than 2 times")
-        let onSuccess = fulfillAfterCalled(expectationWithDescription("onSuccess fulfilled for future stream"), 1, "onSuccess immediate called more than 2 times")
+        let onFailureExpectation = fulfillAfterCalled(1, message:"onFailure future")
+        let onSuccessExpectation = fulfillAfterCalled(1, message:"onSuccess future")
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
-            onSuccess()
+            onSuccessExpectation()
         }
         stream.onFailure {error in
             ++countFailure
-            onFailure()
+            onFailureExpectation()
         }
         writeSuccesfulFutures(promise, true, 1)
         writeFailedFutures(promise, 1)
