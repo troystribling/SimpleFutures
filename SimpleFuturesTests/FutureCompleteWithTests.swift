@@ -27,6 +27,7 @@ class FutureCompleteWithTests: XCTestCase {
         let futureCompleted = promiseCompleted.future
         let expectation = expectationWithDescription("onSuccess fulfilled for future")
         let expectationCompleted = expectationWithDescription("onSuccess fulfilled for completed future")
+        promiseCompleted.success(true)
         future.onSuccess {value in
             XCTAssert(value, "future onSuccess value invalid")
             expectation.fulfill()
@@ -41,7 +42,6 @@ class FutureCompleteWithTests: XCTestCase {
         futureCompleted.onFailure{error in
             XCTAssert(false, "futureComleted onFailure called")
         }
-        promiseCompleted.success(true)
         promise.completeWith(futureCompleted)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
@@ -107,7 +107,7 @@ class FutureCompleteWithTests: XCTestCase {
         let future = promise.future
         let promiseCompleted = Promise<Bool>()
         let futureCompleted = promiseCompleted.future
-        let expectation = expectationWithDescription("onFailure fulfilled for future")
+        let expectation = expectationWithDescription("onSuccess fulfilled for future")
         let expectationCompleted = expectationWithDescription("onSucess fulfilled for completed future")
         future.onSuccess {value in
             XCTAssert(value, "future onSuccess invalid value")

@@ -20,7 +20,7 @@ class FutureStreamFailureTests : XCTestCase {
         super.tearDown()
     }
     
-    func testWriteImmediate() {
+    func testImmediate() {
         var count = 0
         let promise = StreamPromise<Bool>()
         let stream = promise.future
@@ -42,7 +42,7 @@ class FutureStreamFailureTests : XCTestCase {
         }
     }
     
-    func testWriteDelayed() {
+    func testDelayed() {
         var count = 0
         let promise = StreamPromise<Bool>()
         let stream = promise.future
@@ -64,7 +64,7 @@ class FutureStreamFailureTests : XCTestCase {
         }
     }
     
-    func testWriteDelayedAndImmediate() {
+    func testDelayedAndImmediate() {
         var count = 0
         let promise = StreamPromise<Bool>()
         let stream = promise.future

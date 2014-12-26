@@ -79,9 +79,6 @@ class FutureSuccessTests: XCTestCase {
         }
     }
 
-    func testCompleted() {
-    }
-    
 }
 
     
