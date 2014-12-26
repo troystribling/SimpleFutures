@@ -1,5 +1,5 @@
 //
-//  FutureStreamWithFilter.swift
+//  StreamWithFilter.swift
 //  SimpleFutures
 //
 //  Created by Troy Stribling on 12/23/14.
@@ -10,7 +10,7 @@ import UIKit
 import XCTest
 import SimpleFutures
 
-class FutureStreamWithFilter: XCTestCase {
+class StreamWithFilter: XCTestCase {
 
     override func setUp() {
         super.setUp()

@@ -1,5 +1,5 @@
 //
-//  FutureStreamFlatmapTests.swift
+//  StreamFlatmapTests.swift
 //  SimpleFutures
 //
 //  Created by Troy Stribling on 12/20/14.
@@ -10,7 +10,7 @@ import UIKit
 import XCTest
 import SimpleFutures
 
-class FutureStreamFlatmapTests: XCTestCase {
+class StreamFlatmapTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
@@ -107,6 +107,38 @@ class FutureStreamFlatmapTests: XCTestCase {
             onFailureMappedExpectation()
         }
         writeFailedFutures(promise, 2)
+        waitForExpectationsWithTimeout(2) {error in
+            XCTAssertNil(error, "\(error)")
+        }
+    }
+    
+    func testSuccessfulMappingToFutureStrean() {
+        let promise = StreamPromise<Bool>()
+        let stream = promise.future
+        let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
+        let flatmapExpectation = fulfillAfterCalled(2, message:"flatmap")
+        let onSuccessMappedExpectation = fulfillAfterCalled(4, message:"onSuccess mapped future")
+        stream.onSuccess {value in
+            XCTAssertTrue(value, "Invalid value")
+            onSuccessExpectation()
+        }
+        stream.onFailure {error in
+            XCTAssert(false, "future onFailure called")
+        }
+        let mapped = stream.flatmap {value -> FutureStream<Int> in
+            flatmapExpectation()
+            let promise = StreamPromise<Int>()
+            writeSuccesfulFutures(promise, 1, 2)
+            return promise.future
+        }
+        mapped.onSuccess {value in
+            XCTAssertEqual(value, 1, "mapped onSuccess value invalid")
+            onSuccessMappedExpectation()
+        }
+        mapped.onFailure {error in
+            XCTAssert(false, "mapped onFailure called")
+        }
+        writeSuccesfulFutures(promise, true, 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

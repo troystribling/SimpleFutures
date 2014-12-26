@@ -1,5 +1,5 @@
 //
-//  FutureStreamAndThenTests.swift
+//  StreamAndThenTests.swift
 //  SimpleFutures
 //
 //  Created by Troy Stribling on 12/20/14.
@@ -10,7 +10,7 @@ import UIKit
 import XCTest
 import SimpleFutures
 
-class FutureStreamAndThenTests: XCTestCase {
+class StreamAndThenTests: XCTestCase {
 
     override func setUp() {
         super.setUp()

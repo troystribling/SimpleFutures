@@ -1,5 +1,5 @@
 //
-//  FutureStreamMapTests.swift
+//  StreamMapTests.swift
 //  SimpleFutures
 //
 //  Created by Troy Stribling on 12/20/14.
@@ -10,7 +10,7 @@ import UIKit
 import XCTest
 import SimpleFutures
 
-class FutureStreamMapTests: XCTestCase {
+class StreamMapTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
