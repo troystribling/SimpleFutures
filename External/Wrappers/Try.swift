@@ -10,10 +10,7 @@ import Foundation
 
 struct TryError {
     static let domain = "Wrappers"
-    struct FilterFailed {
-        static let code = 1
-        static let description = "Filter failed"
-    }
+    static let filterFailed = NSError(domain:domain, code:1, userInfo:[NSLocalizedDescriptionKey:"Filter failed"])
 }
 
 public enum Try<T> {
@@ -96,7 +93,7 @@ public enum Try<T> {
         switch self {
         case .Success(let box):
             if !predicate(box.value) {
-                return .Failure(NSError(domain:TryError.domain, code:TryError.FilterFailed.code, userInfo:[NSLocalizedDescriptionKey:TryError.FilterFailed.description]))
+                return .Failure(TryError.filterFailed)
             }
             return self
         case .Failure(let error):
