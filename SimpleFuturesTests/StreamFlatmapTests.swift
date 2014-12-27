@@ -44,7 +44,7 @@ class StreamFlatmapTests: XCTestCase {
             onSuccessMappedExpectation()
         }
         mapped.onFailure {error in
-            XCTAssert(false, "mapped onFailure called")
+            XCTAssert(false, "mapped future onFailure called")
         }
         writeSuccesfulFutures(promise, true, 2)
         waitForExpectationsWithTimeout(2) {error in
@@ -72,7 +72,7 @@ class StreamFlatmapTests: XCTestCase {
             return promise.future
         }
         mapped.onSuccess {value in
-            XCTAssert(false, "mapped onSuccess called")
+            XCTAssert(false, "mapped future onSuccess called")
         }
         mapped.onFailure {error in
             onFailureMappedExpectation()
@@ -101,7 +101,7 @@ class StreamFlatmapTests: XCTestCase {
             return promise.future
         }
         mapped.onSuccess {value in
-            XCTAssert(false, "mapped onSuccess called")
+            XCTAssert(false, "mapped future onSuccess called")
         }
         mapped.onFailure {error in
             onFailureMappedExpectation()
@@ -112,7 +112,7 @@ class StreamFlatmapTests: XCTestCase {
         }
     }
     
-    func testSuccessfulMappingToFutureStrean() {
+    func testSuccessfulMappingToFutureStream() {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
@@ -139,7 +139,64 @@ class StreamFlatmapTests: XCTestCase {
             onSuccessMappedExpectation()
         }
         mapped.onFailure {error in
-            XCTAssert(false, "mapped onFailure called")
+            XCTAssert(false, "mapped future onFailure called")
+        }
+        writeSuccesfulFutures(promise, [true, false])
+        waitForExpectationsWithTimeout(2) {error in
+            XCTAssertNil(error, "\(error)")
+        }
+    }
+
+    func testFailedMappingToFutureStrean() {
+        let promise = StreamPromise<Bool>()
+        let stream = promise.future
+        let onFailureExpectation = fulfillAfterCalled(2, message:"onFailure future")
+        let onFailureMappedExpectation = fulfillAfterCalled(2, message:"onFailure mapped future")
+        stream.onSuccess {value in
+            XCTAssert(false, "future onSuccess called")
+        }
+        stream.onFailure {error in
+            onFailureExpectation()
+        }
+        let mapped = stream.flatmap {value -> FutureStream<Int> in
+            XCTAssert(false, "flatmap called")
+            return  StreamPromise<Int>().future
+        }
+        mapped.onSuccess {value in
+            XCTAssert(false, "mapped future onSuccess called")
+        }
+        mapped.onFailure {error in
+            onFailureMappedExpectation()
+        }
+        writeFailedFutures(promise, 2)
+        waitForExpectationsWithTimeout(2) {error in
+            XCTAssertNil(error, "\(error)")
+        }
+    }
+
+    func testSuccessfulMappingToFailedFutureStrean() {
+        let promise = StreamPromise<Bool>()
+        let stream = promise.future
+        let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
+        let flatmapExpectation = fulfillAfterCalled(2, message:"flatmap")
+        let onFailureMappedExpectation = fulfillAfterCalled(4, message:"onFailure mapped future")
+        stream.onSuccess {value in
+            onSuccessExpectation()
+        }
+        stream.onFailure {error in
+            XCTAssert(false, "future onFailure called")
+        }
+        let mapped = stream.flatmap {value -> FutureStream<Int> in
+            flatmapExpectation()
+            let promise = StreamPromise<Int>()
+            writeFailedFutures(promise, 2)
+            return promise.future
+        }
+        mapped.onSuccess {value in
+            XCTAssert(false, "mapped future onSucces called")
+        }
+        mapped.onFailure {error in
+            onFailureMappedExpectation()
         }
         writeSuccesfulFutures(promise, [true, false])
         waitForExpectationsWithTimeout(2) {error in
