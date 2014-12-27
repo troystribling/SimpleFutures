@@ -73,10 +73,7 @@ public class Future<T> {
     public init() {
     }
     
-    public func onComplete(complete:Try<T> -> Void) {
-        self.onComplete(self.defaultExecutionContext, complete)
-    }
-    
+    // should be Futureable protocol
     public func onComplete(executionContext:ExecutionContext, complete:Try<T> -> Void) -> Void {
         Queue.simpleFutures.sync {
             let savedCompletion : OnComplete = {result in
@@ -92,6 +89,24 @@ public class Future<T> {
         }
     }
     
+    // should be future mixin
+    internal func complete(result:Try<T>) {
+        Queue.simpleFutures.sync {
+            if self.result != nil {
+                SimpleFuturesException.futureCompleted.raise()
+            }
+            self.result = result
+            for complete in self.saveCompletes {
+                complete(result)
+            }
+            self.saveCompletes.removeAll()
+        }
+    }
+    
+    public func onComplete(complete:Try<T> -> Void) {
+        self.onComplete(self.defaultExecutionContext, complete)
+    }
+
     public func onSuccess(success:T -> Void) {
         self.onSuccess(self.defaultExecutionContext, success)
     }
@@ -203,19 +218,6 @@ public class Future<T> {
             future.complete(result.filter(filter))
         }
         return future
-    }
-    
-    internal func complete(result:Try<T>) {
-        Queue.simpleFutures.sync {
-            if self.result != nil {
-                SimpleFuturesException.futureCompleted.raise()
-            }
-            self.result = result
-            for complete in self.saveCompletes {
-                complete(result)
-            }
-            self.saveCompletes.removeAll()
-        }
     }
     
     internal func completeWith(future:Future<T>) {

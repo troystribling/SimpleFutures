@@ -56,6 +56,7 @@ public class FutureStream<T> {
     public init() {
     }
     
+    // Futureable protocol
     public func onComplete(executionContext:ExecutionContext, complete:Try<T> -> Void) {
         Queue.simpleFutureStreams.sync {
             let futureComplete : InFuture = {future in
@@ -68,6 +69,18 @@ public class FutureStream<T> {
         }
     }
 
+    internal func complete(result:Try<T>) {
+        let future = Future<T>()
+        future.complete(result)
+        Queue.simpleFutureStreams.sync {
+            self.futures.append(future)
+            for complete in self.saveCompletes {
+                complete(future)
+            }
+        }
+    }
+    
+    // should be future mixin
     public func onComplete(complete:Try<T> -> Void) {
         self.onComplete(self.defaultExecutionContext, complete)
     }
@@ -130,19 +143,7 @@ public class FutureStream<T> {
         }
         return future
     }
-    
-    public func recover(recovery:NSError -> Try<T>) -> FutureStream<T> {
-        return self.recover(self.defaultExecutionContext, recovery:recovery)
-    }
-    
-    public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T>) -> FutureStream<T> {
-        let future = FutureStream<T>()
-        self.onComplete(executionContext) {result in
-            future.complete(result.recoverWith(recovery))
-        }
-        return future
-    }
-    
+
     public func andThen(complete:Try<T> -> Void) -> FutureStream<T> {
         return self.andThen(self.defaultExecutionContext, complete:complete)
     }
@@ -156,6 +157,35 @@ public class FutureStream<T> {
         return future
     }
     
+    public func recover(recovery:NSError -> Try<T>) -> FutureStream<T> {
+        return self.recover(self.defaultExecutionContext, recovery:recovery)
+    }
+    
+    public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T>) -> FutureStream<T> {
+        let future = FutureStream<T>()
+        self.onComplete(executionContext) {result in
+            future.complete(result.recoverWith(recovery))
+        }
+        return future
+    }
+    
+    public func recoverWith(recovery:NSError -> FutureStream<T>) -> FutureStream<T> {
+        return self.recoverWith(self.defaultExecutionContext, recovery:recovery)
+    }
+    
+    public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> FutureStream<T>) -> FutureStream<T> {
+        let future = FutureStream<T>()
+        self.onComplete(executionContext) {result in
+            switch result {
+            case .Success(let resultBox):
+                future.success(resultBox.value)
+            case .Failure(let error):
+                future.completeWith(executionContext, stream:recovery(error))
+            }
+        }
+        return future
+    }
+
     public func withFilter(filter:T -> Bool) -> FutureStream<T> {
         return self.withFilter(self.defaultExecutionContext, filter:filter)
     }
@@ -168,6 +198,25 @@ public class FutureStream<T> {
         return future
     }
 
+    internal func completeWith(stream:FutureStream<T>) {
+        self.completeWith(self.defaultExecutionContext, stream:stream)
+    }
+    
+    internal func completeWith(executionContext:ExecutionContext, stream:FutureStream<T>) {
+        stream.onComplete(executionContext) {result in
+            self.complete(result)
+        }
+    }
+    
+    internal func success(value:T) {
+        self.complete(Try(value))
+    }
+    
+    internal func failure(error:NSError) {
+        self.complete(Try<T>(error))
+    }
+    
+    // future stream extensions
     public func flatmap<M>(mapping:T -> Future<M>) -> FutureStream<M> {
         return self.flatMap(self.defaultExecutionContext, mapping)
     }
@@ -184,17 +233,24 @@ public class FutureStream<T> {
         }
         return future
     }
+
+    public func recoverWith(recovery:NSError -> Future<T>) -> FutureStream<T> {
+        return self.recoverWith(self.defaultExecutionContext, recovery:recovery)
+    }
     
-    internal func complete(result:Try<T>) {
-        let future = Future<T>()
-        future.complete(result)
-        Queue.simpleFutureStreams.sync {
-            self.futures.append(future)
-            for complete in self.saveCompletes {
-                complete(future)
+    public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> FutureStream<T> {
+        let future = FutureStream<T>()
+        self.onComplete(executionContext) {result in
+            switch result {
+            case .Success(let resultBox):
+                future.success(resultBox.value)
+            case .Failure(let error):
+                future.completeWith(executionContext, future:recovery(error))
             }
         }
+        return future
     }
+    
     
     internal func completeWith(future:Future<T>) {
         self.completeWith(self.defaultExecutionContext, future:future)
@@ -204,24 +260,6 @@ public class FutureStream<T> {
         future.onComplete(executionContext) {result in
             self.complete(result)
         }
-    }
-    
-    internal func completeWith(stream:FutureStream<T>) {
-        self.completeWith(self.defaultExecutionContext, stream:stream)
-    }
-    
-    internal func completeWith(executionContext:ExecutionContext, stream:FutureStream<T>) {
-        stream.onComplete(executionContext) {result in
-            self.complete(result)
-        }
-    }
-
-    internal func success(value:T) {
-        self.complete(Try(value))
-    }
-    
-    internal func failure(error:NSError) {
-        self.complete(Try<T>(error))
     }
     
 }

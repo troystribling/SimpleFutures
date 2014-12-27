@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		0547D1EF1A45E72B005DCD53 /* StreamSuccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0547D1EE1A45E72B005DCD53 /* StreamSuccessTests.swift */; };
 		054BF5251A4DF59C00ECE6B3 /* StreamCompleteWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 054BF5241A4DF59C00ECE6B3 /* StreamCompleteWithTests.swift */; };
+		054BF5271A4F44A500ECE6B3 /* StreamRecoverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 054BF5261A4F44A500ECE6B3 /* StreamRecoverTests.swift */; };
+		054BF5291A4F44EE00ECE6B3 /* StreamRecoverWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 054BF5281A4F44EE00ECE6B3 /* StreamRecoverWithTests.swift */; };
 		055F8D761A45EF000094271A /* FutureRecoverWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D751A45EF000094271A /* FutureRecoverWithTests.swift */; };
 		055F8D781A45F5090094271A /* FutureConstructTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D771A45F5090094271A /* FutureConstructTests.swift */; };
 		055F8D7E1A45FD520094271A /* FutureFailureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D7D1A45FD520094271A /* FutureFailureTests.swift */; };
@@ -48,6 +50,8 @@
 /* Begin PBXFileReference section */
 		0547D1EE1A45E72B005DCD53 /* StreamSuccessTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamSuccessTests.swift; sourceTree = "<group>"; };
 		054BF5241A4DF59C00ECE6B3 /* StreamCompleteWithTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamCompleteWithTests.swift; sourceTree = "<group>"; };
+		054BF5261A4F44A500ECE6B3 /* StreamRecoverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamRecoverTests.swift; sourceTree = "<group>"; };
+		054BF5281A4F44EE00ECE6B3 /* StreamRecoverWithTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamRecoverWithTests.swift; sourceTree = "<group>"; };
 		055F8D751A45EF000094271A /* FutureRecoverWithTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureRecoverWithTests.swift; sourceTree = "<group>"; };
 		055F8D771A45F5090094271A /* FutureConstructTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureConstructTests.swift; sourceTree = "<group>"; };
 		055F8D7D1A45FD520094271A /* FutureFailureTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFailureTests.swift; sourceTree = "<group>"; };
@@ -122,6 +126,8 @@
 				055F8D891A45FEB30094271A /* StreamFailureTests.swift */,
 				055F8D8F1A4603750094271A /* StreamFlatmapTests.swift */,
 				055F8D8D1A4603570094271A /* StreamMapTests.swift */,
+				054BF5261A4F44A500ECE6B3 /* StreamRecoverTests.swift */,
+				054BF5281A4F44EE00ECE6B3 /* StreamRecoverWithTests.swift */,
 				0547D1EE1A45E72B005DCD53 /* StreamSuccessTests.swift */,
 				05DF1DD11A4A633500AC9925 /* StreamWithFilter.swift */,
 			);
@@ -329,12 +335,14 @@
 				055F8D781A45F5090094271A /* FutureConstructTests.swift in Sources */,
 				055F8D8E1A4603570094271A /* StreamMapTests.swift in Sources */,
 				055F8D861A45FE3D0094271A /* FutureRecoverTests.swift in Sources */,
+				054BF5291A4F44EE00ECE6B3 /* StreamRecoverWithTests.swift in Sources */,
 				054BF5251A4DF59C00ECE6B3 /* StreamCompleteWithTests.swift in Sources */,
 				055F8D841A45FE100094271A /* FutureAndThenTests.swift in Sources */,
 				055F8D921A460E220094271A /* StreamAndThenTests.swift in Sources */,
 				05DF1DD01A49C87100AC9925 /* FutureWithFilterTests.swift in Sources */,
 				0547D1EF1A45E72B005DCD53 /* StreamSuccessTests.swift in Sources */,
 				057C3E971A3E2379005147CD /* FutureSuccessTests.swift in Sources */,
+				054BF5271A4F44A500ECE6B3 /* StreamRecoverTests.swift in Sources */,
 				05DF1DD41A4CC6B300AC9925 /* FutureCompleteWithTests.swift in Sources */,
 				055F8D801A45FD910094271A /* FutureMapTests.swift in Sources */,
 				055F8D901A4603750094271A /* StreamFlatmapTests.swift in Sources */,
