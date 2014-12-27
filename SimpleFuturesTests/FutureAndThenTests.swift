@@ -23,12 +23,12 @@ class FutureAndThenTests : XCTestCase {
     func testSuccessfulAndThen() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectationAndThen = expectationWithDescription("andThen handler fulfilled")
-        let expectationAndThenOnSuccess = expectationWithDescription("OnSuccess fulfilled for andThen future")
-        let expectation = expectationWithDescription("OnSuccess fulfilled")
+        let andThenExpectation = expectationWithDescription("andThen fulfilled")
+        let andThenOnSuccessExpectation = expectationWithDescription("onSuccess fulfilled for andThen future")
+        let onSuccessExpectation = expectationWithDescription("onSuccess fulfilled")
         future.onSuccess {value in
             XCTAssert(value, "future onSuccess value invalid")
-            expectation.fulfill()
+            onSuccessExpectation.fulfill()
         }
         future.onFailure {error in
             XCTAssert(false, "future onFailure called")
@@ -36,14 +36,14 @@ class FutureAndThenTests : XCTestCase {
         let andThen = future.andThen {result in
             switch result {
             case .Success(let resultBox):
-                expectationAndThen.fulfill()
+                andThenExpectation.fulfill()
             case .Failure(let error):
                 XCTAssert(false, "andThen Failure")
             }
         }
         andThen.onSuccess {value in
             XCTAssert(value, "andThen onSuccess value invalid")
-            expectationAndThenOnSuccess.fulfill()
+            andThenOnSuccessExpectation.fulfill()
         }
         andThen.onFailure {error in
             XCTAssert(false, "andThen onFailure called")
@@ -57,28 +57,28 @@ class FutureAndThenTests : XCTestCase {
     func testFailedAndThen() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectationAndThen = expectationWithDescription("andThen handler fulfilled")
-        let expectationAndThenOnFailure = expectationWithDescription("OnFailure fulfilled for andThen future")
-        let expectation = expectationWithDescription("OnSuccess fulfilled")
+        let andThenExpectation = expectationWithDescription("andThen fulfilled")
+        let andThenOnFailureExpectation = expectationWithDescription("onFailure fulfilled for andThen future")
+        let onFailureExpectation = expectationWithDescription("onFailure fulfilled")
         future.onSuccess {value in
             XCTAssert(false, "future onSuccess value invalid")
         }
         future.onFailure {error in
-            expectation.fulfill()
+            onFailureExpectation.fulfill()
         }
         let andThen = future.andThen {result in
             switch result {
             case .Success(let resultBox):
                 XCTAssert(false, "andThen Failure")
             case .Failure(let error):
-                expectationAndThen.fulfill()
+                andThenExpectation.fulfill()
             }
         }
         andThen.onSuccess {value in
             XCTAssert(false, "mapped onFailure called")
         }
         andThen.onFailure {error in
-            expectationAndThenOnFailure.fulfill()
+            andThenOnFailureExpectation.fulfill()
         }
         promise.failure(TestFailure.error)
         waitForExpectationsWithTimeout(2) {error in
