@@ -147,7 +147,7 @@ class StreamFlatmapTests: XCTestCase {
         }
     }
 
-    func testFailedMappingToFutureStrean() {
+    func testFailedMappingToFutureStream() {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         let onFailureExpectation = fulfillAfterCalled(2, message:"onFailure future")
@@ -174,7 +174,7 @@ class StreamFlatmapTests: XCTestCase {
         }
     }
 
-    func testSuccessfulMappingToFailedFutureStrean() {
+    func testSuccessfulMappingToFailedFutureStream() {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
