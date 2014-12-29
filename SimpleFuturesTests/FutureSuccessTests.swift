@@ -26,7 +26,7 @@ class FutureSuccessTests: XCTestCase {
         let expectation = expectationWithDescription("Imediate future onSuccess fulfilled")
         promise.success(true)
         future.onSuccess {value in
-            XCTAssertTrue(value, "Invalid value")
+            XCTAssertTrue(value, "onSuccess Invalid value")
             expectation.fulfill()
         }
         future.onFailure {error in
