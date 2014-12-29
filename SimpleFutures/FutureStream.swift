@@ -59,6 +59,10 @@ public class FutureStream<T> {
     
     internal let defaultExecutionContext: ExecutionContext  = QueueContext.main
 
+    public var count : Int {
+        return futures.count
+    }
+    
     public init() {
     }
     
@@ -283,7 +287,7 @@ public class FutureStream<T> {
     
     private func addFuture(future:Future<T>) {
         if let capacity = self.capacity {
-            if self.futures.count > capacity {
+            if self.futures.count >= capacity {
                 self.futures.removeAtIndex(0)
             }
         }
