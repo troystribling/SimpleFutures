@@ -10,9 +10,14 @@ import Foundation
 
 public class StreamPromise<T> {
 
-    public let future = FutureStream<T>()
+    public let future : FutureStream<T>
     
     public init() {
+        self.future = FutureStream<T>()
+    }
+    
+    public init(capacity:Int) {
+        self.future = FutureStream<T>(capacity:capacity)
     }
     
     public func complete(result:Try<T>) {
@@ -47,13 +52,18 @@ public class StreamPromise<T> {
 
 public class FutureStream<T> {
     
-    private var futures                                     = [Future<T>]()
-    private typealias InFuture                              = Future<T> -> Void
-    private var saveCompletes                               = [InFuture]()
+    private var futures         = [Future<T>]()
+    private typealias InFuture  = Future<T> -> Void
+    private var saveCompletes   = [InFuture]()
+    private var capacity        : Int?
     
     internal let defaultExecutionContext: ExecutionContext  = QueueContext.main
 
     public init() {
+    }
+    
+    public init(capacity:Int) {
+        self.capacity = capacity
     }
     
     // Futureable protocol
@@ -73,7 +83,7 @@ public class FutureStream<T> {
         let future = Future<T>()
         future.complete(result)
         Queue.simpleFutureStreams.sync {
-            self.futures.append(future)
+            self.addFuture(future)
             for complete in self.saveCompletes {
                 complete(future)
             }
@@ -198,6 +208,16 @@ public class FutureStream<T> {
         return future
     }
 
+    public func foreach(apply:T -> Void) {
+        self.foreach(self.defaultExecutionContext, apply:apply)
+    }
+    
+    public func foreach(executionContext:ExecutionContext, apply:T -> Void) {
+        self.onComplete(executionContext) {result in
+            result.foreach(apply)
+        }
+    }
+
     internal func completeWith(stream:FutureStream<T>) {
         self.completeWith(self.defaultExecutionContext, stream:stream)
     }
@@ -251,7 +271,6 @@ public class FutureStream<T> {
         return future
     }
     
-    
     internal func completeWith(future:Future<T>) {
         self.completeWith(self.defaultExecutionContext, future:future)
     }
@@ -260,6 +279,15 @@ public class FutureStream<T> {
         future.onComplete(executionContext) {result in
             self.complete(result)
         }
+    }
+    
+    private func addFuture(future:Future<T>) {
+        if let capacity = self.capacity {
+            if self.futures.count > capacity {
+                self.futures.removeAtIndex(0)
+            }
+        }
+        self.futures.append(future)
     }
     
 }

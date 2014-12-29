@@ -48,7 +48,7 @@ public class Promise<T> {
     
 }
 
-// future construct
+// future constructs
 public func future<T>(computeResult:Void -> Try<T>) -> Future<T> {
     return future(QueueContext.global, computeResult)
 }
@@ -59,6 +59,58 @@ public func future<T>(executionContext:ExecutionContext, calculateResult:Void ->
         promise.complete(calculateResult())
     }
     return promise.future
+}
+
+public func forcomp<T,U>(f:Future<T>, g:Future<U>, apply:(T,U) -> Void) -> Void {
+    return forcomp(f.defaultExecutionContext, f, g, apply)
+}
+
+public func forcomp<T,U>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, apply:(T,U) -> Void) -> Void {
+    f.foreach(executionContext) {fvalue in
+        g.foreach(executionContext) {gvalue in
+            apply(fvalue, gvalue)
+        }
+    }
+}
+
+public func forcomp<T,U,V>(f:Future<T>, g:Future<U>, h:Future<V>, apply:(T,U,V) -> Void) -> Void {
+    return forcomp(f.defaultExecutionContext, f, g, h, apply)
+}
+
+public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, apply:(T,U, V) -> Void) -> Void {
+    f.foreach(executionContext) {fvalue in
+        g.foreach(executionContext) {gvalue in
+            h.foreach(executionContext) {hvalue in
+                apply(fvalue, gvalue, hvalue)
+            }
+        }
+    }
+}
+
+public func forcomp<T,U, V>(f:Future<T>, g:Future<U>, yield:(T,U) -> Try<V>) -> Future<V> {
+    return forcomp(f.defaultExecutionContext, f, g, yield)
+}
+
+public func forcomp<T,U, V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, yield:(T,U) -> Try<V>) -> Future<V> {
+    return f.flatmap(executionContext) {fvalue in
+        return g.map(executionContext) {gvalue in
+            return yield(fvalue, gvalue)
+        }
+    }
+}
+
+public func forcomp<T,U, V, W>(f:Future<T>, g:Future<U>, h:Future<V>, yield:(T,U,V) -> Try<W>) -> Future<W> {
+    return forcomp(f.defaultExecutionContext, f, g, h, yield)
+}
+
+public func forcomp<T,U, V, W>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, yield:(T,U,V) -> Try<W>) -> Future<W> {
+    return f.flatmap(executionContext) {fvalue in
+        return g.flatmap(executionContext) {gvalue in
+            return h.map(executionContext) {hvalue in
+                return yield(fvalue, gvalue, hvalue)
+            }
+        }
+    }
 }
 
 // Future
@@ -218,6 +270,16 @@ public class Future<T> {
             future.complete(result.filter(filter))
         }
         return future
+    }
+    
+    public func foreach(apply:T -> Void) {
+        self.foreach(self.defaultExecutionContext, apply:apply)
+    }
+    
+    public func foreach(executionContext:ExecutionContext, apply:T -> Void) {
+        self.onComplete(executionContext) {result in
+            result.foreach(apply)
+        }
     }
     
     internal func completeWith(future:Future<T>) {

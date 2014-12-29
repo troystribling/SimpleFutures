@@ -101,11 +101,10 @@ public enum Try<T> {
         }
     }
     
-    public func foreach<M>(mapping:T -> M) {
+    public func foreach(apply:T -> Void) {
         switch self {
         case .Success(let box):
-            box.map(mapping)
-            return
+            apply(box.value)
         case .Failure:
             return
         }
@@ -140,23 +139,4 @@ public enum Try<T> {
     
 }
 
-public func map<M,T>(try:Try<T>, mapping:T -> M) -> Try<M> {
-    return try.map(mapping)
-}
-
-public func flatmap<M,T>(try:Try<T>, mapping:T -> Try<M>) -> Try<M> {
-    return try.flatmap(mapping)
-}
-
-public func recover<T>(try:Try<T>, recovery:NSError -> T) -> Try<T> {
-    return try.recover(recovery)
-}
-
-public func recoverWith<T>(try:Try<T>, recovery:NSError -> Try<T>) -> Try<T> {
-    return try.recoverWith(recovery)
-}
-
-public func filter<T>(try:Try<T>, predicate:T -> Bool) -> Try<T> {
-    return try.filter(predicate)
-}
 
