@@ -48,71 +48,6 @@ public class Promise<T> {
     
 }
 
-// future constructs
-public func future<T>(computeResult:Void -> Try<T>) -> Future<T> {
-    return future(QueueContext.global, computeResult)
-}
-
-public func future<T>(executionContext:ExecutionContext, calculateResult:Void -> Try<T>) -> Future<T> {
-    let promise = Promise<T>()
-    executionContext.execute {
-        promise.complete(calculateResult())
-    }
-    return promise.future
-}
-
-public func forcomp<T,U>(f:Future<T>, g:Future<U>, apply:(T,U) -> Void) -> Void {
-    return forcomp(f.defaultExecutionContext, f, g, apply)
-}
-
-public func forcomp<T,U>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, apply:(T,U) -> Void) -> Void {
-    f.foreach(executionContext) {fvalue in
-        g.foreach(executionContext) {gvalue in
-            apply(fvalue, gvalue)
-        }
-    }
-}
-
-public func forcomp<T,U,V>(f:Future<T>, g:Future<U>, h:Future<V>, apply:(T,U,V) -> Void) -> Void {
-    return forcomp(f.defaultExecutionContext, f, g, h, apply)
-}
-
-public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, apply:(T,U, V) -> Void) -> Void {
-    f.foreach(executionContext) {fvalue in
-        g.foreach(executionContext) {gvalue in
-            h.foreach(executionContext) {hvalue in
-                apply(fvalue, gvalue, hvalue)
-            }
-        }
-    }
-}
-
-public func forcomp<T,U, V>(f:Future<T>, g:Future<U>, yield:(T,U) -> Try<V>) -> Future<V> {
-    return forcomp(f.defaultExecutionContext, f, g, yield)
-}
-
-public func forcomp<T,U, V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, yield:(T,U) -> Try<V>) -> Future<V> {
-    return f.flatmap(executionContext) {fvalue in
-        return g.map(executionContext) {gvalue in
-            return yield(fvalue, gvalue)
-        }
-    }
-}
-
-public func forcomp<T,U, V, W>(f:Future<T>, g:Future<U>, h:Future<V>, yield:(T,U,V) -> Try<W>) -> Future<W> {
-    return forcomp(f.defaultExecutionContext, f, g, h, yield)
-}
-
-public func forcomp<T,U, V, W>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, yield:(T,U,V) -> Try<W>) -> Future<W> {
-    return f.flatmap(executionContext) {fvalue in
-        return g.flatmap(executionContext) {gvalue in
-            return h.map(executionContext) {hvalue in
-                return yield(fvalue, gvalue, hvalue)
-            }
-        }
-    }
-}
-
 // Future
 public class Future<T> {
     
@@ -306,3 +241,117 @@ public class Future<T> {
     }
     
 }
+
+// create futures
+public func future<T>(computeResult:Void -> Try<T>) -> Future<T> {
+    return future(QueueContext.global, computeResult)
+}
+
+public func future<T>(executionContext:ExecutionContext, calculateResult:Void -> Try<T>) -> Future<T> {
+    let promise = Promise<T>()
+    executionContext.execute {
+        promise.complete(calculateResult())
+    }
+    return promise.future
+}
+
+public func forcomp<T,U>(f:Future<T>, g:Future<U>, #apply:(T,U) -> Void) -> Void {
+    return forcomp(f.defaultExecutionContext, f, g, apply:apply)
+}
+
+public func forcomp<T,U>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, #apply:(T,U) -> Void) -> Void {
+    f.foreach(executionContext) {fvalue in
+        g.foreach(executionContext) {gvalue in
+            apply(fvalue, gvalue)
+        }
+    }
+}
+
+
+// for comprehensions
+public func forcomp<T,U>(f:Future<T>, g:Future<U>, #filter:(T,U) -> Bool, #apply:(T,U) -> Void) -> Void {
+    return forcomp(f.defaultExecutionContext, f, g, filter:filter, apply:apply)
+}
+
+public func forcomp<T,U>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, #filter:(T,U) -> Bool, #apply:(T,U) -> Void) -> Void {
+    f.foreach(executionContext) {fvalue in
+        g.withFilter(executionContext) {gvalue in
+            filter(fvalue, gvalue)
+            }.foreach(executionContext) {gvalue in
+                apply(fvalue, gvalue)
+        }
+    }
+}
+
+public func forcomp<T,U,V>(f:Future<T>, g:Future<U>, h:Future<V>, #apply:(T,U,V) -> Void) -> Void {
+    return forcomp(f.defaultExecutionContext, f, g, h, apply:apply)
+}
+
+public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, #apply:(T,U, V) -> Void) -> Void {
+    f.foreach(executionContext) {fvalue in
+        g.foreach(executionContext) {gvalue in
+            h.foreach(executionContext) {hvalue in
+                apply(fvalue, gvalue, hvalue)
+            }
+        }
+    }
+}
+
+public func forcomp<T,U,V>(f:Future<T>, g:Future<U>, h:Future<V>, #filter:(T,U,V) -> Bool, #apply:(T,U,V) -> Void) -> Void {
+    return forcomp(f.defaultExecutionContext, f, g, h, filter:filter, apply:apply)
+}
+
+public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, #filter:(T,U,V) -> Bool, #apply:(T,U, V) -> Void) -> Void {
+    f.foreach(executionContext) {fvalue in
+        g.foreach(executionContext) {gvalue in
+            h.withFilter(executionContext) {hvalue in
+                filter(fvalue, gvalue, hvalue)
+            }.foreach(executionContext) {hvalue in
+                apply(fvalue, gvalue, hvalue)
+            }
+        }
+    }
+}
+
+public func forcomp<T,U, V>(f:Future<T>, g:Future<U>, #yield:(T,U) -> Try<V>) -> Future<V> {
+    return forcomp(f.defaultExecutionContext, f, g, yield:yield)
+}
+
+public func forcomp<T,U, V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, #yield:(T,U) -> Try<V>) -> Future<V> {
+    return f.flatmap(executionContext) {fvalue in
+        g.map(executionContext) {gvalue in
+            yield(fvalue, gvalue)
+        }
+    }
+}
+
+public func forcomp<T,U, V>(f:Future<T>, g:Future<U>, #filter:(T,U) -> Bool, #yield:(T,U) -> Try<V>) -> Future<V> {
+    return forcomp(f.defaultExecutionContext, f, g, filter:filter, yield:yield)
+}
+
+public func forcomp<T,U, V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, #filter:(T,U) -> Bool, #yield:(T,U) -> Try<V>) -> Future<V> {
+    return f.flatmap(executionContext) {fvalue in
+        g.withFilter(executionContext) {gvalue in
+            filter(fvalue, gvalue)
+        }.map(executionContext) {gvalue in
+            yield(fvalue, gvalue)
+        }
+    }
+}
+
+public func forcomp<T,U, V, W>(f:Future<T>, g:Future<U>, h:Future<V>, #filter:(T,U,V) -> Bool, #yield:(T,U,V) -> Try<W>) -> Future<W> {
+    return forcomp(f.defaultExecutionContext, f, g, h, filter:filter, yield:yield)
+}
+
+public func forcomp<T,U, V, W>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, #filter:(T,U,V) -> Bool, #yield:(T,U,V) -> Try<W>) -> Future<W> {
+    return f.flatmap(executionContext) {fvalue in
+        g.flatmap(executionContext) {gvalue in
+            h.withFilter(executionContext) {hvalue in
+                filter(fvalue, gvalue, hvalue)
+            }.map(executionContext) {hvalue in
+                yield(fvalue, gvalue, hvalue)
+            }
+        }
+    }
+}
+
