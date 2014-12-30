@@ -25,6 +25,7 @@ class FutureFlatmapTests : XCTestCase {
         let future = promise.future
         let onSuccessExpectation = expectationWithDescription("OnSuccess fulfilled")
         let onSuccessMappedExpectation = expectationWithDescription("OnSuccess fulfilled for mapped future")
+        let mapExpectation = expectationWithDescription("map fulfilled")
         future.onSuccess {value in
             XCTAssert(value, "future onSuccess value invalid")
             onSuccessExpectation.fulfill()
@@ -33,6 +34,7 @@ class FutureFlatmapTests : XCTestCase {
             XCTAssert(false, "future onFailure called")
         }
         let mapped = future.flatmap {value -> Future<Int> in
+            mapExpectation.fulfill()
             let promise = Promise<Int>()
             promise.success(1)
             return promise.future
@@ -55,6 +57,7 @@ class FutureFlatmapTests : XCTestCase {
         let future = promise.future
         let onSuccessExpectation = expectationWithDescription("OnSuccess fulfilled")
         let onFailureMappedExpectation = expectationWithDescription("OnFailure fulfilled for mapped future")
+        let mapExpectation = expectationWithDescription("map fulfilled")
         future.onSuccess {value in
             XCTAssert(value, "future onSuccess value invalid")
             onSuccessExpectation.fulfill()
@@ -63,6 +66,7 @@ class FutureFlatmapTests : XCTestCase {
             XCTAssert(false, "future onFailure called")
         }
         let mapped = future.flatmap {value -> Future<Int> in
+            mapExpectation.fulfill()
             let promise = Promise<Int>()
             promise.failure(TestFailure.error)
             return promise.future
