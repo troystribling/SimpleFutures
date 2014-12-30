@@ -66,7 +66,11 @@ class FutureForcompYieldTests: XCTestCase {
     func testTwoFuturesFailure() {
         
     }
-    
+
+    func testTwoFuturesYieldFailure() {
+        
+    }
+
     func testThreeFuturesSuccess() {
         
     }
@@ -74,9 +78,59 @@ class FutureForcompYieldTests: XCTestCase {
     func testThreeFuturesFailure() {
         
     }
-    
-    func testTwoFuturesSuccessFiltered() {
+
+    func testThreeFuturesYieldFailure() {
         
+    }
+
+    func testTwoFuturesSuccessFiltered() {
+        let promise1 = Promise<Bool>()
+        let future1 = promise1.future
+        let promise2 = Promise<Int>()
+        let future2 = promise2.future
+        let onSuccessFuture1Expectation = expectationWithDescription("future1 onSuccess fulfilled")
+        let onSuccessFuture2Expectation = expectationWithDescription("future2 onSuccess fulfilled")
+        let forcompExpectation = expectationWithDescription("forcomp fulfilled")
+        let filterExpectaion = expectationWithDescription("filter fulfilled")
+        let forcompFutureOnSuccess = expectationWithDescription("forcomp onSuccess fullfilled")
+        future1.onSuccess {value in
+            XCTAssert(value, "future1 onSuccess value invalid")
+            onSuccessFuture1Expectation.fulfill()
+        }
+        future1.onFailure {error in
+            XCTAssert(false, "future1 onFailure called")
+        }
+        future2.onSuccess {value in
+            XCTAssert(value == 1, "future2 onSuccess value invalid")
+            onSuccessFuture2Expectation.fulfill()
+        }
+        future2.onFailure {error in
+            XCTAssert(false, "future2 onFailure called")
+        }
+        let forcompFuture = forcomp(future1, future2,
+            filter:{(value1, value2) -> Bool in
+                XCTAssert(value1, "forcomp value1 invalid")
+                XCTAssert(value2 == 1, "forcomp value2 invalid")
+                filterExpectaion.fulfill()
+                return true
+            }) {(value1, value2) -> Try<Bool> in
+                XCTAssert(value1, "forcomp value1 invalid")
+                XCTAssert(value2 == 1, "forcomp value2 invalid")
+                forcompExpectation.fulfill()
+                return Try(true)
+        }
+        forcompFuture.onSuccess {value in
+            XCTAssert(value, "forcompFuture ionSuccess value invalid")
+            forcompFutureOnSuccess.fulfill()
+        }
+        forcompFuture.onFailure {error in
+            XCTAssert(false, "forcompFuture onSuccess called")
+        }
+        promise1.success(true)
+        promise2.success(1)
+        waitForExpectationsWithTimeout(2) {error in
+            XCTAssertNil(error, "\(error)")
+        }
     }
     
     func testTwoFuturesFailureFiltered() {

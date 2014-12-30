@@ -23,11 +23,11 @@ class FutureSuccessTests: XCTestCase {
     func testImediate() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectation = expectationWithDescription("Imediate future onSuccess fulfilled")
+        let onSuccessExpectation = expectationWithDescription("Imediate future onSuccess fulfilled")
         promise.success(true)
         future.onSuccess {value in
             XCTAssertTrue(value, "onSuccess Invalid value")
-            expectation.fulfill()
+            onSuccessExpectation.fulfill()
         }
         future.onFailure {error in
             XCTAssert(false, "onFailure called")
@@ -40,10 +40,10 @@ class FutureSuccessTests: XCTestCase {
     func testDelayed() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectation = expectationWithDescription("Delayed future onSuccess fulfilled")
+        let onSuccessExpectation = expectationWithDescription("Delayed future onSuccess fulfilled")
         future.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
-            expectation.fulfill()
+            onSuccessExpectation.fulfill()
         }
         future.onFailure {error in
             XCTAssert(false, "onFailure called")
@@ -57,11 +57,11 @@ class FutureSuccessTests: XCTestCase {
     func testImmediateAndDelayed() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectationImmediate = expectationWithDescription("Immediate future onSuccess fulfilled")
-        let expectationDelayed = expectationWithDescription("Delayed future onSuccess fulfilled")
+        let onSuccesImmediateExpectation = expectationWithDescription("Immediate future onSuccess fulfilled")
+        let onSuccessDelayedExpectation = expectationWithDescription("Delayed future onSuccess fulfilled")
         future.onSuccess {value in
             XCTAssertTrue(value, "Delayed Invalid value")
-            expectationDelayed.fulfill()
+            onSuccessDelayedExpectation.fulfill()
         }
         future.onFailure {error in
             XCTAssert(false, "Delayed onFailure called")
@@ -69,7 +69,7 @@ class FutureSuccessTests: XCTestCase {
         promise.success(true)
         future.onSuccess {value in
             XCTAssertTrue(value, "Immediate Invalid value")
-            expectationImmediate.fulfill()
+            onSuccesImmediateExpectation.fulfill()
         }
         future.onFailure {error in
             XCTAssert(false, "Immediate onFailure called")

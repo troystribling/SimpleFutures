@@ -21,13 +21,13 @@ class FutureContructTests : XCTestCase {
     }
     
     func testSucces() {
-        let expectation = expectationWithDescription("Imediate future failure")
+        let onSuccessExpectation = expectationWithDescription("Imediate future failure")
         let test = future {
             Try(true)
         }
         test.onSuccess {value in
             XCTAssert(value, "onSuccess value invalid")
-            expectation.fulfill()
+            onSuccessExpectation.fulfill()
         }
         test.onFailure {error in
             XCTAssert(false, "onFailure called")
@@ -38,7 +38,7 @@ class FutureContructTests : XCTestCase {
     }
 
     func testFailure() {
-        let expectation = expectationWithDescription("Imediate future failure")
+        let onFailureExpectation = expectationWithDescription("Imediate future failure")
         let test = future {
             Try<Bool>(TestFailure.error)
         }
@@ -46,7 +46,7 @@ class FutureContructTests : XCTestCase {
             XCTAssert(false, "onSuccess called")
         }
         test.onFailure {error in
-            expectation.fulfill()
+            onFailureExpectation.fulfill()
         }
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")

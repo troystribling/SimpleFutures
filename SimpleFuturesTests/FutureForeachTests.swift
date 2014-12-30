@@ -23,8 +23,8 @@ class FutureForeachTests: XCTestCase {
     func testSuccess() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let foreachExpectation = expectationWithDescription("foreach fulfilled")
         let onSuccessExpectation = expectationWithDescription("OnSuccess fulfilled")
+        let foreachExpectation = expectationWithDescription("foreach fulfilled")
         future.onSuccess {value in
             XCTAssert(value, "future onSuccess value invalid")
             onSuccessExpectation.fulfill()

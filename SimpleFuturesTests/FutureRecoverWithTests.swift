@@ -23,11 +23,11 @@ class FutureRecoverWithTests : XCTestCase {
     func testSuccessful() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectationRecovery = expectationWithDescription("OnSuccess fulfilled for recovered future")
-        let expectation = expectationWithDescription("OnSuccess fulfilled")
+        let onSuccessExpectation = expectationWithDescription("OnSuccess fulfilled")
+        let onSuccessRecoveryExpectation = expectationWithDescription("OnSuccess fulfilled for recovered future")
         future.onSuccess {value in
             XCTAssert(value, "future onSuccess value invalid")
-            expectation.fulfill()
+            onSuccessExpectation.fulfill()
         }
         future.onFailure {error in
             XCTAssert(false, "future onFailure called")
@@ -38,7 +38,7 @@ class FutureRecoverWithTests : XCTestCase {
         }
         recovered.onSuccess {value in
             XCTAssert(value, "recovered onSuccess value invalid")
-            expectationRecovery.fulfill()
+            onSuccessRecoveryExpectation.fulfill()
         }
         recovered.onFailure {error in
             XCTAssert(false, "recovered onFailure called")
@@ -52,22 +52,24 @@ class FutureRecoverWithTests : XCTestCase {
     func testSuccessfulRecovery() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectationRecovery = expectationWithDescription("OnSuccess fulfilled for recovered future")
-        let expectation = expectationWithDescription("OnFailure fulfilled")
+        let onFailureExpectation = expectationWithDescription("OnFailure fulfilled")
+        let onSuccessRecoveryExpectation = expectationWithDescription("OnSuccess fulfilled for recovered future")
+        let recoverExpectation = expectationWithDescription("recover fulfilled")
         future.onSuccess {value in
             XCTAssert(false, "future onSuccess called")
         }
         future.onFailure {error in
-            expectation.fulfill()
+            onFailureExpectation.fulfill()
         }
         let recovered = future.recoverWith {error -> Future<Bool> in
+            recoverExpectation.fulfill()
             let promise = Promise<Bool>()
             promise.success(false)
             return promise.future
         }
         recovered.onSuccess {value in
             XCTAssertFalse(value, "recovered onSuccess invalid value")
-            expectationRecovery.fulfill()
+            onSuccessRecoveryExpectation.fulfill()
         }
         recovered.onFailure {error in
             XCTAssert(false, "recovered onFailure called")
@@ -81,15 +83,17 @@ class FutureRecoverWithTests : XCTestCase {
     func testFailedRecovery() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectationRecovery = expectationWithDescription("OnSuccess fulfilled for recovered future")
-        let expectation = expectationWithDescription("OnFailure fulfilled")
+        let onFailureExpectation = expectationWithDescription("OnFailure fulfilled")
+        let onFailureRecoveryExpectation = expectationWithDescription("OnFailure fulfilled for recovered future")
+        let recoverExpectation = expectationWithDescription("recover fulfilled")
         future.onSuccess {value in
             XCTAssert(false, "future onSuccess called")
         }
         future.onFailure {error in
-            expectation.fulfill()
+            onFailureExpectation.fulfill()
         }
         let recovered = future.recoverWith {error -> Future<Bool> in
+            recoverExpectation.fulfill()
             let promise = Promise<Bool>()
             promise.failure(TestFailure.error)
             return promise.future
@@ -98,7 +102,7 @@ class FutureRecoverWithTests : XCTestCase {
             XCTAssert(false, "recovered onSuccess callsd")
         }
         recovered.onFailure {error in
-            expectationRecovery.fulfill()
+            onFailureRecoveryExpectation.fulfill()
         }
         promise.failure(TestFailure.error)
         waitForExpectationsWithTimeout(2) {error in

@@ -23,11 +23,11 @@ class FutureMapTests : XCTestCase {
     func testSuccessfulMapping() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectationMapped = expectationWithDescription("OnSuccess fulfilled for mapped future")
-        let expectation = expectationWithDescription("OnSuccess fulfilled")
+        let onSuccessExpectation = expectationWithDescription("OnSuccess fulfilled")
+        let onSuccessMappedExpectation = expectationWithDescription("OnSuccess fulfilled for mapped future")
         future.onSuccess {value in
             XCTAssert(value, "future onSuccess value invalid")
-            expectation.fulfill()
+            onSuccessExpectation.fulfill()
         }
         future.onFailure {error in
             XCTAssert(false, "future onFailure called")
@@ -37,7 +37,7 @@ class FutureMapTests : XCTestCase {
         }
         mapped.onSuccess {value in
             XCTAssertEqual(value, 1, "mapped onSuccess value invalid")
-            expectationMapped.fulfill()
+            onSuccessMappedExpectation.fulfill()
         }
         mapped.onFailure {error in
             XCTAssert(false, "mapped onFailure called")
@@ -51,11 +51,11 @@ class FutureMapTests : XCTestCase {
     func testFailedMapping() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectationMapped = expectationWithDescription("OnFailure fulfilled for mapped future")
-        let expectation = expectationWithDescription("OnSuccess fulfilled")
+        let onFailureMappedExpectation = expectationWithDescription("OnFailure fulfilled for mapped future")
+        let onSuccessExpectation = expectationWithDescription("OnSuccess fulfilled")
         future.onSuccess {value in
             XCTAssert(value, "future onSuccess value invalid")
-            expectation.fulfill()
+            onSuccessExpectation.fulfill()
         }
         future.onFailure {error in
             XCTAssert(false, "future onFailure called")
@@ -67,7 +67,7 @@ class FutureMapTests : XCTestCase {
             XCTAssert(false, "mapped onSuccess called")
         }
         mapped.onFailure {error in
-            expectationMapped.fulfill()
+            onFailureMappedExpectation.fulfill()
         }
         promise.success(true)
         waitForExpectationsWithTimeout(2) {error in
@@ -78,13 +78,13 @@ class FutureMapTests : XCTestCase {
     func testMappingToFailedFuture() {
         let promise = Promise<Bool>()
         let future = promise.future
-        let expectationMapped = expectationWithDescription("OnFailure fulfilled for mapped future")
-        let expectation = expectationWithDescription("OnFailure fulfilled")
+        let onFailureExpectation = expectationWithDescription("OnFailure fulfilled")
+        let onFailureMappedExpectation = expectationWithDescription("OnFailure fulfilled for mapped future")
         future.onSuccess {value in
             XCTAssert(false, "future onSucces called")
         }
         future.onFailure {error in
-            expectation.fulfill()
+            onFailureExpectation.fulfill()
         }
         let mapped = future.map {value -> Try<Int> in
             XCTAssert(false, "map called")
@@ -94,7 +94,7 @@ class FutureMapTests : XCTestCase {
             XCTAssert(false, "mapped onSuccess called")
         }
         mapped.onFailure {error in
-            expectationMapped.fulfill()
+            onFailureMappedExpectation.fulfill()
         }
         promise.failure(TestFailure.error)
         waitForExpectationsWithTimeout(2) {error in
