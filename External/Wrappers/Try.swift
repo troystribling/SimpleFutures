@@ -8,9 +8,9 @@
 
 import Foundation
 
-struct TryError {
-    static let domain = "Wrappers"
-    static let filterFailed = NSError(domain:domain, code:1, userInfo:[NSLocalizedDescriptionKey:"Filter failed"])
+public struct TryError {
+    public static let domain = "Wrappers"
+    public static let filterFailed = NSError(domain:domain, code:1, userInfo:[NSLocalizedDescriptionKey:"Filter failed"])
 }
 
 public enum Try<T> {
@@ -30,10 +30,6 @@ public enum Try<T> {
         self = .Failure(error)
     }
     
-    
-    public mutating func failed(error:NSError) {
-        self = .Failure(error)
-    }
     
     public func isSuccess() -> Bool {
         switch self {
@@ -73,17 +69,17 @@ public enum Try<T> {
     
     public func recover(recovery:NSError -> T) -> Try<T> {
         switch self {
-        case .Success:
-            return self
+        case .Success(let box):
+            return Try(box)
         case .Failure(let error):
-            return Try(recovery(error))
+            return Try<T>(recovery(error))
         }
     }
     
     public func recoverWith(recovery:NSError -> Try<T>) -> Try<T> {
         switch self {
-        case .Success:
-            return self
+        case .Success(let box):
+            return Try(box)
         case .Failure(let error):
             return recovery(error)
         }
@@ -93,9 +89,10 @@ public enum Try<T> {
         switch self {
         case .Success(let box):
             if !predicate(box.value) {
-                return .Failure(TryError.filterFailed)
+                return Try<T>(TryError.filterFailed)
+            } else {
+                return Try(box)
             }
-            return self
         case .Failure(let error):
             return self
         }
@@ -131,7 +128,7 @@ public enum Try<T> {
     public func orElse(failed:Try<T>) -> Try<T> {
         switch self {
         case .Success(let box):
-            return self
+            return Try(box)
         case .Failure(let error):
             return failed
         }
@@ -139,4 +136,93 @@ public enum Try<T> {
     
 }
 
+public func flatten<T>(try:Try<Try<T>>) -> Try<T> {
+    switch try {
+    case .Success(let box):
+        return box.value
+    case .Failure(let error):
+        return Try<T>(error)
+    }
+}
+
+public func forcomp<T,U>(f:Try<T>, g:Try<U>, #apply:(T,U) -> Void) {
+    f.foreach {fvalue in
+        g.foreach {gvalue in
+            apply(fvalue, gvalue)
+        }
+    }
+}
+
+public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, h:Try<V>, #apply:(T,U,V) -> Void) {
+    f.foreach {fvalue in
+        g.foreach {gvalue in
+            h.foreach {hvalue in
+                apply(fvalue, gvalue, hvalue)
+            }
+        }
+    }
+}
+
+public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, #yield:(T,U) -> V) -> Try<V> {
+    return f.flatmap {fvalue in
+        g.map {gvalue in
+            yield(fvalue, gvalue)
+        }
+    }
+}
+
+public func forcomp<T,U,V,W>(f:Try<T>, g:Try<U>, h:Try<V>, #yield:(T,U,V) -> W) -> Try<W> {
+    return f.flatmap {fvalue in
+        g.flatmap {gvalue in
+            h.map {hvalue in
+                yield(fvalue, gvalue, hvalue)
+            }
+        }
+    }
+}
+
+public func forcomp<T,U>(f:Try<T>, g:Try<U>, #filter:(T,U) -> Bool, #apply:(T,U) -> Void) {
+    f.foreach {fvalue in
+        g.filter{gvalue in
+            filter(fvalue, gvalue)
+            }.foreach {gvalue in
+                apply(fvalue, gvalue)
+        }
+    }
+}
+
+public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, h:Try<V>, #filter:(T,U,V) -> Bool, #apply:(T,U,V) -> Void) {
+    f.foreach {fvalue in
+        g.foreach {gvalue in
+            h.filter{hvalue in
+                filter(fvalue, gvalue, hvalue)
+                }.foreach {hvalue in
+                    apply(fvalue, gvalue, hvalue)
+            }
+        }
+    }
+}
+
+public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, #filter:(T,U) -> Bool, #yield:(T,U) -> V) -> Try<V> {
+    return f.flatmap {fvalue in
+        g.filter {gvalue in
+            filter(fvalue, gvalue)
+            }.map {gvalue in
+                yield(fvalue, gvalue)
+        }
+    }
+}
+
+public func forcomp<T,U,V,W>(f:Try<T>, g:Try<U>, h:Try<V>, #filter:(T,U,V) -> Bool, #yield:(T,U,V) -> W) -> Try<W> {
+    return f.flatmap {fvalue in
+        g.flatmap {gvalue in
+            h.filter {hvalue in
+                filter(fvalue, gvalue, hvalue)
+                }.map {hvalue in
+                    yield(fvalue, gvalue, hvalue)
+            }
+        }
+    }
+
+}
 
