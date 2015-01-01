@@ -43,8 +43,8 @@ class FutureForcompTests: XCTestCase {
             XCTAssert(false, "future2 onFailure called")
         }
         forcomp(future1, future2) {(value1, value2) in
-            XCTAssert(value1, "forcomp value1 invalid")
-            XCTAssert(value2 == 1, "forcomp value2 invalid")
+            XCTAssert(value1, "forcomp apply value1 invalid")
+            XCTAssert(value2 == 1, "forcomp apply value2 invalid")
             forcompExpectation.fulfill()
         }
         promise1.success(true)
@@ -117,9 +117,9 @@ class FutureForcompTests: XCTestCase {
             XCTAssert(false, "future3 onFailure called")
         }
         forcomp(future1, future2, future3) {(value1, value2, value3) in
-            XCTAssert(value1, "forcomp value1 invalid")
-            XCTAssert(value2 == 1, "forcomp value2 invalid")
-            XCTAssert(value3 == 1.0, "forcomp value3 invalid")
+            XCTAssert(value1, "forcomp apply value1 invalid")
+            XCTAssert(value2 == 1, "forcomp apply value2 invalid")
+            XCTAssert(value3 == 1.0, "forcomp apply value3 invalid")
             forcompExpectation.fulfill()
         }
         promise1.success(true)
@@ -195,13 +195,13 @@ class FutureForcompTests: XCTestCase {
             XCTAssert(false, "future2 onFailure called")
         }
         forcomp(future1, future2, filter:{(value1, value2) -> Bool in
-                XCTAssert(value1, "forcomp value1 invalid")
-                XCTAssert(value2 == 1, "forcomp value2 invalid")
+                XCTAssert(value1, "forcomp filter value1 invalid")
+                XCTAssert(value2 == 1, "forcomp filterbvalue2 invalid")
                 filterExpectation.fulfill()
                 return true
             }) {(value1, value2) in
-                XCTAssert(value1, "forcomp value1 invalid")
-                XCTAssert(value2 == 1, "forcomp value2 invalid")
+                XCTAssert(value1, "forcomp apply value1 invalid")
+                XCTAssert(value2 == 1, "forcomp apply value2 invalid")
                 forcompExpectation.fulfill()
         }
         promise1.success(true)
@@ -267,8 +267,6 @@ class FutureForcompTests: XCTestCase {
             XCTAssert(false, "future2 onFailure called")
         }
         forcomp(future1, future2, filter:{(value1, value2) -> Bool in
-                XCTAssert(value1, "forcomp value1 invalid")
-                XCTAssert(value2 == 1, "forcomp value2 invalid")
                 filterExpectation.fulfill()
                 return false
             }) {(value1, value2) in
@@ -315,15 +313,15 @@ class FutureForcompTests: XCTestCase {
             XCTAssert(false, "future2 onFailure called")
         }
         forcomp(future1, future2, future3, filter:{(value1, value2, value3) -> Bool in
-                XCTAssert(value1, "forcomp value1 invalid")
-                XCTAssert(value2 == 1, "forcomp value2 invalid")
-                XCTAssert(value3 == 1.0, "forcomp value3 invalid")
+                XCTAssert(value1, "forcomp filter value1 invalid")
+                XCTAssert(value2 == 1, "forcomp filter value2 invalid")
+                XCTAssert(value3 == 1.0, "forcomp filter value3 invalid")
                 filterExpectation.fulfill()
                 return true
             }) {(value1, value2, value3) in
-                XCTAssert(value1, "forcomp value1 invalid")
-                XCTAssert(value2 == 1, "forcomp value2 invalid")
-                XCTAssert(value3 == 1.0, "forcomp value3 invalid")
+                XCTAssert(value1, "forcomp apply value1 invalid")
+                XCTAssert(value2 == 1, "forcomp apply value2 invalid")
+                XCTAssert(value3 == 1.0, "forcomp apply value3 invalid")
                 forcompExpectation.fulfill()
         }
         promise1.success(true)
@@ -411,9 +409,6 @@ class FutureForcompTests: XCTestCase {
             XCTAssert(false, "future2 onFailure called")
         }
         forcomp(future1, future2, future3, filter:{(value1, value2, value3) -> Bool in
-                XCTAssert(value1, "forcomp value1 invalid")
-                XCTAssert(value2 == 1, "forcomp value2 invalid")
-                XCTAssert(value3 == 1.0, "forcomp value3 invalid")
                 filterExpectation.fulfill()
                 return false
             }) {(value1, value2, value3) in
