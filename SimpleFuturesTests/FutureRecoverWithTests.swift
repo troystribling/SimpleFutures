@@ -20,7 +20,7 @@ class FutureRecoverWithTests : XCTestCase {
         super.tearDown()
     }
     
-    func testSuccessful() {
+    func testSuccessfulToFuture() {
         let promise = Promise<Bool>()
         let future = promise.future
         let onSuccessExpectation = expectationWithDescription("OnSuccess fulfilled")
@@ -49,7 +49,7 @@ class FutureRecoverWithTests : XCTestCase {
         }
     }
     
-    func testSuccessfulRecovery() {
+    func testSuccessfulRecoveryToFuture() {
         let promise = Promise<Bool>()
         let future = promise.future
         let onFailureExpectation = expectationWithDescription("OnFailure fulfilled")
@@ -80,7 +80,7 @@ class FutureRecoverWithTests : XCTestCase {
         }
     }
     
-    func testFailedRecovery() {
+    func testFailedRecoveryToFuture() {
         let promise = Promise<Bool>()
         let future = promise.future
         let onFailureExpectation = expectationWithDescription("OnFailure fulfilled")

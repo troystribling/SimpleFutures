@@ -90,7 +90,7 @@ class FutureCompleteWithTests: XCTestCase {
             onFailureExpectation.fulfill()
         }
         futureCompleted.onSuccess {value in
-            XCTAssert(false, "futureComleted onSuccess called")
+            XCTAssert(false, "futureCompleted onSuccess called")
         }
         futureCompleted.onFailure{error in
             onFailureCompletedExpectationCompleted.fulfill()
