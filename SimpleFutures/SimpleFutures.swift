@@ -389,21 +389,11 @@ public protocol ExecutionContext {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // QueueContext
-public class QueueContext : ExecutionContext {
+public struct QueueContext : ExecutionContext {
     
-    public class var main : QueueContext {
-        struct Static {
-            static let instance = QueueContext(queue:Queue.main)
-        }
-        return Static.instance
-    }
+    public static let main =  QueueContext(queue:Queue.main)
     
-    public class var global: QueueContext {
-        struct Static {
-            static let instance : QueueContext = QueueContext(queue:Queue.global)
-        }
-        return Static.instance
-    }
+    public static let global = QueueContext(queue:Queue.global)
     
     let queue:Queue
     
