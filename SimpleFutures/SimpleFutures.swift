@@ -907,7 +907,7 @@ public class StreamPromise<T> {
     }
     
     public func completeWith(executionContext:ExecutionContext, future:Future<T>) {
-        future.completeWith(future)
+        future.completeWith(executionContext, future:future)
     }
     
     public func success(value:T) {
@@ -923,7 +923,7 @@ public class StreamPromise<T> {
     }
     
     public func completeWith(executionContext:ExecutionContext, stream:FutureStream<T>) {
-        future.completeWith(stream)
+        future.completeWith(executionContext, stream:stream)
     }
     
 }
