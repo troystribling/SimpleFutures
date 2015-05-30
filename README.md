@@ -126,51 +126,41 @@ func locationManager(_ manager: CLLocationManager!,
 
 can be called repeatedly for a single instantiation of CLLocationManager. Since Futures are immutable a new instance must be created for each call. FutureStreams are read-only completed Future containers that can be used to persist all past calls in situations such as this. FutureStreams support an interface similar to Futures and can be combined with them using combinators. The StreamPromise like a Promise is write-only and additionally places completed futures in the Future Stream. The following sections will provide more details about all models in the framework a describe the interfaces used to complete Futures.
 
-The methods supported by Future, Promise, FutureStream and StreamPromise methods fall into four categories. Those that complete the result, callbacks, combinators and for-comprehensions. The following sections will describe each category and provide examples.
+The methods supported by Future, Promise, FutureStream and StreamPromise methods fall into four categories. Those that complete and create the future, callbacks, combinators and for-comprehensions. The following sections will describe each category and provide examples.
  
-# Completing 
+# Completing and Creating
 
-The methods and attributes of Future&lt;T&gt; used for completion are,
+Completing a future is synonymous with writing the result the Future&lt;T&gt; instance is immutable so publicly it is read only. If an attempt is made to complete a completed future a SimpleFuturesException is raised. The Future&lt;T&gt; methods used to create and and read the completion status are,
 
 ```swift
 // true if future is completed
-public var completed : Bool
+public var completed : Bool {get}
 
 // create a future
-public init()
-    
-// complete the future with result 
-internal func complete(result:Try<T>)
-
-// complete the future with another future result using the default execution context
-internal func completeWith(future:Future<T>)
-
-// complete the future with another future result using the specified execution context
-internal func completeWith(executionContext:ExecutionContext, future:Future<T>)
-
-// complete the future successfully
-internal func success(value:T)
-
-// complete the future with failure
-internal func failure(error:NSError)
+public init()    
 ```
 
-The purpose of Promise&lt;T&gt; is to write a Future&lt;T&gt; result. It methods mirror those of Future&lt;T&gt; but have public access,
+Promise&lt;T&gt; provides the interface to write a future result. The methods used are,
 
 ```swift
 // true if future is completed		
-public var completed : Bool 
+public var completed : Bool {get} 
     
+// get the future
+public var future : Future<T> {get}
+
 // create a promise
 public init()
     
 // complete the future with result 
 public func complete(result:Try<T>)
 
-// complete the future with another future result using the default execution context
+// complete the future with another future result using the
+// default execution context
 public func completeWith(future:Future<T>)
     
-// complete the future with another future result using the specified execution context
+// complete the future with another future result using the 
+// specified execution context
 public func completeWith(executionContext:ExecutionContext, future:Future<T>)
         
 // complete the future successfully
@@ -183,55 +173,60 @@ public func failure(error:NSError)
 An application can create and complete a future using,
 
 ```swift
+let testError = NSError(domain:"Test", code:1, userInfo:[NSLocalizedDescriptionKey:"Test Error"])
+
+struct RequestData {
+	let promise = Promise<Int>()
+	func request() -> Future<Int> {
+	  return self.promise.future
+	} 
+	func receiveResult(value:Int?) {
+		if let value = value {
+	    self.promise.success(value)
+	  } else {
+	    self.promise.failure(SimpleFuturesTestError.testError)
+		}
+	}  
+}
+
+let dataRequest = RequestData()
+let dataFuture = dataRequest.request()
+dataRequest.receiveResult(10)
 ```
 
-FutureStream&lt;T&gt; has a similar interface for completion as Future&lt;T&gt;, namely,
+Completing a FutureStream&lt;T&gt; is synonymous to adding a completed Future&lt;T&lt;. It can have a finite capacity if specified in the constructor. The default value is infinite. The FutureStream&lt;T&gt; methods used to create and get the number of Future&lt;T&gt;s in the stream are,
 
 ```swift
-// create a stream with capacity if nil capacity is infinite
+// number of futures in stream
+public var count : Int {get}
+
+// create a stream with capacity
 public init(capacity:Int?=nil)
-
-// add a completed future to stream
-internal func complete(result:Try<T>)
-
-// complete the stream with the result of another stream using default execution context
-internal func completeWith(stream:FutureStream<T>)
-
-// complete the stream with the result of another stream using specified execution context
-internal func completeWith(executionContext:ExecutionContext, stream:FutureStream<T>)
-
-// complete the stream with the result of a future using default execution context
-internal func completeWith(future:Future<T>)
-
-// complete the stream with the result of a future using specified execution context
-internal func completeWith(executionContext:ExecutionContext, future:Future<T>)
-
-// add a successfully completed future to the stream
-internal func success(value:T)
-
-// add a failed completed future to the stream
-internal func failure(error:NSError)
 ```
 
-StreamPromise&lt;T&gt; also has an interface similar interface for completion as Promise&lt;T&gt;, namely,
+StreamPromise&lt;T&gt; provides the interface to add completed futures to a FutureStream&lt;T&gt;. The methods used are,
 
 ```swift
-// create a stream promise with capacity if nil capacity is infinite  
+// create a stream promise with capacity  
 public init(capacity:Int?=nil)
     
 // add a completed future to stream
 public func complete(result:Try<T>)
     
-// complete the stream with the result of another stream using default execution context
+// complete the stream with the result of another stream using
+// default execution context
 public func completeWith(stream:FutureStream<T>)
  
-// complete the stream with the result of another stream using specified execution context   
+// complete the stream with the result of another stream using 
+// specified execution context   
 public func completeWith(executionContext:ExecutionContext, stream:FutureStream<T>)
 
-// complete the stream with the result of a future using specified execution context
+// complete the stream with the result of a future using
+// specified execution context
 public func completeWith(future:Future<T>)
     
-// complete the stream with the result of a future using specified execution context
+// complete the stream with the result of a future using 
+// specified execution context
 public func completeWith(executionContext:ExecutionContext, future:Future<T>)
     
 // add a successfully completed future to the stream
@@ -239,6 +234,30 @@ public func success(value:T)
     
 // add a failed completed future to the stream
 public func failure(error:NSError) 
+```
+
+An application would create and complete a FutureStream&lt;T&gt; using,
+
+```swift
+let testError = NSError(domain:"Test", code:1, userInfo:[NSLocalizedDescriptionKey:"Test Error"])
+
+struct RequestData {
+    let promise = StreamPromise<Int>(capacity:10)
+    func request() -> FutureStream<Int> {
+        return self.promise.future
+    }
+    func receiveResult(value:Int?) {
+        if let value = value {
+            self.promise.success(value)
+        } else {
+            self.promise.failure(SimpleFuturesTestError.testError)
+        }
+    }
+}
+
+let dataRequest = RequestData()
+let dataFuture = dataRequest.request()
+dataRequest.receiveResult(10)
 ```
 
 # future
