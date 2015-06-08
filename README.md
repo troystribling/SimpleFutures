@@ -289,7 +289,7 @@ The following sections will provide more information and examples for each callb
 
 ## <a name="oncomplete">onComplete</a>
 
-The onComplete callback is called when a Future&lt;T&gt; or FutureStream&lt;T&gt; is completed and yields Try&lt;T&gt; For a Future&lt;T&gt;, using the [example](#completing_creating), an application would specify the callback using,
+The onComplete callback is called when a Future&lt;T&gt; or FutureStream&lt;T&gt; is completed and yields a Try&lt;T&gt; containing the result. For a Future&lt;T&gt;, using the [example](#completing_creating), an application would implement the callback using,
 
 ```swift
 let dataRequest = RequestData()
@@ -306,7 +306,7 @@ dataFuture.onComplete {result in
 
 If Future&lt;T&gt; is completed prior to calling onComplete the callback will be called immediately, otherwise the it will be called when the future is later completed.
 
-An application implementing a FutureStream&lt;T&gt; has a similar implementation using the same [example](#completing_creating) but the behavior is more complicated. 
+An application using a FutureStream&lt;T&gt; has a similar implementation using the same [example](#completing_creating) but the behavior will be different. 
 
 ```swift
 let dataRequest = RequestData()
@@ -321,13 +321,67 @@ dataFuture.onComplete {result in
 }
 ``` 
 
-Recall that a FutureStream&lt;T&gt; is a container of completed Future&lt;T&gt;s. When onComplete is called the callback will be called for all futures in the stream as well as all futures added to the stream after onComplete is called.
+Recall that a FutureStream&lt;T&gt; is a container of completed Future&lt;T&gt;s. When onComplete is called the callback will be called for all futures in the stream as well as all futures added to the stream in the future.
 
 ## <a name="onsuccess">onSuccess</a>
 
+The onSuccess callback is called when a Future&lt;T&gt; or FutureStream&lt;T&gt; is completed successfully and yields the result of type T. For a Future&lt;T&gt;, using the [example](#completing_creating), an application would implement the callback using,
+
+```swift
+let dataRequest = RequestData()
+let dataFuture = dataRequest.request()
+dataFuture.onSuccess {result in
+		…
+	}
+}
+``` 
+
+If Future&lt;T&gt; is completed prior to calling onSuccess the callback will be called immediately, otherwise the it will be called when the future is later completed.
+
+An application using a FutureStream&lt;T&gt; has a similar implementation using the same [example](#completing_creating) but the behavior will be different. 
+
+```swift
+let dataRequest = RequestData()
+let dataFuture = dataRequest.request()
+dataFuture.onSuccess {result in
+		…
+	}
+}
+``` 
+
+Recall that a FutureStream&lt;T&gt; is a container of completed Future&lt;T&gt;s. When onSuccess is called the callback will be called for all successfully completed futures in the stream as well as all successfully completed futures added to the stream in the future.
+
 ## <a name="onfailure">onFailure</a>
 
+The onError callback is called when a Future&lt;T&gt; or FutureStream&lt;T&gt; is completed with failure and yields the error of type NSError. For a Future&lt;T&gt;, using the [example](#completing_creating), an application would implement the callback using,
+
+```swift
+let dataRequest = RequestData()
+let dataFuture = dataRequest.request()
+dataFuture.onFailure {error in
+		…
+	}
+}
+``` 
+
+If Future&lt;T&gt; is completed prior to calling onError the callback will be called immediately, otherwise the it will be called when the future is later completed.
+
+An application using a FutureStream&lt;T&gt; has a similar implementation using the same [example](#completing_creating) but the behavior is different. 
+
+```swift
+let dataRequest = RequestData()
+let dataFuture = dataRequest.request()
+dataFuture.onFailure {error in
+		…
+	}
+}
+``` 
+
+Recall that a FutureStream&lt;T&gt; is a container of completed Future&lt;T&gt;s. When onFailure is called the callback will be called for all futures in the stream completed with a failure as well as all futures completed with failure added to the stream in the future.
+
 # <a name="combinators">Combinators</a>
+
+Combinators allow futures to be combined in ways that simplify application implementations. Futures that must be executed serially can be combined with flatmap. The map combinator can be used to execute a function that returns a value after the future is successfully completed. If a future is completed with failure the recoverWith combinator executes another future or the recover combinator excutes a function that returns a value.
 
 ## <a name="map">map</a>
 
@@ -337,7 +391,7 @@ Recall that a FutureStream&lt;T&gt; is a container of completed Future&lt;T&gt;s
 
 ## <a name="recoverwith">recoverWith</a>
 
-## <a name="filter">filter</a>
+## <a name="withfilter">withFilter</a>
 
 ## <a name="foreach">foreach</a>
 
