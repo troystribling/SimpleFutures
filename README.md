@@ -2,25 +2,26 @@
 
 A Swift implementation of [Scala Futures](http://docs.scala-lang.org/overviews/core/futures.html) with a few extras.
 
-# Motivation
+# <a name="motivation">Motivation</a>
 
 Futures provide the construction of code that processes asynchronous requests by default in a non-blocking and concise manner. They support combinator interfaces for serializing the processing of requests and for-comprehensions for processing requests in parallel. In addition combinators supporting error recovery and filtering are provided. In most Apple libraries asynchronous interfaces are supported through the delegate-protocol pattern or in some cases with a callback. Even simple implementations of these interfaces can lead to business logic distributed over many files or deeply nested callbacks that can be hard to follow. It will be seen that Futures very nicely solve this problem. 
 
 SimpleFutures is an implementation of [Scala Futures](http://docs.scala-lang.org/overviews/core/futures.html) in Swift and was influenced by [BrightFutures](https://github.com/Thomvis/BrightFutures).
 
-# Requirements
+# <a name="requirements">Requirements</a>
 
 - iOS 8.0+
 - Xcode 6.3+
 
-# Installation
+# <a name="installation">Installation</a>
 
 All code is contained in the single file SimpleFutures.swift. Add it to your project.
 
-# Models
+# <a name="models">Models</a>
 
+Here the models used in the framework will described and usage examples given.
 
-## Queue
+## <a name="queue">Queue</a>
 
 A Queue instance wraps a [GCD Serial Queue](https://developer.apple.com/library/ios/documentation/General/Conceptual/ConcurrencyProgrammingGuide/OperationQueues/OperationQueues.html) and provides the methods,
 
@@ -65,7 +66,7 @@ sampleQueue.async {
 }
 ```
 
-## Execution Context
+## <a name="execution_context">Execution Context</a>
 
 An ExecutionContext executes tasks and is defined by and implementation of the protocol,
 
@@ -91,7 +92,7 @@ public func execute(task:Void -> Void)
 
 By default Futures execute on, QueueContext.main.
 
-## Try
+## <a name="try">Try</a>
 
 Future&lt;T&gt; results are of type Try&lt;T&gt;. A Try&lt;T&gt; is similar to an [Optional&lt;T&gt;](https://developer.apple.com/library/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Types.html#//apple_ref/doc/uid/TP40014097-CH31-ID452) but instead of case None has a Failure case containing an NSError object,
 
@@ -113,7 +114,7 @@ public enum Try<T> {
 
 The Box&lt;T&gt; is a workaround for a compiler bug.
 
-## Futures, Promises, FutureStreams and StreamPromises
+## <a name="futures_promises">Futures, Promises, FutureStreams and StreamPromises</a>
 
 A Future instance is a read-only encapsulation of an immutable result that can be computed anytime in the future. When the result is computed the Future is said to be completed. A Future may be completed successfully with a value or failed with an error. A Promise instance is one-time writable and contains a Future. When completing its Future successfully a Promise will write a value to the Future result and when completing with failure will write an error to its Future result. 
 
@@ -128,9 +129,9 @@ can be called repeatedly for a single instantiation of CLLocationManager. Since 
 
 The methods supported by Future, Promise, FutureStream and StreamPromise methods fall into four categories. Those that complete and create the future, callbacks, combinators and for-comprehensions. The following sections will describe each category and provide examples.
  
-# Completing and Creating
+# <a name="completing_creating">Completing and Creating</a>
 
-Completing a future is synonymous with writing the result the Future&lt;T&gt; instance is immutable so publicly it is read only. If an attempt is made to complete a completed future a SimpleFuturesException is raised. The Future&lt;T&gt; methods used to create and and read the completion status are,
+Completing a future is synonymous with writing the result. The Future&lt;T&gt; instance is immutable so publicly it is read only. If an attempt is made to complete a completed future a SimpleFuturesException is raised. The Future&lt;T&gt; methods used to create and and read the completion status are,
 
 ```swift
 // true if future is completed
@@ -194,7 +195,7 @@ let dataFuture = dataRequest.request()
 dataRequest.receiveResult(10)
 ```
 
-Completing a FutureStream&lt;T&gt; is synonymous to adding a completed Future&lt;T&lt;. It can have a finite capacity if specified in the constructor. The default value is infinite. The FutureStream&lt;T&gt; methods used to create and get the number of Future&lt;T&gt;s in the stream are,
+Completing a FutureStream&lt;T&gt; is synonymous to adding a completed Future&lt;T&lt; and it can have a finite capacity if specified in the constructor. The default value is infinite. The FutureStream&lt;T&gt; methods used to create and get the number of Future&lt;T&gt;s in the stream are,
 
 ```swift
 // number of futures in stream
@@ -260,30 +261,88 @@ let dataFuture = dataRequest.request()
 dataRequest.receiveResult(10)
 ```
 
-# future
+# <a name="futures_promises">Callbacks</a>
 
-# Callbacks
+Both Future&lt;T&gt; and FutureStream&lt;T&gt; have three callbacks that may be called on completion. They are,
 
-## onComplete
+```swift
+// called when completed and executed in specified context
+public func onComplete(executionContext:ExecutionContext, complete:Try<T> -> Void) 
 
-## onSuccess
+// called when completed and executed in default context
+public func onComplete(complete:Try<T> -> Void)
 
-## onFailure
+// called when successfully completed and executed in specified context 
+public func onSuccess(executionContext:ExecutionContext, success:T -> Void)
 
-# Combinators
+// called when successfully completed and executed in default context 
+public func onSuccess(success:T -> Void)
 
-## map
+// called when completed with failure and executed in specified context 
+public func onFailure(failure:NSError -> Void)
 
-## flatmap
+// called when completed with failure and executed in default context 
+public func onFailure(executionContext:ExecutionContext, failure:NSError -> Void)
+``` 
 
-## recover
+The following sections will provide more information and examples for each callback.
 
-## recoverWith
+## <a name="oncomplete">onComplete</a>
 
-## filter
+The onComplete callback is called when a Future&lt;T&gt; or FutureStream&lt;T&gt; is completed and yields Try&lt;T&gt; For a Future&lt;T&gt;, using the [example](#completing_creating), an application would specify the callback using,
 
-## foreach
+```swift
+let dataRequest = RequestData()
+let dataFuture = dataRequest.request()
+dataFuture.onComplete {result in
+	switch result {
+	  case .Success(let result):
+		  success(result.value)
+		case .Failure(let error):
+			failure(error)
+	}
+}
+``` 
 
-## andThen
+If Future&lt;T&gt; is completed prior to calling onComplete the callback will be called immediately, otherwise the it will be called when the future is later completed.
 
-# for comprehensions
+An application implementing a FutureStream&lt;T&gt; has a similar implementation using the same [example](#completing_creating) but the behavior is more complicated. 
+
+```swift
+let dataRequest = RequestData()
+let dataFuture = dataRequest.request()
+dataFuture.onComplete {result in
+	switch result {
+	  case .Success(let result):
+		  mySuccess(result.value)
+		case .Failure(let error):
+			myFailure(error)
+	}
+}
+``` 
+
+Recall that a FutureStream&lt;T&gt; is a container of completed Future&lt;T&gt;s. When onComplete is called the callback will be called for all futures in the stream as well as all futures added to the stream after onComplete is called.
+
+## <a name="onsuccess">onSuccess</a>
+
+## <a name="onfailure">onFailure</a>
+
+# <a name="combinators">Combinators</a>
+
+## <a name="map">map</a>
+
+## <a name="flatmap">flatmap</a>
+
+## <a name="recover">recover</a>
+
+## <a name="recoverwith">recoverWith</a>
+
+## <a name="filter">filter</a>
+
+## <a name="foreach">foreach</a>
+
+## <a name="andthen">andThen</a>
+
+# <a name="forcomprehensions">for comprehensions</a>
+
+# <a name="future">future</a>

@@ -508,7 +508,20 @@ public class Future<T> {
     public init() {
     }
     
-    // should be Futureable protocol
+    // should be future mixin
+    internal func complete(result:Try<T>) {
+        Queue.simpleFutures.sync {
+            if self.result != nil {
+                SimpleFuturesException.futureCompleted.raise()
+            }
+            self.result = result
+            for complete in self.saveCompletes {
+                complete(result)
+            }
+            self.saveCompletes.removeAll()
+        }
+    }
+    
     public func onComplete(executionContext:ExecutionContext, complete:Try<T> -> Void) -> Void {
         Queue.simpleFutures.sync {
             let savedCompletion : OnComplete = {result in
@@ -521,20 +534,6 @@ public class Future<T> {
             } else {
                 self.saveCompletes.append(savedCompletion)
             }
-        }
-    }
-    
-    // should be future mixin
-    internal func complete(result:Try<T>) {
-        Queue.simpleFutures.sync {
-            if self.result != nil {
-                SimpleFuturesException.futureCompleted.raise()
-            }
-            self.result = result
-            for complete in self.saveCompletes {
-                complete(result)
-            }
-            self.saveCompletes.removeAll()
         }
     }
     
@@ -947,7 +946,18 @@ public class FutureStream<T> {
         self.capacity = capacity
     }
     
-    // Futureable protocol
+    // should be future mixin
+    internal func complete(result:Try<T>) {
+        let future = Future<T>()
+        future.complete(result)
+        Queue.simpleFutureStreams.sync {
+            self.addFuture(future)
+            for complete in self.saveCompletes {
+                complete(future)
+            }
+        }
+    }
+    
     public func onComplete(executionContext:ExecutionContext, complete:Try<T> -> Void) {
         Queue.simpleFutureStreams.sync {
             let futureComplete : InFuture = {future in
@@ -960,18 +970,6 @@ public class FutureStream<T> {
         }
     }
     
-    internal func complete(result:Try<T>) {
-        let future = Future<T>()
-        future.complete(result)
-        Queue.simpleFutureStreams.sync {
-            self.addFuture(future)
-            for complete in self.saveCompletes {
-                complete(future)
-            }
-        }
-    }
-    
-    // should be future mixin
     public func onComplete(complete:Try<T> -> Void) {
         self.onComplete(self.defaultExecutionContext, complete:complete)
     }
