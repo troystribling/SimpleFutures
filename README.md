@@ -336,9 +336,9 @@ dataFuture.onSuccess {result in
 }
 ``` 
 
-If Future&lt;T&gt; is completed prior to calling onSuccess the callback will be called immediately, otherwise the it will be called when the future is later completed.
+If Future&lt;T&gt; is completed prior to calling onSuccess the callback will be called immediately, otherwise the it will be called when the future is later completed. Also, onSuccess can be called multiple times using different callbacks.
 
-An application using a FutureStream&lt;T&gt; has a similar implementation using the same [example](#completing_creating) but the behavior will be different. 
+An application using a FutureStream&lt;T&gt; has a similar implementation, using the same [example](#completing_creating), but the behavior will be different. 
 
 ```swift
 let dataRequest = RequestData()
@@ -349,7 +349,7 @@ dataFuture.onSuccess {result in
 }
 ``` 
 
-Recall that a FutureStream&lt;T&gt; is a container of completed Future&lt;T&gt;s. When onSuccess is called the callback will be called for all successfully completed futures in the stream as well as all successfully completed futures added to the stream in the future.
+Recall that a FutureStream&lt;T&gt; is a container of completed Future&lt;T&gt;s. When onSuccess is called the specified  callback will be executed for all successfully completed futures in the stream as well as all successfully completed futures added to the stream in the future. Also, onSuccess can be called multiple times using different callbacks.
 
 ## <a name="onfailure">onFailure</a>
 
@@ -364,9 +364,9 @@ dataFuture.onFailure {error in
 }
 ``` 
 
-If Future&lt;T&gt; is completed prior to calling onError the callback will be called immediately, otherwise the it will be called when the future is later completed.
+If Future&lt;T&gt; is completed prior to calling onError the callback will be called immediately, otherwise the it will be called when the future is later completed. Also, onError can be called multiple times using different callbacks.
 
-An application using a FutureStream&lt;T&gt; has a similar implementation using the same [example](#completing_creating) but the behavior is different. 
+An application using a FutureStream&lt;T&gt; has a similar implementation, using the same [example](#completing_creating), but the behavior is different. 
 
 ```swift
 let dataRequest = RequestData()
@@ -377,13 +377,16 @@ dataFuture.onFailure {error in
 }
 ``` 
 
-Recall that a FutureStream&lt;T&gt; is a container of completed Future&lt;T&gt;s. When onFailure is called the callback will be called for all futures in the stream completed with a failure as well as all futures completed with failure added to the stream in the future.
+Recall that a FutureStream&lt;T&gt; is a container of completed Future&lt;T&gt;s. When onFailure is called the specified callback will be executed for all futures in the stream completed with failure as well as all futures completed with failure added to the stream in the future. Also, onError can be called multiple times using different callbacks.
 
 # <a name="combinators">Combinators</a>
 
-Combinators allow futures to be combined in ways that simplify application implementations. Futures that must be executed serially can be combined with flatmap. The map combinator can be used to execute a function that returns a value after the future is successfully completed. If a future is completed with failure the recoverWith combinator executes another future or the recover combinator excutes a function that returns a value.
+Combinators allow futures to be combined in ways that simplify application implementations. Futures that must be executed serially can be combined with flatmap. The map combinator can be used to execute a function that returns a value after a future is successfully completed. If a future is completed with failure the recoverWith combinator executes another future or the recover combinator excutes a function that returns a value. Filters can be applied to previous completed futures using the withFilter combinator.
 
 ## <a name="map">map</a>
+
+```swift
+```
 
 ## <a name="flatmap">flatmap</a>
 
