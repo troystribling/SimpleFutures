@@ -381,18 +381,121 @@ Recall that a FutureStream&lt;T&gt; is a container of completed Future&lt;T&gt;s
 
 # <a name="combinators">Combinators</a>
 
-Combinators allow futures to be combined in ways that simplify application implementations. Futures that must be executed serially can be combined with flatmap. The map combinator can be used to execute a function that returns a value after a future is successfully completed. If a future is completed with failure the recoverWith combinator executes another future or the recover combinator excutes a function that returns a value. Filters can be applied to previous completed futures using the withFilter combinator.
+Combinators allow futures to be combined in ways that simplify application implementations. Futures that must be executed serially can be combined with flatmap. The map combinator is used to convert a future of one type to a future of another type. If a future is completed with failure the recoverWith combinator executes another future or the recover combinator executes a function that returns a value. Filters can be applied to previous completed futures using the withFilter combinator. The result of a successfully completed future can be processed with the foreach combinator and the andThen combinator can serialize processing completed future results. All combinators are supported for both Future&lt;T&gt; and FutureStream&lt;T&gt; and Future&lt;T&gt; and FutureStream&lt;T&gt; results can be combined using flatmap and recoverWith. The following sections will provide details for each combinator with code examples.
 
 ## <a name="map">map</a>
+
+The map combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. The mapping function specified  is called only after successful completion of the Future&lt;T&gt; or FutureStream&lt;T&gt; and is of type T -> Try<M>. map for Future&lt;T&gt; instances returns a Future&lt;M&gt; and has the following definition,
+
+```swift
+// apply mapping using specified execution context
+public func map<M>(executionContext:ExecutionContext, mapping:T -> Try<M>) -> Future<M>
+
+// apply mapping using default execution context
+public func map<M>(mapping:T -> Try<M>) -> Future<M> 
+```
+
+Notice that mapping returns a Try<T> so it can fail. If it does fail the Future&lt;M&gt; instance will be completed with failure otherwise it will be completed successfully.
+
+```swift
+```
+
+map for FutureStream&lt;T&gt; instances returns a FutureStream&lt;M&gt; and has the following definition,
+
+```swift
+// apply mapping using specified execution context
+public func map<M>(executionContext:ExecutionContext, mapping:T -> Try<M>) -> FutureStream<M>
+
+// apply mapping using default execution context
+public func map<M>(mapping:T -> Try<M>) -> FutureStream<M>
+```
 
 ```swift
 ```
 
 ## <a name="flatmap">flatmap</a>
 
+```swift
+// apply mapping using specified execution context
+public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> Future<M>) -> Future<M>
+
+// apply mapping using default execution context
+public func flatmap<M>(mapping:T -> Future<M>) -> Future<M>
+```
+
+```swift
+// apply mapping using specified execution context
+public func flatMap<M>(executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M>
+
+// apply mapping using default execution context
+public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
+```
+
+```swift
+// apply mapping to FutureStream<M> with specified capacity and execution context
+public func flatmap<M>(capacity:Int, executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M>
+
+// apply mapping to FutureStream<M> with infinite capacity and specified execution context
+public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M>
+
+// apply mapping to FutureStream<M> with specified capacity and default context
+public func flatmap<M>(capacity:Int, mapping:T -> FutureStream<M>) -> FutureStream<M>
+
+// apply mapping to FutureStream<M> with infinite capacity and default context
+public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
+```
+
+```swift
+// apply mapping to Future<M> using specified execution context
+public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> Future<M>) -> FutureStream<M>
+
+// apply mapping to Future<M> using default execution context
+public func flatmap<M>(mapping:T -> Future<M>) -> FutureStream<M>
+```
+
 ## <a name="recover">recover</a>
 
+```swift
+public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T>) -> Future<T>
+
+public func recover(recovery: NSError -> Try<T>) -> Future<T>
+```
+
+```swift
+public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T>) -> FutureStream<T>
+
+public func recover(recovery:NSError -> Try<T>) -> FutureStream<T>
+```
+
 ## <a name="recoverwith">recoverWith</a>
+
+```swift
+public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> Future<T>
+
+public func recoverWith(recovery:NSError -> Future<T>) -> Future<T>
+```
+
+```swift
+public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> FutureStream<T>
+
+public func recoverWith(recovery:NSError -> Future<T>) -> FutureStream<T>
+```
+
+```swift
+public func recoverWith(capacity:Int, executionContext:ExecutionContext, recovery:NSError -> FutureStream<T>) -> FutureStream<T>
+
+public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> FutureStream<T>) -> FutureStream<T>
+
+public func recoverWith(capacity:Int, recovery:NSError -> FutureStream<T>) -> FutureStream<T>
+
+public func recoverWith(recovery:NSError -> FutureStream<T>) -> FutureStream<T>
+```
+
+```swift
+public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> FutureStream<T>
+
+public func recoverWith(recovery:NSError -> Future<T>) -> FutureStream<T>
+```
 
 ## <a name="withfilter">withFilter</a>
 
