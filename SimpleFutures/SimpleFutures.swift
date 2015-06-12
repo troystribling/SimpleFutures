@@ -689,35 +689,35 @@ public class Future<T> {
     
     // future stream extensions
     public func flatmap<M>(capacity:Int, mapping:T -> FutureStream<M>) -> FutureStream<M> {
-        return self.flatMap(capacity, executionContext:self.defaultExecutionContext, mapping:mapping)
+        return self.flatMapStream(capacity, executionContext:self.defaultExecutionContext, mapping:mapping)
     }
     
     public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M> {
-        return self.flatMap(nil, executionContext:self.defaultExecutionContext, mapping:mapping)
+        return self.flatMapStream(nil, executionContext:self.defaultExecutionContext, mapping:mapping)
     }
     
     public func flatmap<M>(capacity:Int, executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M>  {
-        return self.flatMap(capacity, executionContext:self.defaultExecutionContext, mapping:mapping)
+        return self.flatMapStream(capacity, executionContext:self.defaultExecutionContext, mapping:mapping)
     }
     
     public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M>  {
-        return self.flatMap(nil, executionContext:self.defaultExecutionContext, mapping:mapping)
+        return self.flatMapStream(nil, executionContext:self.defaultExecutionContext, mapping:mapping)
     }
     
     public func recoverWith(recovery:NSError -> FutureStream<T>) -> FutureStream<T> {
-        return self.recoverWith(nil, executionContext:self.defaultExecutionContext, recovery:recovery)
+        return self.recoverWithStream(nil, executionContext:self.defaultExecutionContext, recovery:recovery)
     }
     
     public func recoverWith(capacity:Int, recovery:NSError -> FutureStream<T>) -> FutureStream<T> {
-        return self.recoverWith(capacity, executionContext:self.defaultExecutionContext, recovery:recovery)
+        return self.recoverWithStream(capacity, executionContext:self.defaultExecutionContext, recovery:recovery)
     }
     
     public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> FutureStream<T>) -> FutureStream<T> {
-        return self.recoverWith(nil, executionContext:executionContext, recovery:recovery)
+        return self.recoverWithStream(nil, executionContext:executionContext, recovery:recovery)
     }
     
     public func recoverWith(capacity:Int, executionContext:ExecutionContext, recovery:NSError -> FutureStream<T>) -> FutureStream<T> {
-        return self.recoverWith(capacity, executionContext:executionContext, recovery:recovery)
+        return self.recoverWithStream(capacity, executionContext:executionContext, recovery:recovery)
     }
     
     internal func completeWith(stream:FutureStream<T>) {
@@ -730,7 +730,7 @@ public class Future<T> {
         }
     }
     
-    internal func flatMap<M>(capacity:Int?, executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M> {
+    internal func flatMapStream<M>(capacity:Int?, executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M> {
         let stream = FutureStream<M>(capacity:capacity)
         self.onComplete(executionContext) {result in
             switch result {
@@ -743,7 +743,7 @@ public class Future<T> {
         return stream
     }
     
-    internal func recoverWith(capacity:Int?, executionContext:ExecutionContext, recovery:NSError -> FutureStream<T>) -> FutureStream<T> {
+    internal func recoverWithStream(capacity:Int?, executionContext:ExecutionContext, recovery:NSError -> FutureStream<T>) -> FutureStream<T> {
         let stream = FutureStream<T>(capacity:capacity)
         self.onComplete(executionContext) {result in
             switch result {
