@@ -72,7 +72,7 @@ public func filter<T>(maybe:T?, predicate:T -> Bool) -> T? {
     return maybe.filter(predicate)
 }
 
-public func forcomp<T,U>(f:T?, g:U?, #apply:(T,U) -> Void) {
+public func forcomp<T,U>(f:T?, g:U?, apply:(T,U) -> Void) {
     f.foreach {fvalue in
         g.foreach {gvalue in
             apply(fvalue, gvalue)
@@ -88,7 +88,7 @@ public func flatten<T>(maybe:T??) -> T? {
     }
 }
 
-public func forcomp<T,U,V>(f:T?, g:U?, h:V?, #apply:(T,U,V) -> Void) {
+public func forcomp<T,U,V>(f:T?, g:U?, h:V?, apply:(T,U,V) -> Void) {
     f.foreach {fvalue in
         g.foreach {gvalue in
             h.foreach {hvalue in
@@ -98,7 +98,7 @@ public func forcomp<T,U,V>(f:T?, g:U?, h:V?, #apply:(T,U,V) -> Void) {
     }
 }
 
-public func forcomp<T,U,V>(f:T?, g:U?, #yield:(T,U) -> V) -> V? {
+public func forcomp<T,U,V>(f:T?, g:U?, yield:(T,U) -> V) -> V? {
     return f.flatmap {fvalue in
         g.map {gvalue in
             yield(fvalue, gvalue)
@@ -106,7 +106,7 @@ public func forcomp<T,U,V>(f:T?, g:U?, #yield:(T,U) -> V) -> V? {
     }
 }
 
-public func forcomp<T,U,V, W>(f:T?, g:U?, h:V?, #yield:(T,U,V) -> W) -> W? {
+public func forcomp<T,U,V, W>(f:T?, g:U?, h:V?, yield:(T,U,V) -> W) -> W? {
     return f.flatmap {fvalue in
         g.flatmap {gvalue in
             h.map {hvalue in
@@ -116,7 +116,7 @@ public func forcomp<T,U,V, W>(f:T?, g:U?, h:V?, #yield:(T,U,V) -> W) -> W? {
     }
 }
 
-public func forcomp<T,U>(f:T?, g:U?, #filter:(T,U) -> Bool, #apply:(T,U) -> Void) {
+public func forcomp<T,U>(f:T?, g:U?, filter:(T,U) -> Bool, apply:(T,U) -> Void) {
     f.foreach {fvalue in
         g.filter{gvalue in
             filter(fvalue, gvalue)
@@ -126,7 +126,7 @@ public func forcomp<T,U>(f:T?, g:U?, #filter:(T,U) -> Bool, #apply:(T,U) -> Void
     }
 }
 
-public func forcomp<T,U,V>(f:T?, g:U?, h:V?, #filter:(T,U,V) -> Bool, #apply:(T,U,V) -> Void) {
+public func forcomp<T,U,V>(f:T?, g:U?, h:V?, filter:(T,U,V) -> Bool, apply:(T,U,V) -> Void) {
     f.foreach {fvalue in
         g.foreach {gvalue in
             h.filter{hvalue in
@@ -138,7 +138,7 @@ public func forcomp<T,U,V>(f:T?, g:U?, h:V?, #filter:(T,U,V) -> Bool, #apply:(T,
     }
 }
 
-public func forcomp<T,U,V>(f:T?, g:U?, #filter:(T,U) -> Bool, #yield:(T,U) -> V) -> V? {
+public func forcomp<T,U,V>(f:T?, g:U?, filter:(T,U) -> Bool, yield:(T,U) -> V) -> V? {
     return f.flatmap {fvalue in
         g.filter {gvalue in
             filter(fvalue, gvalue)
@@ -148,13 +148,13 @@ public func forcomp<T,U,V>(f:T?, g:U?, #filter:(T,U) -> Bool, #yield:(T,U) -> V)
     }
 }
 
-public func forcomp<T,U,V,W>(f:T?, g:U?, h:V?, #filter:(T,U,V) -> Bool, #yield:(T,U,V) -> W) -> W? {
+public func forcomp<T,U,V,W>(f:T?, g:U?, h:V?, filter:(T,U,V) -> Bool, yield:(T,U,V) -> W) -> W? {
     return f.flatmap {fvalue in
         g.flatmap {gvalue in
             h.filter {hvalue in
                 filter(fvalue, gvalue, hvalue)
-                }.map {hvalue in
-                    yield(fvalue, gvalue, hvalue)
+            }.map {hvalue in
+                yield(fvalue, gvalue, hvalue)
             }
         }
     }
@@ -247,7 +247,7 @@ public enum Try<T> {
             } else {
                 return Try(box)
             }
-        case .Failure(let error):
+        case .Failure(_):
             return self
         }
     }
@@ -265,7 +265,7 @@ public enum Try<T> {
         switch self {
         case .Success(let box):
             return Optional<T>(box.value)
-        case .Failure(let error):
+        case .Failure(_):
             return Optional<T>()
         }
     }
@@ -274,7 +274,7 @@ public enum Try<T> {
         switch self {
         case .Success(let box):
             return box.value
-        case .Failure(let error):
+        case .Failure(_):
             return failed
         }
     }
@@ -283,15 +283,15 @@ public enum Try<T> {
         switch self {
         case .Success(let box):
             return Try(box)
-        case .Failure(let error):
+        case .Failure(_):
             return failed
         }
     }
     
 }
 
-public func flatten<T>(try:Try<Try<T>>) -> Try<T> {
-    switch try {
+public func flatten<T>(result:Try<Try<T>>) -> Try<T> {
+    switch result {
     case .Success(let box):
         return box.value
     case .Failure(let error):
@@ -299,7 +299,7 @@ public func flatten<T>(try:Try<Try<T>>) -> Try<T> {
     }
 }
 
-public func forcomp<T,U>(f:Try<T>, g:Try<U>, #apply:(T,U) -> Void) {
+public func forcomp<T,U>(f:Try<T>, g:Try<U>, apply:(T,U) -> Void) {
     f.foreach {fvalue in
         g.foreach {gvalue in
             apply(fvalue, gvalue)
@@ -307,7 +307,7 @@ public func forcomp<T,U>(f:Try<T>, g:Try<U>, #apply:(T,U) -> Void) {
     }
 }
 
-public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, h:Try<V>, #apply:(T,U,V) -> Void) {
+public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, h:Try<V>, apply:(T,U,V) -> Void) {
     f.foreach {fvalue in
         g.foreach {gvalue in
             h.foreach {hvalue in
@@ -317,7 +317,7 @@ public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, h:Try<V>, #apply:(T,U,V) -> Void)
     }
 }
 
-public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, #yield:(T,U) -> V) -> Try<V> {
+public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, yield:(T,U) -> V) -> Try<V> {
     return f.flatmap {fvalue in
         g.map {gvalue in
             yield(fvalue, gvalue)
@@ -325,7 +325,7 @@ public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, #yield:(T,U) -> V) -> Try<V> {
     }
 }
 
-public func forcomp<T,U,V,W>(f:Try<T>, g:Try<U>, h:Try<V>, #yield:(T,U,V) -> W) -> Try<W> {
+public func forcomp<T,U,V,W>(f:Try<T>, g:Try<U>, h:Try<V>, yield:(T,U,V) -> W) -> Try<W> {
     return f.flatmap {fvalue in
         g.flatmap {gvalue in
             h.map {hvalue in
@@ -335,45 +335,45 @@ public func forcomp<T,U,V,W>(f:Try<T>, g:Try<U>, h:Try<V>, #yield:(T,U,V) -> W) 
     }
 }
 
-public func forcomp<T,U>(f:Try<T>, g:Try<U>, #filter:(T,U) -> Bool, #apply:(T,U) -> Void) {
+public func forcomp<T,U>(f:Try<T>, g:Try<U>, filter:(T,U) -> Bool, apply:(T,U) -> Void) {
     f.foreach {fvalue in
         g.filter{gvalue in
             filter(fvalue, gvalue)
-            }.foreach {gvalue in
-                apply(fvalue, gvalue)
+        }.foreach {gvalue in
+            apply(fvalue, gvalue)
         }
     }
 }
 
-public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, h:Try<V>, #filter:(T,U,V) -> Bool, #apply:(T,U,V) -> Void) {
+public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, h:Try<V>, filter:(T,U,V) -> Bool, apply:(T,U,V) -> Void) {
     f.foreach {fvalue in
         g.foreach {gvalue in
             h.filter{hvalue in
                 filter(fvalue, gvalue, hvalue)
-                }.foreach {hvalue in
-                    apply(fvalue, gvalue, hvalue)
+            }.foreach {hvalue in
+                apply(fvalue, gvalue, hvalue)
             }
         }
     }
 }
 
-public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, #filter:(T,U) -> Bool, #yield:(T,U) -> V) -> Try<V> {
+public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, filter:(T,U) -> Bool, yield:(T,U) -> V) -> Try<V> {
     return f.flatmap {fvalue in
         g.filter {gvalue in
             filter(fvalue, gvalue)
-            }.map {gvalue in
-                yield(fvalue, gvalue)
+        }.map {gvalue in
+            yield(fvalue, gvalue)
         }
     }
 }
 
-public func forcomp<T,U,V,W>(f:Try<T>, g:Try<U>, h:Try<V>, #filter:(T,U,V) -> Bool, #yield:(T,U,V) -> W) -> Try<W> {
+public func forcomp<T,U,V,W>(f:Try<T>, g:Try<U>, h:Try<V>, filter:(T,U,V) -> Bool, yield:(T,U,V) -> W) -> Try<W> {
     return f.flatmap {fvalue in
         g.flatmap {gvalue in
             h.filter {hvalue in
                 filter(fvalue, gvalue, hvalue)
-                }.map {hvalue in
-                    yield(fvalue, gvalue, hvalue)
+            }.map {hvalue in
+                yield(fvalue, gvalue, hvalue)
             }
         }
     }
@@ -761,7 +761,7 @@ public class Future<T> {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // create futures
 public func future<T>(computeResult:Void -> Try<T>) -> Future<T> {
-    return future(QueueContext.global, computeResult)
+    return future(QueueContext.global, calculateResult:computeResult)
 }
 
 public func future<T>(executionContext:ExecutionContext, calculateResult:Void -> Try<T>) -> Future<T> {
@@ -772,11 +772,11 @@ public func future<T>(executionContext:ExecutionContext, calculateResult:Void ->
     return promise.future
 }
 
-public func forcomp<T,U>(f:Future<T>, g:Future<U>, #apply:(T,U) -> Void) -> Void {
-    return forcomp(f.defaultExecutionContext, f, g, apply:apply)
+public func forcomp<T,U>(f:Future<T>, g:Future<U>, apply:(T,U) -> Void) -> Void {
+    return forcomp(f.defaultExecutionContext, f:f, g:g, apply:apply)
 }
 
-public func forcomp<T,U>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, #apply:(T,U) -> Void) -> Void {
+public func forcomp<T,U>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, apply:(T,U) -> Void) -> Void {
     f.foreach(executionContext) {fvalue in
         g.foreach(executionContext) {gvalue in
             apply(fvalue, gvalue)
@@ -787,25 +787,25 @@ public func forcomp<T,U>(executionContext:ExecutionContext, f:Future<T>, g:Futur
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // for comprehensions
-public func forcomp<T,U>(f:Future<T>, g:Future<U>, #filter:(T,U) -> Bool, #apply:(T,U) -> Void) -> Void {
-    return forcomp(f.defaultExecutionContext, f, g, filter:filter, apply:apply)
+public func forcomp<T,U>(f:Future<T>, g:Future<U>, filter:(T,U) -> Bool, apply:(T,U) -> Void) -> Void {
+    return forcomp(f.defaultExecutionContext, f:f, g:g, filter:filter, apply:apply)
 }
 
-public func forcomp<T,U>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, #filter:(T,U) -> Bool, #apply:(T,U) -> Void) -> Void {
+public func forcomp<T,U>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, filter:(T,U) -> Bool, apply:(T,U) -> Void) -> Void {
     f.foreach(executionContext) {fvalue in
         g.withFilter(executionContext) {gvalue in
             filter(fvalue, gvalue)
-            }.foreach(executionContext) {gvalue in
-                apply(fvalue, gvalue)
+        }.foreach(executionContext) {gvalue in
+            apply(fvalue, gvalue)
         }
     }
 }
 
-public func forcomp<T,U,V>(f:Future<T>, g:Future<U>, h:Future<V>, #apply:(T,U,V) -> Void) -> Void {
-    return forcomp(f.defaultExecutionContext, f, g, h, apply:apply)
+public func forcomp<T,U,V>(f:Future<T>, g:Future<U>, h:Future<V>, apply:(T,U,V) -> Void) -> Void {
+    return forcomp(f.defaultExecutionContext, f:f, g:g, h:h, apply:apply)
 }
 
-public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, #apply:(T,U,V) -> Void) -> Void {
+public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, apply:(T,U,V) -> Void) -> Void {
     f.foreach(executionContext) {fvalue in
         g.foreach(executionContext) {gvalue in
             h.foreach(executionContext) {hvalue in
@@ -815,27 +815,27 @@ public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Fut
     }
 }
 
-public func forcomp<T,U,V>(f:Future<T>, g:Future<U>, h:Future<V>, #filter:(T,U,V) -> Bool, #apply:(T,U,V) -> Void) -> Void {
-    return forcomp(f.defaultExecutionContext, f, g, h, filter:filter, apply:apply)
+public func forcomp<T,U,V>(f:Future<T>, g:Future<U>, h:Future<V>, filter:(T,U,V) -> Bool, apply:(T,U,V) -> Void) -> Void {
+    return forcomp(f.defaultExecutionContext, f:f, g:g, h:h, filter:filter, apply:apply)
 }
 
-public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, #filter:(T,U,V) -> Bool, #apply:(T,U,V) -> Void) -> Void {
+public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, filter:(T,U,V) -> Bool, apply:(T,U,V) -> Void) -> Void {
     f.foreach(executionContext) {fvalue in
         g.foreach(executionContext) {gvalue in
             h.withFilter(executionContext) {hvalue in
                 filter(fvalue, gvalue, hvalue)
-                }.foreach(executionContext) {hvalue in
-                    apply(fvalue, gvalue, hvalue)
+            }.foreach(executionContext) {hvalue in
+                apply(fvalue, gvalue, hvalue)
             }
         }
     }
 }
 
-public func forcomp<T,U,V>(f:Future<T>, g:Future<U>, #yield:(T,U) -> Try<V>) -> Future<V> {
-    return forcomp(f.defaultExecutionContext, f, g, yield:yield)
+public func forcomp<T,U,V>(f:Future<T>, g:Future<U>, yield:(T,U) -> Try<V>) -> Future<V> {
+    return forcomp(f.defaultExecutionContext, f:f, g:g, yield:yield)
 }
 
-public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, #yield:(T,U) -> Try<V>) -> Future<V> {
+public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, yield:(T,U) -> Try<V>) -> Future<V> {
     return f.flatmap(executionContext) {fvalue in
         g.map(executionContext) {gvalue in
             yield(fvalue, gvalue)
@@ -843,25 +843,25 @@ public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Fut
     }
 }
 
-public func forcomp<T,U,V>(f:Future<T>, g:Future<U>, #filter:(T,U) -> Bool, #yield:(T,U) -> Try<V>) -> Future<V> {
-    return forcomp(f.defaultExecutionContext, f, g, filter:filter, yield:yield)
+public func forcomp<T,U,V>(f:Future<T>, g:Future<U>, filter:(T,U) -> Bool, yield:(T,U) -> Try<V>) -> Future<V> {
+    return forcomp(f.defaultExecutionContext, f:f, g:g, filter:filter, yield:yield)
 }
 
-public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, #filter:(T,U) -> Bool, #yield:(T,U) -> Try<V>) -> Future<V> {
+public func forcomp<T,U,V>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, filter:(T,U) -> Bool, yield:(T,U) -> Try<V>) -> Future<V> {
     return f.flatmap(executionContext) {fvalue in
         g.withFilter(executionContext) {gvalue in
             filter(fvalue, gvalue)
-            }.map(executionContext) {gvalue in
-                yield(fvalue, gvalue)
+        }.map(executionContext) {gvalue in
+            yield(fvalue, gvalue)
         }
     }
 }
 
-public func forcomp<T,U,V,W>(f:Future<T>, g:Future<U>, h:Future<V>, #yield:(T,U,V) -> Try<W>) -> Future<W> {
-    return forcomp(f.defaultExecutionContext, f, g, h, yield:yield)
+public func forcomp<T,U,V,W>(f:Future<T>, g:Future<U>, h:Future<V>, yield:(T,U,V) -> Try<W>) -> Future<W> {
+    return forcomp(f.defaultExecutionContext, f:f, g:g, h:h, yield:yield)
 }
 
-public func forcomp<T,U,V,W>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, #yield:(T,U,V) -> Try<W>) -> Future<W> {
+public func forcomp<T,U,V,W>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, yield:(T,U,V) -> Try<W>) -> Future<W> {
     return f.flatmap(executionContext) {fvalue in
         g.flatmap(executionContext) {gvalue in
             h.map(executionContext) {hvalue in
@@ -871,17 +871,17 @@ public func forcomp<T,U,V,W>(executionContext:ExecutionContext, f:Future<T>, g:F
     }
 }
 
-public func forcomp<T,U, V, W>(f:Future<T>, g:Future<U>, h:Future<V>, #filter:(T,U,V) -> Bool, #yield:(T,U,V) -> Try<W>) -> Future<W> {
-    return forcomp(f.defaultExecutionContext, f, g, h, filter:filter, yield:yield)
+public func forcomp<T,U, V, W>(f:Future<T>, g:Future<U>, h:Future<V>, filter:(T,U,V) -> Bool, yield:(T,U,V) -> Try<W>) -> Future<W> {
+    return forcomp(f.defaultExecutionContext, f:f, g:g, h:h, filter:filter, yield:yield)
 }
 
-public func forcomp<T,U, V, W>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, #filter:(T,U,V) -> Bool, #yield:(T,U,V) -> Try<W>) -> Future<W> {
+public func forcomp<T,U, V, W>(executionContext:ExecutionContext, f:Future<T>, g:Future<U>, h:Future<V>, filter:(T,U,V) -> Bool, yield:(T,U,V) -> Try<W>) -> Future<W> {
     return f.flatmap(executionContext) {fvalue in
         g.flatmap(executionContext) {gvalue in
             h.withFilter(executionContext) {hvalue in
                 filter(fvalue, gvalue, hvalue)
-                }.map(executionContext) {hvalue in
-                    yield(fvalue, gvalue, hvalue)
+            }.map(executionContext) {hvalue in
+                yield(fvalue, gvalue, hvalue)
             }
         }
     }
