@@ -24,7 +24,7 @@ class StreamSuccessTests: XCTestCase {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
-        writeSuccesfulFutures(promise, true, 2)
+        writeSuccesfulFutures(promise, value:true, times:2)
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             onSuccessExpectation()
@@ -48,7 +48,7 @@ class StreamSuccessTests: XCTestCase {
         stream.onFailure {error in
             XCTAssert(false, "onFailure called")
         }
-        writeSuccesfulFutures(promise, true, 2)
+        writeSuccesfulFutures(promise, value:true, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -58,12 +58,12 @@ class StreamSuccessTests: XCTestCase {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
-        writeSuccesfulFutures(promise, true, 1)
+        writeSuccesfulFutures(promise, value:true, times:1)
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             onSuccessExpectation()
         }
-        writeSuccesfulFutures(promise, true, 1)
+        writeSuccesfulFutures(promise, value:true, times:1)
         stream.onFailure {error in
             XCTAssert(false, "onFailure called")
         }
@@ -75,14 +75,14 @@ class StreamSuccessTests: XCTestCase {
     func testMultipleCallbacks() {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        writeSuccesfulFutures(promise, true, 1)
+        writeSuccesfulFutures(promise, value:true, times:1)
         let onSuccessImmediateExpectation = fulfillAfterCalled(2, message:"onSuccess immediate future")
         let onSuccessDelayedExpectation = fulfillAfterCalled(2, message:"onSuccess delayed future")
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             onSuccessImmediateExpectation()
         }
-        writeSuccesfulFutures(promise, true, 1)
+        writeSuccesfulFutures(promise, value:true, times:1)
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             onSuccessDelayedExpectation()
@@ -110,8 +110,8 @@ class StreamSuccessTests: XCTestCase {
             ++countFailure
             onFailureExpectation()
         }
-        writeSuccesfulFutures(promise, true, 1)
-        writeFailedFutures(promise, 1)
+        writeSuccesfulFutures(promise, value:true, times:1)
+        writeFailedFutures(promise, times:1)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

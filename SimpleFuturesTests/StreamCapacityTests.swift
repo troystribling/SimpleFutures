@@ -27,7 +27,7 @@ class StreamCapacityTests: XCTestCase {
         future.onSuccess {value in
             onSuccessExpectation()
         }
-        writeSuccesfulFutures(promise, true, 10)
+        writeSuccesfulFutures(promise, value:true, times:10)
         XCTAssertEqual(future.count, 10, "future count invalid")
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
@@ -38,7 +38,7 @@ class StreamCapacityTests: XCTestCase {
         let promise = StreamPromise<Bool>()
         let future = promise.future
         let onSuccessExpectation = fulfillAfterCalled(10, message:"onSuccess future")
-        writeSuccesfulFutures(promise, true, 10)
+        writeSuccesfulFutures(promise, value:true, times:10)
         future.onSuccess {value in
             onSuccessExpectation()
         }
@@ -53,10 +53,10 @@ class StreamCapacityTests: XCTestCase {
         let future = promise.future
         let onSuccessExpectation = fulfillAfterCalled(10, message:"onSuccess future")
         future.onSuccess {value in
-            XCTAssert(contains(Array(1...10), value), "onSuccess invalid value")
+            XCTAssert(Array(1...10).contains(value), "onSuccess invalid value")
             onSuccessExpectation()
         }
-        writeSuccesfulFutures(promise, Array(1...10))
+        writeSuccesfulFutures(promise, values:Array(1...10))
         XCTAssertEqual(future.count, 2, "future count invalid")
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
@@ -67,7 +67,7 @@ class StreamCapacityTests: XCTestCase {
         let promise = StreamPromise<Int>(capacity:2)
         let future = promise.future
         let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
-        writeSuccesfulFutures(promise, Array(1...10))
+        writeSuccesfulFutures(promise, values:Array(1...10))
         future.onSuccess {value in
             XCTAssert(value == 9 || value == 10, "onSuccess invalid value")
             onSuccessExpectation()

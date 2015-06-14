@@ -43,7 +43,7 @@ class FutureForcompYieldTests: XCTestCase {
         future2.onFailure {error in
             XCTAssert(false, "future2 onFailure called")
         }
-        let forcompFuture = forcomp(future1, future2) {(value1, value2) -> Try<Bool> in
+        let forcompFuture = forcomp(future1, g:future2) {(value1, value2) -> Try<Bool> in
             XCTAssert(value1, "forcomp yield value1 invalid")
             XCTAssert(value2 == 1, "forcomp yield value2 invalid")
             forcompExpectation.fulfill()
@@ -84,7 +84,7 @@ class FutureForcompYieldTests: XCTestCase {
         future2.onFailure {error in
             XCTAssert(false, "future2 onFailure called")
         }
-        let forcompFuture = forcomp(future1, future2) {(value1, value2) -> Try<Bool> in
+        let forcompFuture = forcomp(future1, g:future2) {(value1, value2) -> Try<Bool> in
             XCTAssert(false, "forcomp called")
             return Try(true)
         }
@@ -124,7 +124,7 @@ class FutureForcompYieldTests: XCTestCase {
         future2.onFailure {error in
             XCTAssert(false, "future2 onFailure called")
         }
-        let forcompFuture = forcomp(future1, future2) {(value1, value2) -> Try<Bool> in
+        let forcompFuture = forcomp(future1, g:future2) {(value1, value2) -> Try<Bool> in
             forcompExpectation.fulfill()
             return Try<Bool>(TestFailure.error)
         }
@@ -174,7 +174,7 @@ class FutureForcompYieldTests: XCTestCase {
         future3.onFailure {error in
             XCTAssert(false, "future3 onFailure called")
         }
-        let forcompFuture = forcomp(future1, future2, future3) {(value1, value2, value3) -> Try<Bool> in
+        let forcompFuture = forcomp(future1, g:future2, h:future3) {(value1, value2, value3) -> Try<Bool> in
             XCTAssert(value1, "forcomp yield value1 invalid")
             XCTAssert(value2 == 1, "forcomp yield value2 invalid")
             XCTAssert(value3 == 1.0, "forcomp yield value3 invalid")
@@ -227,7 +227,7 @@ class FutureForcompYieldTests: XCTestCase {
         future3.onFailure {error in
             XCTAssert(false, "future3 onFailure called")
         }
-        let forcompFuture = forcomp(future1, future2, future3) {(value1, value2, value3) -> Try<Bool> in
+        let forcompFuture = forcomp(future1, g:future2, h:future3) {(value1, value2, value3) -> Try<Bool> in
             XCTAssert(false, "forcomp yield called")
             return Try(true)
         }
@@ -278,7 +278,7 @@ class FutureForcompYieldTests: XCTestCase {
         future3.onFailure {error in
             XCTAssert(false, "future3 onFailure called")
         }
-        let forcompFuture = forcomp(future1, future2, future3) {(value1, value2, value3) -> Try<Bool> in
+        let forcompFuture = forcomp(future1, g:future2, h:future3) {(value1, value2, value3) -> Try<Bool> in
             forcompExpectation.fulfill()
             return Try<Bool>(TestFailure.error)
         }
@@ -320,7 +320,7 @@ class FutureForcompYieldTests: XCTestCase {
         future2.onFailure {error in
             XCTAssert(false, "future2 onFailure called")
         }
-        let forcompFuture = forcomp(future1, future2, filter:{(value1, value2) -> Bool in
+        let forcompFuture = forcomp(future1, g:future2, filter:{(value1, value2) -> Bool in
                 XCTAssert(value1, "forcomp filter value1 invalid")
                 XCTAssert(value2 == 1, "forcomp filter value2 invalid")
                 filterExpectaion.fulfill()
@@ -366,7 +366,7 @@ class FutureForcompYieldTests: XCTestCase {
         future2.onFailure {error in
             XCTAssert(false, "future2 onFailure called")
         }
-        let forcompFuture = forcomp(future1, future2, filter:{(value1, value2) -> Bool in
+        let forcompFuture = forcomp(future1, g:future2, filter:{(value1, value2) -> Bool in
                 XCTAssert(false, "forcomp filter called")
                 return true
             }) {(value1, value2) -> Try<Bool> in
@@ -410,7 +410,7 @@ class FutureForcompYieldTests: XCTestCase {
         future2.onFailure {error in
             XCTAssert(false, "future2 onFailure called")
         }
-        let forcompFuture = forcomp(future1, future2, filter:{(value1, value2) -> Bool in
+        let forcompFuture = forcomp(future1, g:future2, filter:{(value1, value2) -> Bool in
                 filterExpectaion.fulfill()
                 return false
             }) {(value1, value2) -> Try<Bool> in
@@ -464,7 +464,7 @@ class FutureForcompYieldTests: XCTestCase {
         future3.onFailure {error in
             XCTAssert(false, "future3 onFailure called")
         }
-        let forcompFuture = forcomp(future1, future2, future3, filter:{(value1, value2, value3) -> Bool in
+        let forcompFuture = forcomp(future1, g:future2, h:future3, filter:{(value1, value2, value3) -> Bool in
                 XCTAssert(value1, "forcomp filter value1 invalid")
                 XCTAssert(value2 == 1, "forcomp filter value2 invalid")
                 XCTAssert(value3 == 1.0, "forcomp filter value3 invalid")
@@ -523,7 +523,7 @@ class FutureForcompYieldTests: XCTestCase {
         future3.onFailure {error in
             XCTAssert(false, "future3 onFailure called")
         }
-        let forcompFuture = forcomp(future1, future2, future3, filter:{(value1, value2, value3) -> Bool in
+        let forcompFuture = forcomp(future1, g:future2, h:future3, filter:{(value1, value2, value3) -> Bool in
                 XCTAssert(false, "forcomp filter called")
                 return true
             }) {(value1, value2, value3) -> Try<Bool> in
@@ -577,7 +577,7 @@ class FutureForcompYieldTests: XCTestCase {
         future3.onFailure {error in
             XCTAssert(false, "future3 onFailure called")
         }
-        let forcompFuture = forcomp(future1, future2, future3, filter:{(value1, value2, value3) -> Bool in
+        let forcompFuture = forcomp(future1, g:future2, h:future3, filter:{(value1, value2, value3) -> Bool in
             filterExpectaion.fulfill()
             return false
             }) {(value1, value2, value3) -> Try<Bool> in

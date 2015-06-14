@@ -44,7 +44,7 @@ class StreamMapTests: XCTestCase {
         mapped.onFailure {error in
             XCTAssert(false, "mapped onFailure called")
         }
-        writeSuccesfulFutures(promise, true, 2)
+        writeSuccesfulFutures(promise, value:true, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -73,7 +73,7 @@ class StreamMapTests: XCTestCase {
         mapped.onFailure {error in
             onFailureMappedExpectation()
         }
-        writeSuccesfulFutures(promise, true, 2)
+        writeSuccesfulFutures(promise, value:true, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -100,7 +100,7 @@ class StreamMapTests: XCTestCase {
         mapped.onFailure {error in
             onFailureMappedExpectation()
         }
-        writeFailedFutures(promise, 2)
+        writeFailedFutures(promise, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

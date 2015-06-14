@@ -48,7 +48,7 @@ class StreamAndThenTests: XCTestCase {
         andThen.onFailure {error in
             XCTAssert(false, "andThen onFailure called")
         }
-        writeSuccesfulFutures(promise, true, 2)
+        writeSuccesfulFutures(promise, value:true, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -80,7 +80,7 @@ class StreamAndThenTests: XCTestCase {
         andThen.onFailure {error in
             onFailureAndThenExpectation()
         }
-        writeFailedFutures(promise, 2)
+        writeFailedFutures(promise, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

@@ -45,7 +45,7 @@ class StreamRecoverWithTests: XCTestCase {
         recovered.onFailure {error in
             XCTAssert(false, "recovered onFailure called")
         }
-        writeSuccesfulFutures(promise, [1,2])
+        writeSuccesfulFutures(promise, values:[1,2])
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -76,7 +76,7 @@ class StreamRecoverWithTests: XCTestCase {
         recovered.onFailure {error in
             XCTAssert(false, "recovered onFailure called")
         }
-        writeFailedFutures(promise,2)
+        writeFailedFutures(promise, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -106,7 +106,7 @@ class StreamRecoverWithTests: XCTestCase {
         recovered.onFailure {error in
             onFailureRecoveredExpectation()
         }
-        writeFailedFutures(promise,2)
+        writeFailedFutures(promise, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -136,7 +136,7 @@ class StreamRecoverWithTests: XCTestCase {
         recovered.onFailure {error in
             XCTAssert(false, "recovered onFailure called")
         }
-        writeSuccesfulFutures(promise, [1,2])
+        writeSuccesfulFutures(promise, values:[1,2])
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -157,7 +157,7 @@ class StreamRecoverWithTests: XCTestCase {
         let recovered = future.recoverWith {error -> FutureStream<Int> in
             recoverExpectation()
             let promise = StreamPromise<Int>()
-            writeSuccesfulFutures(promise, [1,2])
+            writeSuccesfulFutures(promise, values:[1,2])
             return promise.future
         }
         recovered.onSuccess {value in
@@ -167,7 +167,7 @@ class StreamRecoverWithTests: XCTestCase {
         recovered.onFailure {error in
             XCTAssert(false, "recovered onFailure called")
         }
-        writeFailedFutures(promise,2)
+        writeFailedFutures(promise, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -188,7 +188,7 @@ class StreamRecoverWithTests: XCTestCase {
         let recovered = future.recoverWith {error -> FutureStream<Int> in
             recoverExpectation()
             let promise = StreamPromise<Int>()
-            writeFailedFutures(promise, 2)
+            writeFailedFutures(promise, times:2)
             return promise.future
         }
         recovered.onSuccess {value in
@@ -197,7 +197,7 @@ class StreamRecoverWithTests: XCTestCase {
         recovered.onFailure {error in
             onFailureRecoveredExpectation()
         }
-        writeFailedFutures(promise,2)
+        writeFailedFutures(promise, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

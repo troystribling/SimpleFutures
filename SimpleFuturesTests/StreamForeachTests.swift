@@ -36,7 +36,7 @@ class StreamForeachTests: XCTestCase {
             XCTAssert(value == 1 || value == 2, "stream foreach invalid value")
             foreachExpectation()
         }
-        writeSuccesfulFutures(promise, [1,2])
+        writeSuccesfulFutures(promise, values:[1,2])
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -55,7 +55,7 @@ class StreamForeachTests: XCTestCase {
         stream.foreach {value in
             XCTAssert(false, "foreach called")
         }
-        writeFailedFutures(promise, 2)
+        writeFailedFutures(promise, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

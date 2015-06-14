@@ -43,7 +43,7 @@ class StreamRecoverTests: XCTestCase {
         recovered.onFailure {error in
             XCTAssert(false, "recovered onFailure called")
         }
-        writeSuccesfulFutures(promise, [1,2])
+        writeSuccesfulFutures(promise, values:[1,2])
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -72,7 +72,7 @@ class StreamRecoverTests: XCTestCase {
         recovered.onFailure {error in
             XCTAssert(false, "recovered onFailure called")
         }
-        writeFailedFutures(promise,2)
+        writeFailedFutures(promise, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -100,7 +100,7 @@ class StreamRecoverTests: XCTestCase {
         recovered.onFailure {error in
             onFailureRecoveredExpectation()
         }
-        writeFailedFutures(promise,2)
+        writeFailedFutures(promise, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

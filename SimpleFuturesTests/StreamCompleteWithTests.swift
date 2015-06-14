@@ -27,7 +27,7 @@ class StreamCompleteWithTests: XCTestCase {
         let streamCompleted = promiseCompleted.future
         let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
         let onSuccessCompletedExpectation = fulfillAfterCalled(2, message:"onSuccess completed future")
-        writeSuccesfulFutures(promiseCompleted, [1,2])
+        writeSuccesfulFutures(promiseCompleted, values:[1,2])
         stream.onSuccess {value in
             XCTAssert(value == 1 || value == 2, "onSuccess value invalid")
             onSuccessExpectation()
@@ -70,7 +70,7 @@ class StreamCompleteWithTests: XCTestCase {
             XCTAssert(false, "futureComleted onFailure called")
         }
         promise.completeWith(streamCompleted)
-        writeSuccesfulFutures(promiseCompleted, [1,2])
+        writeSuccesfulFutures(promiseCompleted, values:[1,2])
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -96,7 +96,7 @@ class StreamCompleteWithTests: XCTestCase {
             onFailureCompletedExpectation()
         }
         promise.completeWith(streamCompleted)
-        writeFailedFutures(promiseCompleted, 2)
+        writeFailedFutures(promiseCompleted, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -123,9 +123,9 @@ class StreamCompleteWithTests: XCTestCase {
         streamCompleted.onFailure{error in
             XCTAssert(false, "futureComleted onFailure called")
         }
-        writeSuccesfulFutures(promise, [1,2])
+        writeSuccesfulFutures(promise, values:[1,2])
         promise.completeWith(streamCompleted)
-        writeSuccesfulFutures(promiseCompleted, [3,4])
+        writeSuccesfulFutures(promiseCompleted, values:[3,4])
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

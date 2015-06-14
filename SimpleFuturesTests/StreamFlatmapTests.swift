@@ -46,7 +46,7 @@ class StreamFlatmapTests: XCTestCase {
         mapped.onFailure {error in
             XCTAssert(false, "mapped future onFailure called")
         }
-        writeSuccesfulFutures(promise, true, 2)
+        writeSuccesfulFutures(promise, value:true, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -77,7 +77,7 @@ class StreamFlatmapTests: XCTestCase {
         mapped.onFailure {error in
             onFailureMappedExpectation()
         }
-        writeSuccesfulFutures(promise, true, 2)
+        writeSuccesfulFutures(promise, value:true, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -106,7 +106,7 @@ class StreamFlatmapTests: XCTestCase {
         mapped.onFailure {error in
             onFailureMappedExpectation()
         }
-        writeFailedFutures(promise, 2)
+        writeFailedFutures(promise, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -128,9 +128,9 @@ class StreamFlatmapTests: XCTestCase {
             flatmapExpectation()
             let promise = StreamPromise<Int>()
             if value {
-                writeSuccesfulFutures(promise, [1, 2])
+                writeSuccesfulFutures(promise, values:[1, 2])
             } else {
-                writeSuccesfulFutures(promise, [3, 4])
+                writeSuccesfulFutures(promise, values:[3, 4])
             }
             return promise.future
         }
@@ -141,7 +141,7 @@ class StreamFlatmapTests: XCTestCase {
         mapped.onFailure {error in
             XCTAssert(false, "mapped future onFailure called")
         }
-        writeSuccesfulFutures(promise, [true, false])
+        writeSuccesfulFutures(promise, values:[true, false])
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -168,7 +168,7 @@ class StreamFlatmapTests: XCTestCase {
         mapped.onFailure {error in
             onFailureMappedExpectation()
         }
-        writeFailedFutures(promise, 2)
+        writeFailedFutures(promise, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -189,7 +189,7 @@ class StreamFlatmapTests: XCTestCase {
         let mapped = stream.flatmap {value -> FutureStream<Int> in
             flatmapExpectation()
             let promise = StreamPromise<Int>()
-            writeFailedFutures(promise, 2)
+            writeFailedFutures(promise, times:2)
             return promise.future
         }
         mapped.onSuccess {value in
@@ -198,7 +198,7 @@ class StreamFlatmapTests: XCTestCase {
         mapped.onFailure {error in
             onFailureMappedExpectation()
         }
-        writeSuccesfulFutures(promise, [true, false])
+        writeSuccesfulFutures(promise, values:[true, false])
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
