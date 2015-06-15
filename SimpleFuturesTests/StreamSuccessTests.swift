@@ -96,7 +96,6 @@ class StreamSuccessTests: XCTestCase {
     }
     
     func testSuccessAndFailure() {
-        var countSuccess = 0
         var countFailure = 0
         let promise = StreamPromise<Bool>()
         let stream = promise.future

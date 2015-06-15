@@ -15,7 +15,7 @@ struct TestFailure {
 }
 
 func writeSuccesfulFutures<T>(promise:StreamPromise<T>, value:T, times:Int) {
-    for i in (1...times) {
+    for _ in (1...times) {
         promise.success(value)
     }
 }
@@ -27,7 +27,7 @@ func writeSuccesfulFutures<T>(promise:StreamPromise<T>, values:[T]) {
 }
 
 func writeFailedFutures<T>(promise:StreamPromise<T>, times:Int) {
-    for i in (1...times) {
+    for _ in (1...times) {
         promise.failure(TestFailure.error)
     }
 }

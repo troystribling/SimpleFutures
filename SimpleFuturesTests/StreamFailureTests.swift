@@ -21,7 +21,6 @@ class StreamFailureTests : XCTestCase {
     }
     
     func testImmediate() {
-        var count = 0
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         let onFailureExpectation = fulfillAfterCalled(2, message:"onFailure future")
@@ -38,7 +37,6 @@ class StreamFailureTests : XCTestCase {
     }
     
     func testDelayed() {
-        var count = 0
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         let onFailureExpectation = fulfillAfterCalled(2, message:"onFailure future")
@@ -55,7 +53,6 @@ class StreamFailureTests : XCTestCase {
     }
     
     func testDelayedAndImmediate() {
-        var count = 0
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         let onFailureExpectation = fulfillAfterCalled(2, message:"onFailure future")

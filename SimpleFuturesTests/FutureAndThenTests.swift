@@ -35,9 +35,9 @@ class FutureAndThenTests : XCTestCase {
         }
         let andThen = future.andThen {result in
             switch result {
-            case .Success(let resultBox):
+            case .Success(_):
                 andThenExpectation.fulfill()
-            case .Failure(let error):
+            case .Failure(_):
                 XCTAssert(false, "andThen Failure")
             }
         }
@@ -68,9 +68,9 @@ class FutureAndThenTests : XCTestCase {
         }
         let andThen = future.andThen {result in
             switch result {
-            case .Success(let resultBox):
+            case .Success(_):
                 XCTAssert(false, "andThen Failure")
-            case .Failure(let error):
+            case .Failure(_):
                 andThenExpectation.fulfill()
             }
         }

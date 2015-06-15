@@ -35,9 +35,9 @@ class StreamAndThenTests: XCTestCase {
         }
         let andThen = stream.andThen {result in
             switch result {
-            case .Success(let resultBox):
+            case .Success(_):
                 andThenExpectation()
-            case .Failure(let error):
+            case .Failure(_):
                 XCTAssert(false, "andThen Failure")
             }
         }
@@ -68,9 +68,9 @@ class StreamAndThenTests: XCTestCase {
         }
         let andThen = stream.andThen {result in
             switch result {
-            case .Success(let resultBox):
+            case .Success(_):
                 XCTAssert(false, "andThen Success")
-            case .Failure(let error):
+            case .Failure(_):
                 andThenExpectation()
             }
         }
