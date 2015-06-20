@@ -331,8 +331,7 @@ The onSuccess callback is called when a Future&lt;T&gt; or FutureStream&lt;T&gt;
 let dataRequest = RequestData()
 let dataFuture = dataRequest.request()
 dataFuture.onSuccess {result in
-		…
-	}
+	…
 }
 ``` 
 
@@ -344,8 +343,7 @@ An application using a FutureStream&lt;T&gt; has a similar implementation, using
 let dataRequest = RequestData()
 let dataFuture = dataRequest.request()
 dataFuture.onSuccess {result in
-		…
-	}
+	…
 }
 ``` 
 
@@ -359,8 +357,7 @@ The onError callback is called when a Future&lt;T&gt; or FutureStream&lt;T&gt; i
 let dataRequest = RequestData()
 let dataFuture = dataRequest.request()
 dataFuture.onFailure {error in
-		…
-	}
+	…
 }
 ``` 
 
@@ -372,8 +369,7 @@ An application using a FutureStream&lt;T&gt; has a similar implementation, using
 let dataRequest = RequestData()
 let dataFuture = dataRequest.request()
 dataFuture.onFailure {error in
-		…
-	}
+	…
 }
 ``` 
 
