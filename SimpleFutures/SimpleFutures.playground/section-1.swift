@@ -12,7 +12,7 @@ let value  = Thing<Bool>.Success(false)
 
 switch value {
 case .Success(let value):
-    print("\(value)", false)
+    print(value)
 case .Failure(_):
     print("Failure")
 }
