@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 47;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -70,8 +70,8 @@
 		057C3E8F1A3E2379005147CD /* SimpleFuturesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimpleFuturesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		057C3E951A3E2379005147CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		057C3E961A3E2379005147CD /* FutureSuccessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureSuccessTests.swift; sourceTree = "<group>"; };
-		057C3EA81A3E665A005147CD /* SimpleFutures.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = SimpleFutures.playground; sourceTree = "<group>"; };
 		058BA8B91B138DFE005CF0FE /* SimpleFutures.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleFutures.swift; sourceTree = "<group>"; };
+		059C50D11B49FF5C003B2005 /* SimpleFutures.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = SimpleFutures.playground; sourceTree = "<group>"; };
 		05A004871A51EBC30064E048 /* FutureForcompTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureForcompTests.swift; sourceTree = "<group>"; };
 		05A004891A51EC290064E048 /* FutureForcompYieldTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureForcompYieldTests.swift; sourceTree = "<group>"; };
 		05D0511E1A50E2B4007E8C57 /* FutureForeachTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureForeachTests.swift; sourceTree = "<group>"; };
@@ -142,6 +142,7 @@
 		057C3E7A1A3E2378005147CD = {
 			isa = PBXGroup;
 			children = (
+				059C50D11B49FF5C003B2005 /* SimpleFutures.playground */,
 				057C3E861A3E2379005147CD /* SimpleFutures */,
 				057C3E931A3E2379005147CD /* SimpleFuturesTests */,
 				057C3E851A3E2379005147CD /* Products */,
@@ -161,7 +162,6 @@
 			isa = PBXGroup;
 			children = (
 				057C3E891A3E2379005147CD /* SimpleFutures.h */,
-				057C3EA81A3E665A005147CD /* SimpleFutures.playground */,
 				058BA8B91B138DFE005CF0FE /* SimpleFutures.swift */,
 				057C3E871A3E2379005147CD /* Supporting Files */,
 			);
@@ -264,7 +264,7 @@
 				};
 			};
 			buildConfigurationList = 057C3E7E1A3E2379005147CD /* Build configuration list for PBXProject "SimpleFutures" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 6.3";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
