@@ -411,6 +411,8 @@ public func map<M>(mapping:T -> Try<M>) -> FutureStream<M>
 
 ## <a name="flatmap">flatmap</a>
 
+The flatmap combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instance. In addition Future&lt;T&gt; instances can be flat mapped FutureStream&lt;T&gt; instances and FutureStream&lt;T&gt; instances can be flat mapped Future&lt;T&gt; instances. Future&lt;T&gt; flatmap is defined by,
+
 ```swift
 // apply mapping using specified execution context
 public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> Future<M>) -> Future<M>
@@ -418,6 +420,8 @@ public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> Future<M>
 // apply mapping using default execution context
 public func flatmap<M>(mapping:T -> Future<M>) -> Future<M>
 ```
+
+FutureStream&lt;T&gt; flattop is defined by,
 
 ```swift
 // apply mapping using specified execution context
