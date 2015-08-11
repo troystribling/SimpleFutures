@@ -411,7 +411,9 @@ public func map<M>(mapping:T -> Try<M>) -> FutureStream<M>
 
 ## <a name="flatmap">flatmap</a>
 
-The flatmap combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instance. In addition Future&lt;T&gt; instances can be flat mapped FutureStream&lt;T&gt; instances and FutureStream&lt;T&gt; instances can be flat mapped Future&lt;T&gt; instances. Future&lt;T&gt; flatmap is defined by,
+The flatmap combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt;. It can be used to combine Futues&lt;T&gt; and FutureStream&lt;T&gt; instances that must be executed serially. In addition Future&lt;T&gt; instances can be flat mapped FutureStream&lt;T&gt; instances and FutureStream&lt;T&gt; instances can be flat mapped Future&lt;T&gt; instances. 
+
+Future&lt;T&gt; flatmap is defined by,
 
 ```swift
 // apply mapping using specified execution context
@@ -421,7 +423,7 @@ public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> Future<M>
 public func flatmap<M>(mapping:T -> Future<M>) -> Future<M>
 ```
 
-FutureStream&lt;T&gt; flattop is defined by,
+FutureStream&lt;T&gt; flatmap is defined by,
 
 ```swift
 // apply mapping using specified execution context
@@ -432,17 +434,13 @@ public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
 ```
 
 ```swift
-// apply mapping to FutureStream<M> with specified capacity and execution context
+public func flatmap<M>(capacity:Int, mapping:T -> FutureStream<M>) -> FutureStream<M> 
+
+public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
+
 public func flatmap<M>(capacity:Int, executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M>
 
-// apply mapping to FutureStream<M> with infinite capacity and specified execution context
 public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M>
-
-// apply mapping to FutureStream<M> with specified capacity and default context
-public func flatmap<M>(capacity:Int, mapping:T -> FutureStream<M>) -> FutureStream<M>
-
-// apply mapping to FutureStream<M> with infinite capacity and default context
-public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
 ```
 
 ```swift
