@@ -377,11 +377,13 @@ Recall that a FutureStream&lt;T&gt; is a container of completed Future&lt;T&gt;s
 
 # <a name="combinators">Combinators</a>
 
-Combinators allow futures to be combined in ways that simplify application implementations. Futures that must be executed serially can be combined with flatmap. The map combinator is used to complete a future with some other result. If a future is completed with failure the recover combinator completes a future successfully with another result and the recoverWith completes a future with another futures. Filters can be applied to previous completed futures using the withFilter combinator. The result of a successfully completed future can be processed with the foreach combinator and the andThen combinator can serialize processing completed future results. All combinators are supported for both Future&lt;T&gt; and FutureStream&lt;T&gt; and Future&lt;T&gt; and FutureStream&lt;T&gt; results can be combined using flatmap and recoverWith. The following sections will provide details for each combinator with code examples.
+Combinators allow futures to be combined in ways that simplify application implementations. Futures that must be executed serially can be combined with flatmap. The map combinator is used to complete a future with some other result. If a future is completed with failure the recover combinator can complete a future successfully with another result and the recoverWith completes the future with another future. Filters can be applied to previous completed futures using the withFilter combinator. The result of a successfully completed future can be processed with the foreach combinator and the andThen combinator can serialize processing completed future results. All combinators are supported for both Future&lt;T&gt; and FutureStream&lt;T&gt; and Future&lt;T&gt; and FutureStream&lt;T&gt; results can be combined using flatmap and recoverWith. The following sections will provide details for each combinator with code examples.
 
 ## <a name="map">map</a>
 
-The map combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. The mapping function specified  is called only after successful completion of the Future&lt;T&gt; or FutureStream&lt;T&gt; instance and is of type T -> Try<M>. map for Future&lt;T&gt; instances returns a Future&lt;M&gt; and has the following definition,
+The map combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It is used to map either to a new instance of possibly a different type completed with the result of the mapping function.  The mapping function is called only after successful completion otherwise the returned instance is completed with failure. The mapping function is of type T -> Try&lt;M&gt; so it can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure. 
+
+Futute&lt;T&gt; map is defined by,
 
 ```swift
 // apply mapping using specified execution context
@@ -411,7 +413,7 @@ public func map<M>(mapping:T -> Try<M>) -> FutureStream<M>
 
 ## <a name="flatmap">flatmap</a>
 
-The flatmap combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt;. It can be used to combine Futues&lt;T&gt;  instances than must be excited serially and FutureStream&lt;T&gt; instances that must be executed serially. In addition Future&lt;T&gt; instances can be flat mapped FutureStream&lt;T&gt; instances and FutureStream&lt;T&gt; instances can be flat mapped Future&lt;T&gt; instances. 
+The flatmap combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It can be used to combine Futues&lt;T&gt;  instances than must be excited serially and FutureStream&lt;T&gt; instances that must be executed serially. In addition Future&lt;T&gt; instances can be flat mapped FutureStream&lt;T&gt; instances and FutureStream&lt;T&gt; instances can be given a mapping to Future&lt;T&gt; instances. The mapping function specified is called only if the Future&lt;T&gt; and FutureStream&lt;T&gt; instances are compelted successfully.
 
 Future&lt;T&gt; flatmap is defined by,
 
@@ -461,17 +463,25 @@ public func flatmap<M>(mapping:T -> Future<M>) -> FutureStream<M>
 
 ## <a name="recover">recover</a>
 
-The recover combinator is supported by both Future&lt;T&gt; and  FutureStream&lt;T&gt;.
+The recover combinator is supported by both Future&lt;T&gt; and  FutureStream&lt;T&gt; instances and returns a new instance of the same type. If either completes with success recover returns an instance successfully completed with result but if completed with failure recover completes the returned with the result of the specified recovery function. The recovery function is of type NSError -> Try&lt;T&gt; so it can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure.
+
+Future&lt;T&gt; recovery is defined by,
 
 ```swift
+// recover with specified recovery function using specified execution context
 public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T>) -> Future<T>
 
+// recover with specified recovery function using default execution context
 public func recover(recovery: NSError -> Try<T>) -> Future<T>
 ```
 
+FutureStream&lt;T&gt; recovery is defined by,
+
 ```swift
+// recover with specified recovery function using specified execution context
 public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T>) -> FutureStream<T>
 
+// recover with specified recovery function using default execution context
 public func recover(recovery:NSError -> Try<T>) -> FutureStream<T>
 ```
 
