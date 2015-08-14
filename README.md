@@ -11,7 +11,7 @@ SimpleFutures is an implementation of [Scala Futures](http://docs.scala-lang.org
 # <a name="requirements">Requirements</a>
 
 - iOS 8.0+
-- Xcode 6.3+
+- Xcode 7.0+
 
 # <a name="installation">Installation</a>
 
@@ -381,7 +381,7 @@ Combinators allow futures to be combined in ways that simplify application imple
 
 ## <a name="map">map</a>
 
-The map combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It is used to map either to a new instance of possibly a different type completed with the result of the mapping function.  The mapping function is called only after successful completion otherwise the returned instance is completed with failure. The mapping function is of type T -> Try&lt;M&gt; so it can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure. 
+The map combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. Either can be mapped to a new instance using a specified mapping function to a new result possibly of a different type. The new result is used to complete the instance returned by map. The mapping function is called only after successful completion otherwise the returned instance is completed with failure. The mapping function is of type T -> Try&lt;M&gt; so it can fail completing the returned Future&lt;M&gt; or FutureStream&lt;M&gt; instance with failure. 
 
 Futute&lt;T&gt; map is defined by,
 
@@ -413,7 +413,9 @@ public func map<M>(mapping:T -> Try<M>) -> FutureStream<M>
 
 ## <a name="flatmap">flatmap</a>
 
-The flatmap combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It can be used to combine Futues&lt;T&gt;  instances than must be excited serially and FutureStream&lt;T&gt; instances that must be executed serially. In addition Future&lt;T&gt; instances can be flat mapped FutureStream&lt;T&gt; instances and FutureStream&lt;T&gt; instances can be given a mapping to Future&lt;T&gt; instances. The mapping function specified is called only if the Future&lt;T&gt; and FutureStream&lt;T&gt; instances are compelted successfully.
+The flatmap combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. Either can be mapped to a new instance using a mapping function to a new Future&lt;M&gt; or FutureStream&lt;M&gt; possibly of a different type. The   Future&lt;M&gt; or FutureStream&lt;M&gt; returned by the mapping is used to complete the instance returned by flatmap. The mapping function is called only after successful completion otherwise the returned instance is completed with failure. The mapping function will be of type T -> Future&lt;M&gt; or t -> FutureStream&lt;M&gt; so it can fail completing the returned Future&lt;M&gt; or FutureStream&lt;M&gt; instance with failure.
+
+flatmap is the most used combinator because it allows Future&lt;T&gt; or FutureStream&lt;T&gt; instances to be called serially using the mapping function. This can be seen by following the sequence of events just described. The flatmap mapping function is called only after successful completion of the instance on which flatmap was called and the returned instance is completed only after the the mapping function instance is completed. Notice, that error handling is provided at each point in the calling sequence. Only if all instances are successfully completed will the instance returned by flatmap be successfully completed. Any failure in the calling sequence will cause the instance returned by flatmap to be completed with failure. Also, any number of Future&lt;T&gt; or FutureStream&lt;T&gt; instances can be combined with flatmap and each instance will be called serially.
 
 Future&lt;T&gt; flatmap is defined by,
 
@@ -421,7 +423,7 @@ Future&lt;T&gt; flatmap is defined by,
 // apply mapping to result using specified execution context
 public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> Future<M>) -> Future<M>
 
-// apply mapping tpo result using default execution context
+// apply mapping to result using default execution context
 public func flatmap<M>(mapping:T -> Future<M>) -> Future<M>
 ```
 
