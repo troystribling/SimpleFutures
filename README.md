@@ -4,7 +4,7 @@ A Swift implementation of [Scala Futures](http://docs.scala-lang.org/overviews/c
 
 # <a name="motivation">Motivation</a>
 
-Futures provide the construction of code that processes asynchronous requests by default in a non-blocking and concise manner. They support combinator interfaces for serializing the processing of requests, error recovery and filtering. In most Apple libraries asynchronous interfaces are supported through the delegate-protocol pattern or in some cases with a callback. Even simple implementations of these interfaces can lead to business logic distributed over many files or deeply nested callbacks that can be hard to follow. It will be seen that Futures very nicely solve this problem. 
+Futures facilitate the development of code that processes asynchronous requests. They support combinator interfaces for serializing the processing of requests, error recovery and filtering. In most Apple libraries asynchronous interfaces are supported through the delegate-protocol pattern or in some cases with a callback. Even simple implementations of these interfaces can lead to business logic distributed over many files or deeply nested callbacks that can be hard to follow. It will be seen that Futures very nicely solve this problem. 
 
 SimpleFutures is an implementation of [Scala Futures](http://docs.scala-lang.org/overviews/core/futures.html) in Swift and was influenced by [BrightFutures](https://github.com/Thomvis/BrightFutures).
 
@@ -437,7 +437,7 @@ public func flatMap<M>(executionContext:ExecutionContext, mapping:T -> FutureStr
 public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
 ```
 
-Future&lt;T&gt; instances can be flat mapped to FutureStream&ltT&gt instances. The Furture&;ltT&gt; flatmap methods that support this are defined by
+Future&lt;T&gt; instances can be flatmapped to FutureStream&lt;T&gt; instances. The Furture&lt;T&gt; flatmap methods that support this are defined by
 
 ```swift
 // apply mapping to result using specified execution context and returned FutureStream<M> will have specified capacity.
@@ -453,7 +453,7 @@ public func flatmap<M>(capacity:Int, mapping:T -> FutureStream<M>) -> FutureStre
 public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
 ```
 
-FurtureStream&lt;T&gt; instances can be flattened in a mapping to a Future&lt;M&gt; to a FutureStream&lt;M&gt; instance. The FutureStream&lt;T&gt; that support this are defined by,
+FurtureStream&lt;T&gt; instances can be flatmapped using a mapping to a Future&lt;M&gt; instance returning a FutureStream&lt;M&gt; instance. The FutureStream&lt;T&gt; that support this are defined by,
 
 ```swift
 // apply mapping to Future<M> using specified execution context
@@ -465,7 +465,7 @@ public func flatmap<M>(mapping:T -> Future<M>) -> FutureStream<M>
 
 ## <a name="recover">recover</a>
 
-The recover combinator is supported by both Future&lt;T&gt; and  FutureStream&lt;T&gt; instances and returns a new instance of the same type. If either completes with success recover returns an instance successfully completed with result but if completed with failure recover completes the returned with the result of the specified recovery function. The recovery function is of type NSError -> Try&lt;T&gt; so it can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure.
+The recover combinator is supported by both Future&lt;T&gt; and  FutureStream&lt;T&gt; instances. It returns a new instance of the same type and takes as an argument a recovery function of type NSError -> Try&lt;T&gt;. If the calling instance completes with success recover returns an instance successfully completed with result but if completed with failure recover completes the returned instance with the result of the recovery function. The recovery function returns Try&lt;T&gt; so it can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure.
 
 Future&lt;T&gt; recovery is defined by,
 
@@ -489,17 +489,29 @@ public func recover(recovery:NSError -> Try<T>) -> FutureStream<T>
 
 ## <a name="recoverwith">recoverWith</a>
 
+The recoverWith combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It returns a new instance of Future&lt;T&gt; or FutureStream&lt;T&gt;, where T is the same type in both the calling and returned instance, and takes as an argument a recovery function of type NSError -> Future&lt;T&gt; or NSError -> FutureStream&lt;T&gt;. If the calling instance completes with success recoverWith returns a new instance completed with result but if completed with failure recoverWith returns a new instance completed with the result of the recovery function. Since the recovery function returns a Future&lt;T&gt; or FutureStream&lt;T&gt; so it can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure.
+
+Future&lt;T&gt; recoverWith is defined by,
+
 ```swift
+// recover with the specified recovery function using the specified execution context
 public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> Future<T>
 
+// recover with the specified recovery function  using the default execution context
 public func recoverWith(recovery:NSError -> Future<T>) -> Future<T>
 ```
 
+FutureStream&lt;T&gt; recoverWith is defined by,
+
 ```swift
+// recover with the specified recovery function using the specified execution context
 public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> FutureStream<T>
 
+// recover with the specified recovery function  using the default execution context
 public func recoverWith(recovery:NSError -> Future<T>) -> FutureStream<T>
 ```
+
+Future&lt;T&gt; instance can recoverWith FutureStream&lt;T&gt; instances. The Future&lt;T&gt; methods that support this are defined by,
 
 ```swift
 public func recoverWith(capacity:Int, executionContext:ExecutionContext, recovery:NSError -> FutureStream<T>) -> FutureStream<T>
@@ -511,11 +523,14 @@ public func recoverWith(capacity:Int, recovery:NSError -> FutureStream<T>) -> Fu
 public func recoverWith(recovery:NSError -> FutureStream<T>) -> FutureStream<T>
 ```
 
+FutureStream&lt;T&gt; instances can have a recovery function returning a Future&lt;T&gt; instance which completes are returned FutureStream&lt;T&gt; instances. The FutureStream&lt;T&gt; methods supporting this are,
+
 ```swift
 public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> FutureStream<T>
 
 public func recoverWith(recovery:NSError -> Future<T>) -> FutureStream<T>
 ```
+
 
 ## <a name="withfilter">withFilter</a>
 
