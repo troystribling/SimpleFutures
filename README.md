@@ -4,7 +4,7 @@ A Swift implementation of [Scala Futures](http://docs.scala-lang.org/overviews/c
 
 # <a name="motivation">Motivation</a>
 
-Futures facilitate the development of code that processes asynchronous requests. They support combinator interfaces for serializing the processing of requests, error recovery and filtering. In most Apple libraries asynchronous interfaces are supported through the delegate-protocol pattern or in some cases with a callback. Even simple implementations of these interfaces can lead to business logic distributed over many files or deeply nested callbacks that can be hard to follow. It will be seen that Futures very nicely solve this problem. 
+Futures provide the construction of code that processes asynchronous requests by default in a non-blocking and concise manner. They support combinator interfaces for serializing the processing of requests, error recovery and filtering. In most Apple libraries asynchronous interfaces are supported through the delegate-protocol pattern or in some cases with a callback. Even simple implementations of these interfaces can lead to business logic distributed over many files or deeply nested callbacks that can be hard to follow. It will be seen that Futures very nicely solve this problem. 
 
 SimpleFutures is an implementation of [Scala Futures](http://docs.scala-lang.org/overviews/core/futures.html) in Swift and was influenced by [BrightFutures](https://github.com/Thomvis/BrightFutures).
 
@@ -393,9 +393,27 @@ public func map<M>(executionContext:ExecutionContext, mapping:T -> Try<M>) -> Fu
 public func map<M>(mapping:T -> Try<M>) -> Future<M> 
 ```
 
-Notice that mapping returns a Try<T> so it can fail. If it does fail the Future&lt;M&gt; instance will be completed with failure otherwise it will be completed successfully.
-
 ```swift
+let promise = Promise<Bool>()
+let future = promise.future
+
+future.onSuccess {value in
+}
+        
+future.onFailure {error in
+}
+
+let mapped = future.map {value -> Try<Int> in
+	return Try(Int(1))        
+}
+
+mapped.onSuccess {value in
+}
+
+mapped.onFailure {error in
+}
+        
+promise.success(true)
 ```
 
 map for FutureStream&lt;T&gt; instances returns a FutureStream&lt;M&gt; and has the following definition,
@@ -409,6 +427,23 @@ public func map<M>(mapping:T -> Try<M>) -> FutureStream<M>
 ```
 
 ```swift
+let promise = StreamPromise<Bool>()
+let stream = promise.future
+
+stream.onSuccess {value in
+}
+stream.onFailure {error in
+}
+        
+let mapped = stream.map {value -> Try<Int> in
+}
+mapped.onSuccess {value in
+}
+mapped.onFailure {error in
+}
+
+promise.success(true)
+promise.success(false)
 ```
 
 ## <a name="flatmap">flatmap</a>
@@ -427,6 +462,50 @@ public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> Future<M>
 public func flatmap<M>(mapping:T -> Future<M>) -> Future<M>
 ```
 
+```swift
+let promise = Promise<Bool>()
+let future = promise.future
+
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+        
+let mapped = future.flatmap {value -> Future<Int> in
+            let promise = Promise<Int>()
+            promise.success(1)
+            return promise.future
+}
+mapped.onSuccess {value in
+}
+mapped.onFailure {error in
+}
+promise.success(true)
+```
+
+```swift
+let promise = Promise<Bool>()
+let future = promise.future
+
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+        
+let mapped = future.flatmap {value -> FutureStream<Int> in
+	let promise = StreamPromise<Int>()
+  promise.success(1)
+  promise.success(2)
+  return promise.future
+}
+mapped.onSuccess {value in
+}
+mapped.onFailure {error in
+}
+
+promise.success(true)
+```
+
 FutureStream&lt;T&gt; flatmap is defined by,
 
 ```swift
@@ -437,11 +516,7 @@ public func flatMap<M>(executionContext:ExecutionContext, mapping:T -> FutureStr
 public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
 ```
 
-<<<<<<< HEAD
-Future&lt;T&gt; instances can be flatmapped to FutureStream&lt;T&gt; instances. The Furture&lt;T&gt; flatmap methods that support this are defined by
-=======
 Future&lt;T&gt; instances can be flatmapped to  FutureStream&lt;M&gt; instances using a mapping function of type T -> FutureStream&lt;M&gt;. The Furture&lt;T&gt; flatmap methods that support this are defined by,
->>>>>>> finished recoverWith
 
 ```swift
 // apply mapping to result using specified execution context and returned FutureStream<M> will have specified capacity.
@@ -457,11 +532,7 @@ public func flatmap<M>(capacity:Int, mapping:T -> FutureStream<M>) -> FutureStre
 public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
 ```
 
-<<<<<<< HEAD
-FurtureStream&lt;T&gt; instances can be flatmapped using a mapping to a Future&lt;M&gt; instance returning a FutureStream&lt;M&gt; instance. The FutureStream&lt;T&gt; that support this are defined by,
-=======
 FurtureStream&lt;T&gt; instances can be flatmapped  using a mapping function of type T -> Future&lt;M&gt; returning a FutureStream&lt;M&gt; instance. The FutureStream&lt;T&gt; that support this are defined by,
->>>>>>> finished recoverWith
 
 ```swift
 // apply mapping to Future<M> using specified execution context
@@ -471,13 +542,54 @@ public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> Future<M>
 public func flatmap<M>(mapping:T -> Future<M>) -> FutureStream<M>
 ```
 
+```swift
+let promise = StreamPromise<Bool>()
+let stream = promise.future
+
+stream.onSuccess {value in        
+}
+stream.onFailure {error in
+}
+let mapped = stream.flatmap {value -> FutureStream<Int> in
+	let promise = StreamPromise<Int>()
+  promise.success(1)
+  promise.success(2)
+	return promise.future
+}
+mapped.onSuccess {value in
+}
+mapped.onFailure {error in
+}
+
+promise.success(true)
+promise.success(false)
+```
+
+```swift
+let promise = StreamPromise<Bool>()
+let stream = promise.future
+
+stream.onSuccess {value in        
+}
+stream.onFailure {error in
+}
+let mapped = stream.flatmap {value -> Future<Int> in
+	 let promise = Promise<Int>()
+   promise.success(1)
+   return promise.future
+}
+mapped.onSuccess {value in
+}
+mapped.onFailure {error in
+}
+
+promise.success(true)
+promise.success(false)
+```
+
 ## <a name="recover">recover</a>
 
-<<<<<<< HEAD
-The recover combinator is supported by both Future&lt;T&gt; and  FutureStream&lt;T&gt; instances. It returns a new instance of the same type and takes as an argument a recovery function of type NSError -> Try&lt;T&gt;. If the calling instance completes with success recover returns an instance successfully completed with result but if completed with failure recover completes the returned instance with the result of the recovery function. The recovery function returns Try&lt;T&gt; so it can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure.
-=======
 The recover combinator is supported by both Future&lt;T&gt; and  FutureStream&lt;T&gt; instances. It takes a recovery function  of type NSError -> Try&lt;T&gt; and returns a new instance of the same type. If either completes with success recover returns an instance successfully completed with result but if completed with failure recover completes the returned with the result of the specified recovery function. The recovery function can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure.
->>>>>>> finished recoverWith
 
 Future&lt;T&gt; recovery is defined by,
 
@@ -487,6 +599,25 @@ public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T
 
 // recover with specified recovery function using default execution context
 public func recover(recovery: NSError -> Try<T>) -> Future<T>
+```
+
+```swift
+let promise = Promise<Bool>()
+let future = promise.future
+
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+
+let recovered = future.recover {error -> Try<Bool> in
+}
+recovered.onSuccess {value in
+}
+recovered.onFailure {error in
+}
+
+promise.success(true)
 ```
 
 FutureStream&lt;T&gt; recovery is defined by,
@@ -499,45 +630,63 @@ public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T
 public func recover(recovery:NSError -> Try<T>) -> FutureStream<T>
 ```
 
+```swift
+let promise = StreamPromise<Int>()
+let future = promise.future
+
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+        
+let recovered = future.recover {error -> Try<Int> in
+  return Try(1)
+}
+recovered.onSuccess {value in
+}
+recovered.onFailure {error in
+}
+
+promise.success(1)
+promise.success(2)
+```
+
 ## <a name="recoverwith">recoverWith</a>
 
-<<<<<<< HEAD
-The recoverWith combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It returns a new instance of Future&lt;T&gt; or FutureStream&lt;T&gt;, where T is the same type in both the calling and returned instance, and takes as an argument a recovery function of type NSError -> Future&lt;T&gt; or NSError -> FutureStream&lt;T&gt;. If the calling instance completes with success recoverWith returns a new instance completed with result but if completed with failure recoverWith returns a new instance completed with the result of the recovery function. Since the recovery function returns a Future&lt;T&gt; or FutureStream&lt;T&gt; so it can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure.
-=======
 The recoverWith combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a recovery function of type NSError -> Future&lt;T&gt; or NSError -> FutureStream&ltT&gt; and can return new instance of type Future&lt;T&gt; or FutureStream&ltT&gt;. If an instance completes with success recoverWith returns a new Future&lt;T&gt; or FutureStream&ltT&gt; instance completed with result but if completed with failure recoverWith completes the returned Future&lt;T&gt; or FutureStream&ltT&gt; instance with the result of the recovery function. The recovery function can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure.
->>>>>>> finished recoverWith
 
 Future&lt;T&gt; recoverWith is defined by,
 
 ```swift
-<<<<<<< HEAD
-// recover with the specified recovery function using the specified execution context
-public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> Future<T>
-
-// recover with the specified recovery function  using the default execution context
-=======
 // recoverWith with specified recovery function using the specified execution context
 public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> Future<T>
 
 // recoverWith with specified recovery function using the default execution context
->>>>>>> finished recoverWith
 public func recoverWith(recovery:NSError -> Future<T>) -> Future<T>
+```
+
+```swift
+let promise = Promise<Bool>()
+let future = promise.future
+
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+
+let recovered = future.recoverWith {error -> Future<Bool> in
+}
+recovered.onSuccess {value in
+}
+recovered.onFailure {error in
+}
+
+promise.success(true)
 ```
 
 FutureStream&lt;T&gt; recoverWith is defined by,
 
 ```swift
-<<<<<<< HEAD
-// recover with the specified recovery function using the specified execution context
-public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> FutureStream<T>
-
-// recover with the specified recovery function  using the default execution context
-public func recoverWith(recovery:NSError -> Future<T>) -> FutureStream<T>
-```
-
-Future&lt;T&gt; instance can recoverWith FutureStream&lt;T&gt; instances. The Future&lt;T&gt; methods that support this are defined by,
-
-=======
 // recoverWith specified recovery function using the species execution context
 public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> FutureStream<T>
 
@@ -545,9 +694,32 @@ public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> F
 public func recoverWith(recovery:NSError -> Future<T>) -> FutureStream<T>
 ```
 
+```swift
+let promise = StreamPromise<Int>()
+let future = promise.future
+
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+        
+let recovered = future.recoverWith {error -> FutureStream<Int> in
+	let promise = StreamPromise<Int>()
+	promise.success(1)
+	promise.success(2)
+  return promise.future
+}
+recovered.onSuccess {value in
+}
+recovered.onFailure {error in
+}
+
+promise.success(3)
+promise.success(4)
+```
+
 Future&lt;T&gt; instances can recoverWith a new FutureStream&lt;T&gt; instance using a recovery function of type  NSError -> FutureStream&lt;T&gt;. The Future&lt;T&gt; recoverWith methods supporting this are defined by,
  
->>>>>>> finished recoverWith
 ```swift
 // recoverWith specified recovery function using the specified execution context returning a FutureStream<T> with the specified capacity
 public func recoverWith(capacity:Int, executionContext:ExecutionContext, recovery:NSError -> FutureStream<T>) -> FutureStream<T>
@@ -562,11 +734,29 @@ public func recoverWith(capacity:Int, recovery:NSError -> FutureStream<T>) -> Fu
 public func recoverWith(recovery:NSError -> FutureStream<T>) -> FutureStream<T>
 ```
 
-<<<<<<< HEAD
-FutureStream&lt;T&gt; instances can have a recovery function returning a Future&lt;T&gt; instance which completes are returned FutureStream&lt;T&gt; instances. The FutureStream&lt;T&gt; methods supporting this are,
-=======
+```swift
+let promise = Promise<Bool>()
+let future = promise.future
+
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+
+let recovered = future.recoverWith {error -> FutureStream<Bool> in
+	let promise = StreamPromise<Bool>()
+  promise.success(false)
+  return promise.future
+}
+recovered.onSuccess {value in
+}
+recovered.onFailure {error in
+}
+
+promise.success(true)
+```
+
 FutureStream&lt;T&gt; instances can recoverWith a new FutureStream&lt;T&gt; instance using a recovery function of type NSError -> Future&lt;T&gt;. The FutureStream&lt;T&gt; methods supporting this are defined by,
->>>>>>> finished recoverWith
 
 ```swift
 // recoverWith a recovery function returning Future<T> using the specified execution context
@@ -576,6 +766,28 @@ public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> F
 public func recoverWith(recovery:NSError -> Future<T>) -> FutureStream<T>
 ```
 
+```swift
+let promise = StreamPromise<Int>()
+let future = promise.future
+
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+        
+let recovered = future.recoverWith {error -> Future<Int> in
+	let promise = Promise<Int>()
+  promise.success(1)
+  return promise.future
+}
+recovered.onSuccess {value in
+}
+recovered.onFailure {error in
+}
+
+promise.success(1)
+promise.success(2)
+```
 
 ## <a name="withfilter">withFilter</a>
 
