@@ -381,7 +381,7 @@ Combinators allow futures to be combined in ways that simplify application imple
 
 ## <a name="map">map</a>
 
-The map combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a mapping function of type T -> Try&lt;M&gt; and returns a new Future&lt;T&gt; or FutureStream&lt;T&gt; instance that may be completed with the result of the mapping function. The mapping function is called only after successful completion otherwise the returned instance is completed with failure. The mapping function can fail completing the returned Future&lt;M&gt; or FutureStream&lt;M&gt; instance with failure. 
+The map combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a mapping function of type T -> Try&lt;M&gt; as argument and returns a new Future&lt;T&gt; or FutureStream&lt;T&gt; instance. The Future&lt;M&gt; or FutureStream&lt;M&gt; returned by the mapping may be used to complete the instance returned by map. The mapping function is called only after successful completion otherwise the returned instance is completed with failure. The mapping function can fail completing the returned Future&lt;M&gt; or FutureStream&lt;M&gt; instance with failure. 
 
 Futute&lt;T&gt; map is defined by,
 
@@ -448,7 +448,7 @@ promise.success(false)
 
 ## <a name="flatmap">flatmap</a>
 
-The flatmap combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a mapping function of type T -> Future&lt;M&gt; or T -> FutureStream&lt;M&gt; returning a new Future&lt;M&gt; or FutureStream&lt;M&gt; instance possibly of a different type. The Future&lt;M&gt; or FutureStream&lt;M&gt; returned by the mapping may be used to complete the instance returned by flatmap. The mapping function is called only after successful completion otherwise the returned instance is completed with failure. The mapping function can fail completing the returned Future&lt;M&gt; or FutureStream&lt;M&gt; instance with failure.
+The flatmap combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a mapping function of type T -> Future&lt;M&gt; or T -> FutureStream&lt;M&gt; as argument returning a new Future&lt;M&gt; or FutureStream&lt;M&gt; instance possibly of a different type. The Future&lt;M&gt; or FutureStream&lt;M&gt; returned by the mapping may be used to complete the instance returned by flatmap. The mapping function is called only after successful completion otherwise the returned instance is completed with failure. The mapping function can fail completing the returned Future&lt;M&gt; or FutureStream&lt;M&gt; instance with failure.
 
 flatmap is the most used combinator because it allows Future&lt;T&gt; or FutureStream&lt;T&gt; instances to be called serially using the mapping function. This can be seen by following the sequence of events just described. The flatmap mapping function is called only after successful completion of the instance on which flatmap was called and the returned instance is completed only after the the mapping function instance is completed. Notice, that error handling is provided at each point in the calling sequence. Only if all instances are successfully completed will the instance returned by flatmap be successfully completed. Any failure in the calling sequence will cause the instance returned by flatmap to be completed with failure. Also, any number of Future&lt;T&gt; or FutureStream&lt;T&gt; instances can be combined with flatmap and each instance will be called serially.
 
@@ -589,7 +589,7 @@ promise.success(false)
 
 ## <a name="recover">recover</a>
 
-The recover combinator is supported by both Future&lt;T&gt; and  FutureStream&lt;T&gt; instances. It takes a recovery function  of type NSError -> Try&lt;T&gt; and returns a new instance of the same type. If either completes with success recover returns an instance successfully completed with result but if completed with failure recover completes the returned with the result of the specified recovery function. The recovery function can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure.
+The recover combinator is supported by both Future&lt;T&gt; and  FutureStream&lt;T&gt; instances. It takes a recovery function  of type NSError -> Try&lt;T&gt; as argument and returns a new Future&lt;T&gt; or FutureStream&lt;T&gt; instance of the same type. If completed with success recover returns an instance successfully completed with result but if completed with failure recover completes the returned instance with the result of the specified recovery function. The recovery function can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure.
 
 Future&lt;T&gt; recovery is defined by,
 
@@ -653,7 +653,7 @@ promise.success(2)
 
 ## <a name="recoverwith">recoverWith</a>
 
-The recoverWith combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a recovery function of type NSError -> Future&lt;T&gt; or NSError -> FutureStream&ltT&gt; and can return new instance of type Future&lt;T&gt; or FutureStream&ltT&gt;. If an instance completes with success recoverWith returns a new Future&lt;T&gt; or FutureStream&ltT&gt; instance completed with result but if completed with failure recoverWith completes the returned Future&lt;T&gt; or FutureStream&ltT&gt; instance with the result of the recovery function. The recovery function can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure.
+The recoverWith combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a recovery function of type NSError -> Future&lt;T&gt; or NSError -> FutureStream&lt;T&gt; as argument and returns new instance of type Future&lt;T&gt; or FutureStream&lt;T&gt;. If an instance completes with success recoverWith returns a new Future&lt;T&gt; or FutureStream&ltT&gt; instance completed with result but if completed with failure recoverWith completes the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with the result of the recovery function. The recovery function can fail completing the returned Future&lt;T&gt; or FutureStream&lt;T&gt; instance with failure.
 
 Future&lt;T&gt; recoverWith is defined by,
 
@@ -791,11 +791,17 @@ promise.success(2)
 
 ## <a name="withfilter">withFilter</a>
 
+The withFilter combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a filter function of type T -> Bool as argument and returns a new instance of the same type. If either completes with success the specified filter function is applied to result. If the filter function returns true the returned instance is completed with result. If the filter function returns false the returned instance is completed with failure using the error TryError.filterFailed. If the Future&lt;T&gt; or FutureStream&lt;T&gt; instances are completed with failure withFilter completed the returned instance with failure.
+
+Future&lt;T&gt; withFilter is defined by,
+
 ```swift
 public func withFilter(executionContext:ExecutionContext, filter:T -> Bool) -> Future<T>
 
 public func withFilter(filter:T -> Bool) -> Future<T>
 ```
+
+FutureStream&lt;T&gt; withFilter is defined by,
 
 ```swift
 public func withFilter(executionContext:ExecutionContext, filter:T -> Bool) -> FutureStream<T>
@@ -805,11 +811,17 @@ public func withFilter(filter:T -> Bool) -> FutureStream<T>
 
 ## <a name="foreach">foreach</a>
 
+The foreach combinator os supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a function of type T -> Void as argument and returns Void. If the Future&lt;T&gt; or FutureStream&lt;T&gt; instance completes successfully the specified function is applies to result and not applies if completed with failure. This behavior is the same as [onSuccess](#onsuccess).
+ 
+Future&lt;T&gt; foreach is defined by,
+
 ```swift
 public func foreach(executionContext:ExecutionContext, apply:T -> Void)
 
 public func foreach(apply:T -> Void
 ```
+
+FutureStream&lt;T&gt; is defined by,
 
 ```swift
 public func foreach(executionContext:ExecutionContext, apply:T -> Void)
