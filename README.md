@@ -394,25 +394,33 @@ public func map<M>(mapping:T -> Try<M>) -> Future<M>
 ```
 
 ```swift
+// create a promise
 let promise = Promise<Bool>()
 let future = promise.future
 
+// called when future is completed successfully
 future.onSuccess {value in
 }
-        
+   
+// called send future is completed with failure     
 future.onFailure {error in
 }
 
+// create a new future with map and call specified mapping
+// function if future is completed successfully
 let mapped = future.map {value -> Try<Int> in
 	return Try(Int(1))        
 }
 
+// called if future and mapped future completed successfully
 mapped.onSuccess {value in
 }
 
+// called if mapped or future is completed successfuly
 mapped.onFailure {error in
 }
-        
+     
+// complete future successfully   
 promise.success(true)
 ```
 
@@ -961,8 +969,8 @@ future.onFailure {error in
        
 let andThen = future.andThen {result in
 	switch result {
-	case .Success(_):
-  case .Failure(_):
+		case .Success(_):
+	  case .Failure(_):
   }
 }
         
@@ -972,4 +980,4 @@ andThen.onFailure {error in
 }
 promise.success(true)
 promise.success(false)
-```swift
+```
