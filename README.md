@@ -791,54 +791,185 @@ promise.success(2)
 
 ## <a name="withfilter">withFilter</a>
 
-The withFilter combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a filter function of type T -> Bool as argument and returns a new instance of the same type. If either completes with success the specified filter function is applied to result. If the filter function returns true the returned instance is completed with result. If the filter function returns false the returned instance is completed with failure using the error TryError.filterFailed. If the Future&lt;T&gt; or FutureStream&lt;T&gt; instances are completed with failure withFilter completed the returned instance with failure.
+The withFilter combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a filter function of type T -> Bool as argument and returns a new Future&lt;T&gt; and FutureStream&lt;T&gt; instance of the same type. If either completes with success the specified filter function is applied to result. If the filter function returns true the returned instance is completed with result. If the filter function returns false the returned instance is completed with failure using the error TryError.filterFailed. If the Future&lt;T&gt; or FutureStream&lt;T&gt; instances are completed with failure withFilter completed the returned instance with failure.
 
 Future&lt;T&gt; withFilter is defined by,
 
 ```swift
+// apply specified filter function using specified execution context
 public func withFilter(executionContext:ExecutionContext, filter:T -> Bool) -> Future<T>
 
+// apply specified filter function using default execution context
 public func withFilter(filter:T -> Bool) -> Future<T>
+```
+
+```swift
+let promise = Promise<Bool>()
+let future = promise.future
+
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+
+let filter = future.withFilter {value in
+  return value
+}
+filter.onSuccess {value in
+}
+filter.onFailure {error in
+}
+promise.success(true)
 ```
 
 FutureStream&lt;T&gt; withFilter is defined by,
 
 ```swift
+// apply the specified filter function using the specified execution context
 public func withFilter(executionContext:ExecutionContext, filter:T -> Bool) -> FutureStream<T>
 
+// apply the specified filter function using default execution context
 public func withFilter(filter:T -> Bool) -> FutureStream<T>
+```
+
+```swift
+let promise = StreamPromise<Bool>()
+let future = promise.future
+
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+
+let filter = future.withFilter {value in
+  return value
+}
+filter.onSuccess {value in
+}
+filter.onFailure {error in
+}
+promise.success(true)
 ```
 
 ## <a name="foreach">foreach</a>
 
-The foreach combinator os supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a function of type T -> Void as argument and returns Void. If the Future&lt;T&gt; or FutureStream&lt;T&gt; instance completes successfully the specified function is applies to result and not applies if completed with failure. This behavior is the same as [onSuccess](#onsuccess).
+The foreach combinator os supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a function of type T -> Void as argument and returns Void. If the Future&lt;T&gt; or FutureStream&lt;T&gt; instance completes successfully the specified function is applied to result and not applied if completed with failure. This behavior is the same as [onSuccess](#onsuccess).
  
 Future&lt;T&gt; foreach is defined by,
 
 ```swift
+// apply the specified function using the specified execution context
 public func foreach(executionContext:ExecutionContext, apply:T -> Void)
 
-public func foreach(apply:T -> Void
+// apply the specified function using default execution context
+public func foreach(apply:T -> Void)
+```
+
+```swift
+let promise = Promise<Bool>()
+let future = promise.future
+
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+
+future.foreach {value in
+}
+promise.success(true)
 ```
 
 FutureStream&lt;T&gt; is defined by,
 
 ```swift
+// apply the specified function using the specified execution context
 public func foreach(executionContext:ExecutionContext, apply:T -> Void)
 
-public func foreach(apply:T -> Void
+// apply the specified function using default execution context
+public func foreach(apply:T -> Void)
+```
+
+```swift
+let promise = StreamPromise<Bool>()
+let future = promise.future
+
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+
+future.foreach {value in
+}
+promise.success(true)
 ```
 
 ## <a name="andthen">andThen</a>
 
-```swift
-public func recoverWith(recovery:NSError -> Future<T>) -> Future<T>
+The andThen combinator is supported by both Future&lt;T&gt; and FutureStream&lt;T&gt; instances. It takes a function of type Try<T> -> Void as argument and returns a new Future&lt;T&gt; and FutureStream&lt;T&gt; instance of the same type. It applies the specified function if the calling instance completes with success or failure and completes the returned instance with the successful or failed result.
 
-public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> Future<T>) -> Future<T>
+Future&lt;T&gt; andThen is defined by,
+
+```swift
+// apply the specified function using the specified execution context
+public func andThen(executionContext:ExecutionContext, complete:Try<T> -> Void) -> Future<T>
+
+// apply the specified function using default execution context
+public func andThen(complete:Try<T> -> Void) -> Future<T>
 ```
 
 ```swift
-public func andThen(complete:Try<T> -> Void) -> FutureStream<T>
+let promise = Promise<Bool>()
+let future = promise.future
 
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+       
+let andThen = future.andThen {result in
+	switch result {
+	case .Success(_):
+  case .Failure(_):
+  }
+}
+        
+andThen.onSuccess {value in
+}        
+andThen.onFailure {error in
+}
+promise.success(true)
+```
+
+FutureStream&lt;T&gt; is defined by,
+
+```swift
+// apply the specified function using the specified execution context
 public func andThen(executionContext:ExecutionContext, complete:Try<T> -> Void) -> FutureStream<T>
+
+// apply the specified function using default execution context
+public func andThen(complete:Try<T> -> Void) -> FutureStream<T>
 ```
+
+```swift
+let promise = StreamPromise<Bool>()
+let stream = promise.future
+
+future.onSuccess {value in
+}
+future.onFailure {error in
+}
+       
+let andThen = future.andThen {result in
+	switch result {
+	case .Success(_):
+  case .Failure(_):
+  }
+}
+        
+andThen.onSuccess {value in
+}        
+andThen.onFailure {error in
+}
+promise.success(true)
+promise.success(false)
+```swift
