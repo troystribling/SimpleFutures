@@ -416,7 +416,7 @@ let mapped = future.map {value -> Try<Int> in
 mapped.onSuccess {value in
 }
 
-// called if mapped or future is completed successfuly
+// called if mapped or future are completed with failure
 mapped.onFailure {error in
 }
      
@@ -435,21 +435,32 @@ public func map<M>(mapping:T -> Try<M>) -> FutureStream<M>
 ```
 
 ```swift
+// create promise
 let promise = StreamPromise<Bool>()
 let stream = promise.future
 
+// called each time stream is completed successfully
 stream.onSuccess {value in
 }
+
+// called each time stream is completed with failure
 stream.onFailure {error in
 }
-        
+    
+// create a new stream with map and call specified mapping
+// function each time stream is completed successfully   
 let mapped = stream.map {value -> Try<Int> in
 }
+
+// called each time stream and mapped are completed successfully
 mapped.onSuccess {value in
 }
+
+// called each time stream or mapped are completed with failure
 mapped.onFailure {error in
 }
 
+// complete stream successfully twice.
 promise.success(true)
 promise.success(false)
 ```
@@ -640,14 +651,14 @@ public func recover(recovery:NSError -> Try<T>) -> FutureStream<T>
 
 ```swift
 let promise = StreamPromise<Int>()
-let future = promise.future
+let stream = promise.future
 
-future.onSuccess {value in
+stream.onSuccess {value in
 }
-future.onFailure {error in
+stream.onFailure {error in
 }
         
-let recovered = future.recover {error -> Try<Int> in
+let recovered = stream.recover {error -> Try<Int> in
   return Try(1)
 }
 recovered.onSuccess {value in
@@ -704,11 +715,11 @@ public func recoverWith(recovery:NSError -> Future<T>) -> FutureStream<T>
 
 ```swift
 let promise = StreamPromise<Int>()
-let future = promise.future
+let stream = promise.future
 
-future.onSuccess {value in
+stream.onSuccess {value in
 }
-future.onFailure {error in
+stream.onFailure {error in
 }
         
 let recovered = future.recoverWith {error -> FutureStream<Int> in
@@ -744,14 +755,14 @@ public func recoverWith(recovery:NSError -> FutureStream<T>) -> FutureStream<T>
 
 ```swift
 let promise = Promise<Bool>()
-let future = promise.future
+let stream = promise.future
 
-future.onSuccess {value in
+stream.onSuccess {value in
 }
-future.onFailure {error in
+stream.onFailure {error in
 }
 
-let recovered = future.recoverWith {error -> FutureStream<Bool> in
+let recovered = stream.recoverWith {error -> FutureStream<Bool> in
 	let promise = StreamPromise<Bool>()
   promise.success(false)
   return promise.future
@@ -776,14 +787,14 @@ public func recoverWith(recovery:NSError -> Future<T>) -> FutureStream<T>
 
 ```swift
 let promise = StreamPromise<Int>()
-let future = promise.future
+let stream = promise.future
 
-future.onSuccess {value in
+stream.onSuccess {value in
 }
-future.onFailure {error in
+stream.onFailure {error in
 }
         
-let recovered = future.recoverWith {error -> Future<Int> in
+let recovered = stream.recoverWith {error -> Future<Int> in
 	let promise = Promise<Int>()
   promise.success(1)
   return promise.future
@@ -842,14 +853,14 @@ public func withFilter(filter:T -> Bool) -> FutureStream<T>
 
 ```swift
 let promise = StreamPromise<Bool>()
-let future = promise.future
+let stream = promise.future
 
-future.onSuccess {value in
+stream.onSuccess {value in
 }
-future.onFailure {error in
+stream.onFailure {error in
 }
 
-let filter = future.withFilter {value in
+let filter = stream.withFilter {value in
   return value
 }
 filter.onSuccess {value in
@@ -899,14 +910,14 @@ public func foreach(apply:T -> Void)
 
 ```swift
 let promise = StreamPromise<Bool>()
-let future = promise.future
+let stream = promise.future
 
 future.onSuccess {value in
 }
 future.onFailure {error in
 }
 
-future.foreach {value in
+stream.foreach {value in
 }
 promise.success(true)
 ```
@@ -962,12 +973,12 @@ public func andThen(complete:Try<T> -> Void) -> FutureStream<T>
 let promise = StreamPromise<Bool>()
 let stream = promise.future
 
-future.onSuccess {value in
+stream.onSuccess {value in
 }
-future.onFailure {error in
+stream.onFailure {error in
 }
        
-let andThen = future.andThen {result in
+let andThen = stream.andThen {result in
 	switch result {
 		case .Success(_):
 	  case .Failure(_):
