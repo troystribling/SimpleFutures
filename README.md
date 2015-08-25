@@ -482,24 +482,85 @@ public func flatmap<M>(mapping:T -> Future<M>) -> Future<M>
 ```
 
 ```swift
+// create promise
 let promise = Promise<Bool>()
 let future = promise.future
 
+// called when future is completed successfully
 future.onSuccess {value in
 }
+
+// called when future is completed with failure
 future.onFailure {error in
 }
         
+// create a new future with flatmap and call specified mapping
+// function if future is completed successfully
 let mapped = future.flatmap {value -> Future<Int> in
             let promise = Promise<Int>()
             promise.success(1)
             return promise.future
 }
+
+// called if future and mapped future are completed successfully 
+mapped.onSuccess {value in
+}
+
+// called if mapped or future are completed with failure
+mapped.onFailure {error in
+}
+
+// complete future successfully
+promise.success(true)
+```
+
+FutureStream&lt;T&gt; flatmap is defined by,
+
+```swift
+// apply mapping to result using specified execution context
+public func flatMap<M>(executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M>
+
+// apply mapping to result using default execution context
+public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
+```
+
+```swift
+let promise = StreamPromise<Bool>()
+let stream = promise.future
+
+stream.onSuccess {value in        
+}
+stream.onFailure {error in
+}
+let mapped = stream.flatmap {value -> FutureStream<Int> in
+	let promise = StreamPromise<Int>()
+  promise.success(1)
+  promise.success(2)
+	return promise.future
+}
 mapped.onSuccess {value in
 }
 mapped.onFailure {error in
 }
+
 promise.success(true)
+promise.success(false)
+```
+
+Future&lt;T&gt; instances can be flatmapped to  FutureStream&lt;M&gt; instances using a mapping function of type T -> FutureStream&lt;M&gt;. The Furture&lt;T&gt; flatmap methods that support this are defined by,
+
+```swift
+// apply mapping to result using specified execution context and returned FutureStream<M> will have specified capacity.
+public func flatmap<M>(capacity:Int, executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M>
+
+// apply mapping to result using specified execution context and returned FutureStream<M> will have infinite capacity
+public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M>
+
+// apply mapping to result using default execution context and returned FutureStream<M> will have specified capacity.
+public func flatmap<M>(capacity:Int, mapping:T -> FutureStream<M>) -> FutureStream<M> 
+
+// apply mapping to result using default execution context and returned FutureStream<M> will have infinite capacity.
+public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
 ```
 
 ```swift
@@ -525,32 +586,6 @@ mapped.onFailure {error in
 promise.success(true)
 ```
 
-FutureStream&lt;T&gt; flatmap is defined by,
-
-```swift
-// apply mapping to result using specified execution context
-public func flatMap<M>(executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M>
-
-// apply mapping to result using default execution context
-public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
-```
-
-Future&lt;T&gt; instances can be flatmapped to  FutureStream&lt;M&gt; instances using a mapping function of type T -> FutureStream&lt;M&gt;. The Furture&lt;T&gt; flatmap methods that support this are defined by,
-
-```swift
-// apply mapping to result using specified execution context and returned FutureStream<M> will have specified capacity.
-public func flatmap<M>(capacity:Int, executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M>
-
-// apply mapping to result using specified execution context and returned FutureStream<M> will have infinite capacity
-public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> FutureStream<M>) -> FutureStream<M>
-
-// apply mapping to result using default execution context and returned FutureStream<M> will have specified capacity.
-public func flatmap<M>(capacity:Int, mapping:T -> FutureStream<M>) -> FutureStream<M> 
-
-// apply mapping to result using default execution context and returned FutureStream<M> will have infinite capacity.
-public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
-```
-
 FurtureStream&lt;T&gt; instances can be flatmapped  using a mapping function of type T -> Future&lt;M&gt; returning a FutureStream&lt;M&gt; instance. The FutureStream&lt;T&gt; that support this are defined by,
 
 ```swift
@@ -561,28 +596,6 @@ public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> Future<M>
 public func flatmap<M>(mapping:T -> Future<M>) -> FutureStream<M>
 ```
 
-```swift
-let promise = StreamPromise<Bool>()
-let stream = promise.future
-
-stream.onSuccess {value in        
-}
-stream.onFailure {error in
-}
-let mapped = stream.flatmap {value -> FutureStream<Int> in
-	let promise = StreamPromise<Int>()
-  promise.success(1)
-  promise.success(2)
-	return promise.future
-}
-mapped.onSuccess {value in
-}
-mapped.onFailure {error in
-}
-
-promise.success(true)
-promise.success(false)
-```
 
 ```swift
 let promise = StreamPromise<Bool>()
