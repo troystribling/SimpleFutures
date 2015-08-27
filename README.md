@@ -393,6 +393,8 @@ public func map<M>(executionContext:ExecutionContext, mapping:T -> Try<M>) -> Fu
 public func map<M>(mapping:T -> Try<M>) -> Future<M> 
 ```
 
+Consider the following example,
+
 ```swift
 // create a promise
 let promise = Promise<Bool>()
@@ -402,7 +404,7 @@ let future = promise.future
 future.onSuccess {value in
 }
    
-// called send future is completed with failure     
+// called when future is completed with failure     
 future.onFailure {error in
 }
 
@@ -434,6 +436,8 @@ public func map<M>(executionContext:ExecutionContext, mapping:T -> Try<M>) -> Fu
 public func map<M>(mapping:T -> Try<M>) -> FutureStream<M>
 ```
 
+Consider the following example,
+
 ```swift
 // create promise
 let promise = StreamPromise<Bool>()
@@ -460,7 +464,7 @@ mapped.onSuccess {value in
 mapped.onFailure {error in
 }
 
-// complete stream successfully twice.
+// complete stream successfully twice
 promise.success(true)
 promise.success(false)
 ```
@@ -480,6 +484,8 @@ public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> Future<M>
 // apply mapping to result using default execution context
 public func flatmap<M>(mapping:T -> Future<M>) -> Future<M>
 ```
+
+Consider the following example,
 
 ```swift
 // create promise
@@ -524,25 +530,39 @@ public func flatMap<M>(executionContext:ExecutionContext, mapping:T -> FutureStr
 public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
 ```
 
+Consider the following example,
+
 ```swift
+// create promise
 let promise = StreamPromise<Bool>()
 let stream = promise.future
 
+// called each time stream is completed successfully
 stream.onSuccess {value in        
 }
+
+// called each time stream is completed with failure
 stream.onFailure {error in
 }
+
+// create a new stream with flatmap and call specified mapping
+// function each time stream is completed successfully   
 let mapped = stream.flatmap {value -> FutureStream<Int> in
 	let promise = StreamPromise<Int>()
   promise.success(1)
   promise.success(2)
 	return promise.future
 }
+
+// called each time stream and mapped are completed successfully
 mapped.onSuccess {value in
 }
+
+// called each time stream or mapped are completed with failure
 mapped.onFailure {error in
 }
 
+// complete stream successfully twice
 promise.success(true)
 promise.success(false)
 ```
@@ -563,26 +583,42 @@ public func flatmap<M>(capacity:Int, mapping:T -> FutureStream<M>) -> FutureStre
 public func flatmap<M>(mapping:T -> FutureStream<M>) -> FutureStream<M>
 ```
 
+Consider the following example,
+
 ```swift
+// create promise
 let promise = Promise<Bool>()
 let future = promise.future
 
+// called when future is completed successfully
 future.onSuccess {value in
 }
+
+// called when future is completed with failure
 future.onFailure {error in
 }
-        
+
+let 
+// create a new stream with map and call specified mapping
+// function if future is completed successfully  
 let mapped = future.flatmap {value -> FutureStream<Int> in
 	let promise = StreamPromise<Int>()
   promise.success(1)
   promise.success(2)
   return promise.future
 }
+
+// called when future is completed successfully and each time
+// mapped is completed successfully
 mapped.onSuccess {value in
 }
+
+// called when future is completed with failure or each time
+// mapped is completed successfully
 mapped.onFailure {error in
 }
 
+// complete future successfully
 promise.success(true)
 ```
 
@@ -596,6 +632,7 @@ public func flatmap<M>(executionContext:ExecutionContext, mapping:T -> Future<M>
 public func flatmap<M>(mapping:T -> Future<M>) -> FutureStream<M>
 ```
 
+Consider the following example,
 
 ```swift
 let promise = StreamPromise<Bool>()
@@ -633,6 +670,8 @@ public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T
 public func recover(recovery: NSError -> Try<T>) -> Future<T>
 ```
 
+Consider the following example,
+
 ```swift
 let promise = Promise<Bool>()
 let future = promise.future
@@ -661,6 +700,8 @@ public func recover(executionContext:ExecutionContext, recovery:NSError -> Try<T
 // recover with specified recovery function using default execution context
 public func recover(recovery:NSError -> Try<T>) -> FutureStream<T>
 ```
+
+Consider the following example,
 
 ```swift
 let promise = StreamPromise<Int>()
@@ -697,6 +738,8 @@ public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> F
 public func recoverWith(recovery:NSError -> Future<T>) -> Future<T>
 ```
 
+Consider the following example,
+
 ```swift
 let promise = Promise<Bool>()
 let future = promise.future
@@ -726,12 +769,18 @@ public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> F
 public func recoverWith(recovery:NSError -> Future<T>) -> FutureStream<T>
 ```
 
+Consider the following example,
+
 ```swift
+// create promise
 let promise = StreamPromise<Int>()
 let stream = promise.future
 
+// called each time stream is completed successfully
 stream.onSuccess {value in
 }
+
+// called each time stream is completed with failure
 stream.onFailure {error in
 }
         
@@ -766,6 +815,8 @@ public func recoverWith(capacity:Int, recovery:NSError -> FutureStream<T>) -> Fu
 public func recoverWith(recovery:NSError -> FutureStream<T>) -> FutureStream<T>
 ```
 
+Consider the following example,
+
 ```swift
 let promise = Promise<Bool>()
 let stream = promise.future
@@ -797,6 +848,8 @@ public func recoverWith(executionContext:ExecutionContext, recovery:NSError -> F
 // recoverWith a recovery function returning Future<T> using the default execution context
 public func recoverWith(recovery:NSError -> Future<T>) -> FutureStream<T>
 ```
+
+Consider the following example,
 
 ```swift
 let promise = StreamPromise<Int>()
@@ -835,6 +888,8 @@ public func withFilter(executionContext:ExecutionContext, filter:T -> Bool) -> F
 public func withFilter(filter:T -> Bool) -> Future<T>
 ```
 
+Consider the following example,
+
 ```swift
 let promise = Promise<Bool>()
 let future = promise.future
@@ -863,6 +918,8 @@ public func withFilter(executionContext:ExecutionContext, filter:T -> Bool) -> F
 // apply the specified filter function using default execution context
 public func withFilter(filter:T -> Bool) -> FutureStream<T>
 ```
+
+Consider the following example,
 
 ```swift
 let promise = StreamPromise<Bool>()
@@ -897,6 +954,8 @@ public func foreach(executionContext:ExecutionContext, apply:T -> Void)
 public func foreach(apply:T -> Void)
 ```
 
+Consider the following example,
+
 ```swift
 let promise = Promise<Bool>()
 let future = promise.future
@@ -920,6 +979,8 @@ public func foreach(executionContext:ExecutionContext, apply:T -> Void)
 // apply the specified function using default execution context
 public func foreach(apply:T -> Void)
 ```
+
+Consider the following example,
 
 ```swift
 let promise = StreamPromise<Bool>()
@@ -948,6 +1009,8 @@ public func andThen(executionContext:ExecutionContext, complete:Try<T> -> Void) 
 // apply the specified function using default execution context
 public func andThen(complete:Try<T> -> Void) -> Future<T>
 ```
+
+Consider the following example,
 
 ```swift
 let promise = Promise<Bool>()
@@ -981,6 +1044,7 @@ public func andThen(executionContext:ExecutionContext, complete:Try<T> -> Void) 
 // apply the specified function using default execution context
 public func andThen(complete:Try<T> -> Void) -> FutureStream<T>
 ```
+Consider the following example,
 
 ```swift
 let promise = StreamPromise<Bool>()
