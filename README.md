@@ -499,13 +499,14 @@ future.onSuccess {value in
 // called when future is completed with failure
 future.onFailure {error in
 }
-        
+    
+// create future returned by flatmap
+let flatmapPromise = Promise<Int>()
+    
 // create a new future with flatmap and call specified mapping
 // function if future is completed successfully
 let mapped = future.flatmap {value -> Future<Int> in
-            let promise = Promise<Int>()
-            promise.success(1)
-            return promise.future
+  return flatmapPromise.future
 }
 
 // called if future and mapped future are completed successfully 
@@ -518,6 +519,9 @@ mapped.onFailure {error in
 
 // complete future successfully
 promise.success(true)
+
+// complete flatmap future successfully
+flatmapPromise.success(1)
 ```
 
 FutureStream&lt;T&gt; flatmap is defined by,
@@ -545,13 +549,13 @@ stream.onSuccess {value in
 stream.onFailure {error in
 }
 
+// create stream returned by flatmap
+let flatmapPromise = StreamPromise<Int>()
+
 // create a new stream with flatmap and call specified mapping
 // function each time stream is completed successfully   
 let mapped = stream.flatmap {value -> FutureStream<Int> in
-	let promise = StreamPromise<Int>()
-  promise.success(1)
-  promise.success(2)
-	return promise.future
+	return flatmapPromise.future
 }
 
 // called each time stream and mapped are completed successfully
@@ -565,6 +569,10 @@ mapped.onFailure {error in
 // complete stream successfully twice
 promise.success(true)
 promise.success(false)
+
+// complete flatmap stream twice
+flatmapPromise.success(1)
+flatmapPromise.success(2)
 ```
 
 Future&lt;T&gt; instances can be flatmapped to  FutureStream&lt;M&gt; instances using a mapping function of type T -> FutureStream&lt;M&gt;. The Furture&lt;T&gt; flatmap methods that support this are defined by,
@@ -598,14 +606,13 @@ future.onSuccess {value in
 future.onFailure {error in
 }
 
-let 
+// create stream returned by flatmap
+let flatmapPromise = StreamPromise<Int>()
+
 // create a new stream with map and call specified mapping
 // function if future is completed successfully  
 let mapped = future.flatmap {value -> FutureStream<Int> in
-	let promise = StreamPromise<Int>()
-  promise.success(1)
-  promise.success(2)
-  return promise.future
+  return flatmapPromise.future
 }
 
 // called when future is completed successfully and each time
@@ -614,12 +621,16 @@ mapped.onSuccess {value in
 }
 
 // called when future is completed with failure or each time
-// mapped is completed successfully
+// mapped is completed with failure
 mapped.onFailure {error in
 }
 
 // complete future successfully
 promise.success(true)
+
+// complete flatmap stream twice
+flatmapPromise.success(1)
+flatmapPromise.success(2)
 ```
 
 FurtureStream&lt;T&gt; instances can be flatmapped  using a mapping function of type T -> Future&lt;M&gt; returning a FutureStream&lt;M&gt; instance. The FutureStream&lt;T&gt; that support this are defined by,
@@ -635,25 +646,42 @@ public func flatmap<M>(mapping:T -> Future<M>) -> FutureStream<M>
 Consider the following example,
 
 ```swift
+// create promise
 let promise = StreamPromise<Bool>()
 let stream = promise.future
 
+// called each time stream is completed successfully
 stream.onSuccess {value in        
 }
+
+// called each time stream is completed with failure
 stream.onFailure {error in
 }
+
+// create future returned by flatmap
+let flatmapPromise = Promise<Int>()
+
+// create a new future with flatmap and call specified mapping
+// function each time stream is completed successfully
 let mapped = stream.flatmap {value -> Future<Int> in
-	 let promise = Promise<Int>()
-   promise.success(1)
-   return promise.future
+  return flatmapPromise.future
 }
+
+// called each time stream and mapped are completed successfully 
 mapped.onSuccess {value in
 }
+
+// called each time stream is completed with failure 
+// or when mapped is completed with failure
 mapped.onFailure {error in
 }
 
+// complete stream successfully twice
 promise.success(true)
 promise.success(false)
+
+// complete flatmap future successfully
+flatmapPromise.success(1)
 ```
 
 ## <a name="recover">recover</a>
@@ -673,22 +701,36 @@ public func recover(recovery: NSError -> Try<T>) -> Future<T>
 Consider the following example,
 
 ```swift
+// create promise
 let promise = Promise<Bool>()
 let future = promise.future
 
+// called when future is completed successfully
 future.onSuccess {value in
 }
+
+// called when future is completed with failure"
 future.onFailure {error in
 }
 
+// create a new future with recover and call the specified 
+// recovery function if future is completed with failure
 let recovered = future.recover {error -> Try<Bool> in
+	return Try<Bool>(true)
 }
+
+// called if future completes successfully or if future 
+// completes with failure and recovered completes successfully
 recovered.onSuccess {value in
 }
+
+// called if future completes with failure and recovered 
+// completes with failure
 recovered.onFailure {error in
 }
 
-promise.success(true)
+// complete future with failure
+promise.failure(NSError(domain:'Example', code:1, userInfo:[NSLocalizedDescriptionKey:"Example failure"]))
 ```
 
 FutureStream&lt;T&gt; recovery is defined by,
