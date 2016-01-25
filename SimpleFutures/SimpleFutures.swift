@@ -399,7 +399,7 @@ public struct Queue {
     public static let global                = Queue(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
     
     internal static let simpleFutures       = Queue("us.gnos.simpleFutures.main")
-    internal static let simpleFutureStreams = Queue("us.gnos.simpleFutureStreams.main")
+    internal static let simpleFutureStreams = Queue("us.gnos.simpleFutures.streams")
     
     var queue: dispatch_queue_t
     
