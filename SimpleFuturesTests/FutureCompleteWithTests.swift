@@ -12,6 +12,8 @@ import SimpleFutures
 
 class FutureCompleteWithTests: XCTestCase {
 
+    let immediateContext = ImmediateContext()
+
     override func setUp() {
         super.setUp()
     }
@@ -20,115 +22,128 @@ class FutureCompleteWithTests: XCTestCase {
         super.tearDown()
     }
 
-    func testSuccessImmediate() {
+    func testCompletesWith_WhenEnclosingFututureCompletedBeforeCallbacksDefined_CompletesSuccessfully() {
         let promise = Promise<Bool>()
         let future = promise.future
         let promiseCompleted = Promise<Bool>()
         let futureCompleted = promiseCompleted.future
-        let onSuccessExpectation = expectationWithDescription("onSuccess fulfilled for future")
-        let onSuccessExpectationCompleted = expectationWithDescription("onSuccess fulfilled for completed future")
+
+        var onSuccessCalled = false
+        var completedOnSuccessCalled = false
+
         promiseCompleted.success(true)
-        future.onSuccess {value in
+        future.onSuccess(self.immediateContext) { value in
+            onSuccessCalled = true
             XCTAssert(value, "future onSuccess value invalid")
-            onSuccessExpectation.fulfill()
         }
-        future.onFailure {error in
-            XCTAssert(false, "future onFailure called")
+        future.onFailure(self.immediateContext) { error in
+            XCTFail("onFailure called")
         }
-        futureCompleted.onSuccess {value in
+        futureCompleted.onSuccess(self.immediateContext) { value in
+            completedOnSuccessCalled = true
             XCTAssert(value, "futureCompleted onSuccess value invalid")
-            onSuccessExpectationCompleted.fulfill()
         }
-        futureCompleted.onFailure{error in
-            XCTAssert(false, "futureComleted onFailure called")
+        futureCompleted.onFailure(self.immediateContext) { error in
+            XCTFail("onFailure called")
         }
-        promise.completeWith(futureCompleted)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        promise.completeWith(self.immediateContext, future: futureCompleted)
+
+        XCTAssert(onSuccessCalled, "onSuccess not called")
+        XCTAssert(completedOnSuccessCalled, "onSuccess not called")
     }
     
-    func testSuccessDelayed() {
+    func testCompletesWith_WhenEnclosingFutureCompletedAfterCallbacksDefined_CompletesSuccessfully() {
         let promise = Promise<Bool>()
         let future = promise.future
         let promiseCompleted = Promise<Bool>()
         let futureCompleted = promiseCompleted.future
-        let onSuccessExpectation = expectationWithDescription("onSuccess fulfilled for future")
-        let onSuccessExpectationCompleted = expectationWithDescription("onSuccess fulfilled for completed future")
-        future.onSuccess {value in
+
+        var onSuccessCalled = false
+        var completedOnSuccessCalled = false
+
+        future.onSuccess(self.immediateContext) { value in
+            onSuccessCalled = true
             XCTAssert(value, "future onSuccess value invalid")
-            onSuccessExpectation.fulfill()
         }
-        future.onFailure {error in
-            XCTAssert(false, "future onFailure called")
+        future.onFailure(self.immediateContext) { error in
+            XCTFail("onFailure called")
         }
-        futureCompleted.onSuccess {value in
+        futureCompleted.onSuccess(self.immediateContext) { value in
+            completedOnSuccessCalled = true
             XCTAssert(value, "futureCompleted onSuccess value invalid")
-            onSuccessExpectationCompleted.fulfill()
         }
-        futureCompleted.onFailure{error in
-            XCTAssert(false, "futureComleted onFailure called")
+        futureCompleted.onFailure(self.immediateContext) { error in
+            XCTFail("onFailure called")
         }
-        promise.completeWith(futureCompleted)
+        promise.completeWith(self.immediateContext, future: futureCompleted)
         promiseCompleted.success(true)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+
+        XCTAssert(onSuccessCalled, "onSuccess not called")
+        XCTAssert(completedOnSuccessCalled, "onSuccess not called")
     }
 
-    func testFailure() {
+    func testCompletesWith_WhenCompletedBeforeEnclosingFuture_CompletesSuccessfully() {
         let promise = Promise<Bool>()
         let future = promise.future
         let promiseCompleted = Promise<Bool>()
         let futureCompleted = promiseCompleted.future
-        let onFailureExpectation = expectationWithDescription("onFailure fulfilled for future")
-        let onFailureCompletedExpectationCompleted = expectationWithDescription("onFailure fulfilled for completed future")
-        future.onSuccess {value in
-            XCTAssert(false, "future onSuccess called")
-        }
-        future.onFailure {error in
-            onFailureExpectation.fulfill()
-        }
-        futureCompleted.onSuccess {value in
-            XCTAssert(false, "futureCompleted onSuccess called")
-        }
-        futureCompleted.onFailure{error in
-            onFailureCompletedExpectationCompleted.fulfill()
-        }
-        promise.completeWith(futureCompleted)
-        promiseCompleted.failure(TestFailure.error)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
-    }
-    
-    func testCompletedFuture() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let promiseCompleted = Promise<Bool>()
-        let futureCompleted = promiseCompleted.future
-        let onSuccessExpectation = expectationWithDescription("onSuccess fulfilled for future")
-        let onSuccessExpectationCompleted = expectationWithDescription("onSuccess fulfilled for completed future")
-        future.onSuccess {value in
+
+        var onSuccessCalled = false
+        var completedOnSuccessCalled = false
+
+        future.onSuccess(self.immediateContext) { value in
+            onSuccessCalled = true
             XCTAssert(value, "future onSuccess invalid value")
-            onSuccessExpectation.fulfill()
         }
-        future.onFailure {error in
-            XCTAssert(false, "future onFailure called")
+        future.onFailure(self.immediateContext) { error in
+            XCTFail("onFailure called")
         }
-        futureCompleted.onSuccess {value in
+        futureCompleted.onSuccess(self.immediateContext) { value in
+            completedOnSuccessCalled = true
             XCTAssert(!value, "futureCompleted onSuccess value invalid")
-            onSuccessExpectationCompleted.fulfill()
         }
-        futureCompleted.onFailure{error in
-            XCTAssert(false, "onFailure called for comleted furure")
+        futureCompleted.onFailure(self.immediateContext) { error in
+            XCTFail("onFailure called")
         }
         promise.success(true)
-        promise.completeWith(futureCompleted)
+        promise.completeWith(self.immediateContext, future: futureCompleted)
         promiseCompleted.success(false)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+
+        XCTAssert(onSuccessCalled, "onSuccess not called")
+        XCTAssert(completedOnSuccessCalled, "onSuccess not called")
     }
+
+    func testCompletesWith_WhenEnclosingFutureFails_CompletesWithWrappedFutureError() {
+        let promise = Promise<Bool>()
+        let future = promise.future
+        let promiseCompleted = Promise<Bool>()
+        let futureCompleted = promiseCompleted.future
+
+        var onFailureCalled = false
+        var completedOnFailureCalled = false
+
+
+        future.onSuccess(self.immediateContext) { value in
+            XCTAssert(false, "future onSuccess called")
+        }
+        future.onFailure(self.immediateContext) { error in
+            onFailureCalled = true
+            XCTAssertEqual(error.code, TestFailure.error.code, "Invalid error code")
+        }
+        futureCompleted.onSuccess(self.immediateContext) {  value in
+            XCTAssert(false, "futureCompleted onSuccess called")
+        }
+        futureCompleted.onFailure(self.immediateContext) { error in
+            completedOnFailureCalled = true
+            XCTAssertEqual(error.code, TestFailure.error.code, "Invalid error code")
+        }
+        promise.completeWith(self.immediateContext, future: futureCompleted)
+        promiseCompleted.failure(TestFailure.error)
+
+        XCTAssert(onFailureCalled, "onFailure not called")
+        XCTAssert(completedOnFailureCalled, "onFailure not called")
+
+    }
+    
 }
 

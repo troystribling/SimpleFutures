@@ -70,78 +70,6 @@ public func flatten<T>(maybe: T??) -> T? {
     }
 }
 
-public func forcomp<T,U,V>(f: T?, g: U?, h: V?, apply: (T,U,V) -> Void) {
-    f.foreach {fvalue in
-        g.foreach {gvalue in
-            h.foreach {hvalue in
-                apply(fvalue, gvalue, hvalue)
-            }
-        }
-    }
-}
-
-public func forcomp<T,U,V>(f: T?, g: U?, yield: (T,U) -> V) -> V? {
-    return f.flatmap {fvalue in
-        g.map {gvalue in
-            yield(fvalue, gvalue)
-        }
-    }
-}
-
-public func forcomp<T,U,V, W>(f: T?, g: U?, h: V?, yield: (T,U,V) -> W) -> W? {
-    return f.flatmap {fvalue in
-        g.flatmap {gvalue in
-            h.map {hvalue in
-                yield(fvalue, gvalue, hvalue)
-            }
-        }
-    }
-}
-
-public func forcomp<T,U>(f: T?, g: U?, filter: (T,U) -> Bool, apply: (T,U) -> Void) {
-    f.foreach {fvalue in
-        g.filter{gvalue in
-            filter(fvalue, gvalue)
-        }.foreach {gvalue in
-            apply(fvalue, gvalue)
-        }
-    }
-}
-
-public func forcomp<T,U,V>(f: T?, g: U?, h: V?, filter: (T,U,V) -> Bool, apply: (T,U,V) -> Void) {
-    f.foreach {fvalue in
-        g.foreach {gvalue in
-            h.filter{hvalue in
-                filter(fvalue, gvalue, hvalue)
-            }.foreach {hvalue in
-                apply(fvalue, gvalue, hvalue)
-            }
-        }
-    }
-}
-
-public func forcomp<T,U,V>(f: T?, g: U?, filter: (T,U) -> Bool, yield: (T,U) -> V) -> V? {
-    return f.flatmap {fvalue in
-        g.filter {gvalue in
-            filter(fvalue, gvalue)
-        }.map {gvalue in
-            yield(fvalue, gvalue)
-        }
-    }
-}
-
-public func forcomp<T,U,V,W>(f: T?, g: U?, h: V?, filter: (T,U,V) -> Bool, yield: (T,U,V) -> W) -> W? {
-    return f.flatmap {fvalue in
-        g.flatmap {gvalue in
-            h.filter {hvalue in
-                filter(fvalue, gvalue, hvalue)
-            }.map {hvalue in
-                yield(fvalue, gvalue, hvalue)
-            }
-        }
-    }
-}
-
 // MARK: - Try -
 public struct TryError {
     public static let domain = "Wrappers"
@@ -496,28 +424,24 @@ public class Future<T> {
 
     typealias OnComplete        = Try<T> -> Void
     private var saveCompletes   = [OnComplete]()
-    private let futureQueue     = Queue.simpleFutures
-    
+
     public var completed: Bool {
-        return Queue.simpleFutures.sync { Void -> Bool in
-            return self.result != nil
-        }
+        return self.result != nil
     }
     
-    public init() {}
+    public init() {
+    }
 
     // MARK: Complete
     internal func complete(result: Try<T>) {
-        self.futureQueue.sync {
-            if self.result != nil {
-                SimpleFuturesException.futureCompleted.raise()
-            }
-            self.result = result
-            for complete in self.saveCompletes {
-                complete(result)
-            }
-            self.saveCompletes.removeAll()
+        if self.result != nil {
+            SimpleFuturesException.futureCompleted.raise()
         }
+        self.result = result
+        for complete in self.saveCompletes {
+            complete(result)
+        }
+        self.saveCompletes.removeAll()
     }
 
     internal func completeWith(future: Future<T>) {
@@ -552,17 +476,15 @@ public class Future<T> {
 
     // MARK: Callbacks
     public func onComplete(executionContext: ExecutionContext, complete: Try<T> -> Void) -> Void {
-        self.futureQueue.sync {
-            let savedCompletion : OnComplete = { result in
-                executionContext.execute {
-                    complete(result)
-                }
+        let savedCompletion : OnComplete = { result in
+            executionContext.execute {
+                complete(result)
             }
-            if let result = self.result {
-                savedCompletion(result)
-            } else {
-                self.saveCompletes.append(savedCompletion)
-            }
+        }
+        if let result = self.result {
+            savedCompletion(result)
+        } else {
+            self.saveCompletes.append(savedCompletion)
         }
     }
     
@@ -708,7 +630,7 @@ public class Future<T> {
     }
     
     public func flatmap<M>(executionContext: ExecutionContext, mapping: T -> FutureStream<M>) -> FutureStream<M>  {
-        return self.flatMapStream(nil, executionContext: self.defaultExecutionContext, mapping: mapping)
+        return self.flatMapStream(nil, executionContext: executionContext, mapping: mapping)
     }
     
     public func recoverWith(recovery: NSError -> FutureStream<T>) -> FutureStream<T> {
@@ -753,19 +675,6 @@ public class Future<T> {
         return stream
     }
     
-}
-
-// MARK: - Future Constructs -
-public func future<T>(computeResult: Void -> Try<T>) -> Future<T> {
-    return future(QueueContext.global, calculateResult: computeResult)
-}
-
-public func future<T>(executionContext: ExecutionContext, calculateResult: Void -> Try<T>) -> Future<T> {
-    let promise = Promise<T>()
-    executionContext.execute {
-        promise.complete(calculateResult())
-    }
-    return promise.future
 }
 
 // MARK: - Future for Comprehensions -
@@ -928,7 +837,6 @@ public class FutureStream<T> {
     private typealias InFuture = Future<T> -> Void
 
     private var saveCompletes = [InFuture]()
-    private let futureQueue = Queue.simpleFutureStreams
     private var capacity: Int?
     
     internal let defaultExecutionContext: ExecutionContext  = QueueContext.main
@@ -945,11 +853,9 @@ public class FutureStream<T> {
     internal func complete(result: Try<T>) {
         let future = Future<T>()
         future.complete(result)
-        self.futureQueue.sync {
-            self.addFuture(future)
-            for complete in self.saveCompletes {
-                complete(future)
-            }
+        self.addFuture(future)
+        for complete in self.saveCompletes {
+            complete(future)
         }
     }
 
@@ -992,14 +898,12 @@ public class FutureStream<T> {
 
     // MARK: Callbacks
     public func onComplete(executionContext: ExecutionContext, complete: Try<T> -> Void) {
-        self.futureQueue.sync {
-            let futureComplete : InFuture = { future in
-                future.onComplete(executionContext, complete: complete)
-            }
-            self.saveCompletes.append(futureComplete)
-            for future in self.futures {
-                futureComplete(future)
-            }
+        let futureComplete : InFuture = { future in
+            future.onComplete(executionContext, complete: complete)
+        }
+        self.saveCompletes.append(futureComplete)
+        for future in self.futures {
+            futureComplete(future)
         }
     }
     

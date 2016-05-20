@@ -12,7 +12,6 @@
 		054BF5271A4F44A500ECE6B3 /* StreamRecoverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 054BF5261A4F44A500ECE6B3 /* StreamRecoverTests.swift */; };
 		054BF5291A4F44EE00ECE6B3 /* StreamRecoverWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 054BF5281A4F44EE00ECE6B3 /* StreamRecoverWithTests.swift */; };
 		055F8D761A45EF000094271A /* FutureRecoverWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D751A45EF000094271A /* FutureRecoverWithTests.swift */; };
-		055F8D781A45F5090094271A /* FutureConstructTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D771A45F5090094271A /* FutureConstructTests.swift */; };
 		055F8D7E1A45FD520094271A /* FutureFailureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D7D1A45FD520094271A /* FutureFailureTests.swift */; };
 		055F8D801A45FD910094271A /* FutureMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D7F1A45FD910094271A /* FutureMapTests.swift */; };
 		055F8D821A45FDD60094271A /* FutureFlatmapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D811A45FDD60094271A /* FutureFlatmapTests.swift */; };
@@ -27,6 +26,7 @@
 		057C3E901A3E2379005147CD /* SimpleFutures.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 057C3E841A3E2379005147CD /* SimpleFutures.framework */; };
 		057C3E971A3E2379005147CD /* FutureSuccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3E961A3E2379005147CD /* FutureSuccessTests.swift */; };
 		058BA8BA1B138DFE005CF0FE /* SimpleFutures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058BA8B91B138DFE005CF0FE /* SimpleFutures.swift */; };
+		059FA09E1CEE0E13000EEB2F /* XCTTestCase+SimpleFuturesAssertions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 059FA09D1CEE0E13000EEB2F /* XCTTestCase+SimpleFuturesAssertions.swift */; };
 		05A004881A51EBC30064E048 /* FutureForcompTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A004871A51EBC30064E048 /* FutureForcompTests.swift */; };
 		05A0048A1A51EC290064E048 /* FutureForcompYieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A004891A51EC290064E048 /* FutureForcompYieldTests.swift */; };
 		05D0511F1A50E2B4007E8C57 /* FutureForeachTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05D0511E1A50E2B4007E8C57 /* FutureForeachTests.swift */; };
@@ -53,7 +53,6 @@
 		054BF5261A4F44A500ECE6B3 /* StreamRecoverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamRecoverTests.swift; sourceTree = "<group>"; };
 		054BF5281A4F44EE00ECE6B3 /* StreamRecoverWithTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamRecoverWithTests.swift; sourceTree = "<group>"; };
 		055F8D751A45EF000094271A /* FutureRecoverWithTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureRecoverWithTests.swift; sourceTree = "<group>"; };
-		055F8D771A45F5090094271A /* FutureConstructTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureConstructTests.swift; sourceTree = "<group>"; };
 		055F8D7D1A45FD520094271A /* FutureFailureTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFailureTests.swift; sourceTree = "<group>"; };
 		055F8D7F1A45FD910094271A /* FutureMapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureMapTests.swift; sourceTree = "<group>"; };
 		055F8D811A45FDD60094271A /* FutureFlatmapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFlatmapTests.swift; sourceTree = "<group>"; };
@@ -72,6 +71,7 @@
 		057C3E961A3E2379005147CD /* FutureSuccessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureSuccessTests.swift; sourceTree = "<group>"; };
 		058BA8B91B138DFE005CF0FE /* SimpleFutures.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleFutures.swift; sourceTree = "<group>"; };
 		059C50D11B49FF5C003B2005 /* SimpleFutures.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = SimpleFutures.playground; sourceTree = "<group>"; };
+		059FA09D1CEE0E13000EEB2F /* XCTTestCase+SimpleFuturesAssertions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCTTestCase+SimpleFuturesAssertions.swift"; sourceTree = "<group>"; };
 		05A004871A51EBC30064E048 /* FutureForcompTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureForcompTests.swift; sourceTree = "<group>"; };
 		05A004891A51EC290064E048 /* FutureForcompYieldTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureForcompYieldTests.swift; sourceTree = "<group>"; };
 		05D0511E1A50E2B4007E8C57 /* FutureForeachTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureForeachTests.swift; sourceTree = "<group>"; };
@@ -106,7 +106,6 @@
 			children = (
 				055F8D831A45FE100094271A /* FutureAndThenTests.swift */,
 				05DF1DD31A4CC6B300AC9925 /* FutureCompleteWithTests.swift */,
-				055F8D771A45F5090094271A /* FutureConstructTests.swift */,
 				055F8D7D1A45FD520094271A /* FutureFailureTests.swift */,
 				055F8D811A45FDD60094271A /* FutureFlatmapTests.swift */,
 				05A004871A51EBC30064E048 /* FutureForcompTests.swift */,
@@ -183,6 +182,7 @@
 				055F8D871A45FE690094271A /* FutureTests */,
 				057C3E941A3E2379005147CD /* Supporting Files */,
 				055F8D8B1A45FF110094271A /* TestHelper.swift */,
+				059FA09D1CEE0E13000EEB2F /* XCTTestCase+SimpleFuturesAssertions.swift */,
 			);
 			path = SimpleFuturesTests;
 			sourceTree = "<group>";
@@ -312,7 +312,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				05DF1DD21A4A633500AC9925 /* StreamWithFilter.swift in Sources */,
-				055F8D781A45F5090094271A /* FutureConstructTests.swift in Sources */,
 				055F8D8E1A4603570094271A /* StreamMapTests.swift in Sources */,
 				05D051231A50E90B007E8C57 /* StreamCapacityTests.swift in Sources */,
 				055F8D861A45FE3D0094271A /* FutureRecoverTests.swift in Sources */,
@@ -320,6 +319,7 @@
 				054BF5251A4DF59C00ECE6B3 /* StreamCompleteWithTests.swift in Sources */,
 				055F8D841A45FE100094271A /* FutureAndThenTests.swift in Sources */,
 				055F8D921A460E220094271A /* StreamAndThenTests.swift in Sources */,
+				059FA09E1CEE0E13000EEB2F /* XCTTestCase+SimpleFuturesAssertions.swift in Sources */,
 				05DF1DD01A49C87100AC9925 /* FutureWithFilterTests.swift in Sources */,
 				0547D1EF1A45E72B005DCD53 /* StreamSuccessTests.swift in Sources */,
 				057C3E971A3E2379005147CD /* FutureSuccessTests.swift in Sources */,
