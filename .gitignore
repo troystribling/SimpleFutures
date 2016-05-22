@@ -1,7 +1,4 @@
-*.xcuserstate
-*.xcscheme
-*.xcbkptlist
-SimpleFutures.xcodeproj/xcuserdata/*
-SimpleFutures.xcodeproj/project.xcworkspace/xcuserdata/*
-SimpleFutures.xcodeproj/project.xcworkspace/xcshareddata/*
+**/xcuserdata
+Pods/
+build/
 .DS_Store

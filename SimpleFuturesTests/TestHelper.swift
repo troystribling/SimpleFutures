@@ -37,7 +37,7 @@ extension XCTestCase {
         let expectation = self.expectationWithDescription("\(message) fulfilled")
         var count = 0
         return {
-            ++count
+            count += 1
             if count == maxCount {
                 expectation.fulfill()
             } else if count > maxCount {

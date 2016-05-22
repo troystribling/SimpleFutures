@@ -106,7 +106,7 @@ class StreamSuccessTests: XCTestCase {
             onSuccessExpectation()
         }
         stream.onFailure {error in
-            ++countFailure
+            countFailure += 1
             onFailureExpectation()
         }
         writeSuccesfulFutures(promise, value:true, times:1)
