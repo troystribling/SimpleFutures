@@ -22,7 +22,6 @@
 		055F8D8E1A4603570094271A /* StreamMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D8D1A4603570094271A /* StreamMapTests.swift */; };
 		055F8D901A4603750094271A /* StreamFlatmapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D8F1A4603750094271A /* StreamFlatmapTests.swift */; };
 		055F8D921A460E220094271A /* StreamAndThenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F8D911A460E220094271A /* StreamAndThenTests.swift */; };
-		057C3E8A1A3E2379005147CD /* SimpleFutures.h in Headers */ = {isa = PBXBuildFile; fileRef = 057C3E891A3E2379005147CD /* SimpleFutures.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		057C3E901A3E2379005147CD /* SimpleFutures.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 057C3E841A3E2379005147CD /* SimpleFutures.framework */; };
 		057C3E971A3E2379005147CD /* FutureSuccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057C3E961A3E2379005147CD /* FutureSuccessTests.swift */; };
 		058BA8BA1B138DFE005CF0FE /* SimpleFutures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058BA8B91B138DFE005CF0FE /* SimpleFutures.swift */; };
@@ -65,7 +64,6 @@
 		055F8D911A460E220094271A /* StreamAndThenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamAndThenTests.swift; sourceTree = "<group>"; };
 		057C3E841A3E2379005147CD /* SimpleFutures.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SimpleFutures.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		057C3E881A3E2379005147CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		057C3E891A3E2379005147CD /* SimpleFutures.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimpleFutures.h; sourceTree = "<group>"; };
 		057C3E8F1A3E2379005147CD /* SimpleFuturesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimpleFuturesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		057C3E951A3E2379005147CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		057C3E961A3E2379005147CD /* FutureSuccessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureSuccessTests.swift; sourceTree = "<group>"; };
@@ -160,7 +158,6 @@
 		057C3E861A3E2379005147CD /* SimpleFutures */ = {
 			isa = PBXGroup;
 			children = (
-				057C3E891A3E2379005147CD /* SimpleFutures.h */,
 				058BA8B91B138DFE005CF0FE /* SimpleFutures.swift */,
 				057C3E871A3E2379005147CD /* Supporting Files */,
 			);
@@ -202,7 +199,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				057C3E8A1A3E2379005147CD /* SimpleFutures.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
