@@ -329,7 +329,7 @@ public struct Queue {
     internal static let simpleFutures       = Queue("us.gnos.simpleFutures.main")
     internal static let simpleFutureStreams = Queue("us.gnos.simpleFutures.streams")
     
-    let queue: dispatch_queue_t
+    public let queue: dispatch_queue_t
     
     
     public init(_ queueName: String) {
