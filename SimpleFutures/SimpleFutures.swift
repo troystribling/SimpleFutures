@@ -9,7 +9,7 @@
 import Foundation
 
 // MARK: - Optional -
-extension Optional {
+public extension Optional {
     
     func flatmap<M>(mapping: Wrapped -> M?) -> M? {
         switch self {
