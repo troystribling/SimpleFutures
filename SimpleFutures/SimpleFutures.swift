@@ -309,7 +309,7 @@ public struct QueueContext : ExecutionContext {
     
     public static let global = QueueContext(queue: Queue.global)
     
-    let queue:Queue
+    public let queue:Queue
     
     public init(queue: Queue) {
         self.queue = queue
@@ -329,7 +329,7 @@ public struct Queue {
     internal static let simpleFutures       = Queue("us.gnos.simpleFutures.main")
     internal static let simpleFutureStreams = Queue("us.gnos.simpleFutures.streams")
     
-    var queue: dispatch_queue_t
+    let queue: dispatch_queue_t
     
     
     public init(_ queueName: String) {
