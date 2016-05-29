@@ -1,0 +1,16 @@
+PODS:
+  - SimpleFutures (0.1.1)
+
+DEPENDENCIES:
+  - SimpleFutures (from `../`)
+
+EXTERNAL SOURCES:
+  SimpleFutures:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  SimpleFutures: 35203f5609915fbc5b63dde00f11eba5a5470ade
+
+PODFILE CHECKSUM: 7ba13837b3d5e0ee5852313619ceed3d37fbbb1e
+
+COCOAPODS: 1.0.0
