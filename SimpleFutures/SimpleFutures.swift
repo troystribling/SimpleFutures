@@ -290,8 +290,9 @@ public func forcomp<T,U,V,W>(f: Try<T>, g: Try<U>, h: Try<V>, filter: (T,U,V) ->
 
 // MARK: - ExecutionContext -
 public protocol ExecutionContext {
-    
+
     func execute(task:Void->Void)
+    
 }
 
 public class ImmediateContext : ExecutionContext {
@@ -301,6 +302,7 @@ public class ImmediateContext : ExecutionContext {
     public func execute(task:Void->Void) {
         task()
     }
+
 }
 
 public struct QueueContext : ExecutionContext {
@@ -318,6 +320,7 @@ public struct QueueContext : ExecutionContext {
     public func execute(task: Void -> Void) {
         queue.async(task)
     }
+
 }
 
 // MARK: - Queue -
@@ -330,7 +333,6 @@ public struct Queue {
     internal static let simpleFutureStreams = Queue("us.gnos.simpleFutures.streams")
     
     public let queue: dispatch_queue_t
-    
     
     public init(_ queueName: String) {
         self.queue = dispatch_queue_create(queueName, DISPATCH_QUEUE_SERIAL)
@@ -361,7 +363,6 @@ public struct Queue {
         dispatch_after(popTime, self.queue, request)
     }
 
-    
 }
 
 // MARK: - Errors -

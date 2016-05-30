@@ -1,6 +1,6 @@
 //
 //  XCTTestCase+SimpleFutures.swift
-//  BlueCapKit
+//  SimpleFutures
 //
 //  Created by Troy Stribling on 5/5/16.
 //  Copyright © 2016 Troy Stribling. All rights reserved.
@@ -194,6 +194,19 @@ extension XCTestCase  {
                 if maxCount != count {
                     self.recordFailureWithDescription("onFailure not called \(maxCount) times", inFile: file, atLine: line, expected: true)
                 }
+            }
+        }
+    }
+
+    func XCTExpectFullfilledCountTimes(maxCount:Int, message:String) -> Void -> Void {
+        let expectation = self.expectationWithDescription("\(message) fulfilled")
+        var count = 0
+        return {
+            count += 1
+            if count == maxCount {
+                expectation.fulfill()
+            } else if count > maxCount {
+                XCTAssert(false, "\(message) called more than \(maxCount) times")
             }
         }
     }

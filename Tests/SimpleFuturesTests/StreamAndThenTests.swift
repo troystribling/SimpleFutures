@@ -23,9 +23,9 @@ class StreamAndThenTests: XCTestCase {
     func testSuccessfulAndThen() {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
-        let andThenExpectation = fulfillAfterCalled(2, message:"andThen")
-        let onSuccessAndThenExpectation = fulfillAfterCalled(2, message:"onSuccess andThen future")
+        let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
+        let andThenExpectation = XCTExpectFullfilledCountTimes(2, message:"andThen")
+        let onSuccessAndThenExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess andThen future")
         stream.onSuccess {value in
             XCTAssert(value, "future onSuccess value invalid")
             onSuccessExpectation()
@@ -57,9 +57,9 @@ class StreamAndThenTests: XCTestCase {
     func testFailedAndThen() {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        let onFailureExpectation = fulfillAfterCalled(2, message:"onFailure future")
-        let andThenExpectation = fulfillAfterCalled(2, message:"andThen")
-        let onFailureAndThenExpectation = fulfillAfterCalled(2, message:"onFailure andThen future")
+        let onFailureExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure future")
+        let andThenExpectation = XCTExpectFullfilledCountTimes(2, message:"andThen")
+        let onFailureAndThenExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure andThen future")
         stream.onSuccess {value in
             XCTAssert(false, "future onSuccess called")
         }

@@ -23,8 +23,8 @@ class StreamForeachTests: XCTestCase {
     func testSuccess() {
         let promise = StreamPromise<Int>()
         let stream = promise.future
-        let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
-        let foreachExpectation = fulfillAfterCalled(2, message:"foreach")
+        let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
+        let foreachExpectation = XCTExpectFullfilledCountTimes(2, message:"foreach")
         stream.onSuccess {value in
             XCTAssert(value == 1 || value == 2, "stream onSuccess invalid value")
             onSuccessExpectation()
@@ -45,7 +45,7 @@ class StreamForeachTests: XCTestCase {
     func testFailure() {
         let promise = StreamPromise<Int>()
         let stream = promise.future
-        let onFailureExpectation = fulfillAfterCalled(2, message:"onFailure future")
+        let onFailureExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure future")
         stream.onSuccess {value in
             XCTAssert(false, "future onSuccess called")
         }

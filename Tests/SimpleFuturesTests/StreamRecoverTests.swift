@@ -23,8 +23,8 @@ class StreamRecoverTests: XCTestCase {
     func testSuccessful() {
         let promise = StreamPromise<Int>()
         let future = promise.future
-        let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
-        let onSucessRecoveredExpectation = fulfillAfterCalled(2, message:"onSuccess recover future")
+        let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
+        let onSucessRecoveredExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess recover future")
         future.onSuccess {value in
             XCTAssert(value == 1 || value == 2, "onSuccess value invalid")
             onSuccessExpectation()
@@ -52,9 +52,9 @@ class StreamRecoverTests: XCTestCase {
     func testSuccessfulRecovery() {
         let promise = StreamPromise<Int>()
         let future = promise.future
-        let onFailureExpectation = fulfillAfterCalled(2, message:"onFailure future")
-        let recoverExpectation = fulfillAfterCalled(2, message:"revover")
-        let onSucessRecoveredExpectation = fulfillAfterCalled(2, message:"onSuccess recover future")
+        let onFailureExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure future")
+        let recoverExpectation = XCTExpectFullfilledCountTimes(2, message:"revover")
+        let onSucessRecoveredExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess recover future")
         future.onSuccess {value in
             XCTAssert(false, "onSuccess called")
         }
@@ -81,9 +81,9 @@ class StreamRecoverTests: XCTestCase {
     func testFailedRecovery() {
         let promise = StreamPromise<Int>()
         let future = promise.future
-        let onFailureExpectation = fulfillAfterCalled(2, message:"onFailure future")
-        let recoverExpectation = fulfillAfterCalled(2, message:"revover")
-        let onFailureRecoveredExpectation = fulfillAfterCalled(2, message:"onFailure recover future")
+        let onFailureExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure future")
+        let recoverExpectation = XCTExpectFullfilledCountTimes(2, message:"revover")
+        let onFailureRecoveredExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure recover future")
         future.onSuccess {value in
             XCTAssert(false, "onSuccess called")
         }

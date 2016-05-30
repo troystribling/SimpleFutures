@@ -23,7 +23,7 @@ class StreamSuccessTests: XCTestCase {
     func testImmediate() {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
+        let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
         writeSuccesfulFutures(promise, value:true, times:2)
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
@@ -40,7 +40,7 @@ class StreamSuccessTests: XCTestCase {
     func testDelayed() {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
+        let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             onSuccessExpectation()
@@ -57,7 +57,7 @@ class StreamSuccessTests: XCTestCase {
     func testDelayedAndImmediate() {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        let onSuccessExpectation = fulfillAfterCalled(2, message:"onSuccess future")
+        let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
         writeSuccesfulFutures(promise, value:true, times:1)
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
@@ -76,8 +76,8 @@ class StreamSuccessTests: XCTestCase {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         writeSuccesfulFutures(promise, value:true, times:1)
-        let onSuccessImmediateExpectation = fulfillAfterCalled(2, message:"onSuccess immediate future")
-        let onSuccessDelayedExpectation = fulfillAfterCalled(2, message:"onSuccess delayed future")
+        let onSuccessImmediateExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess immediate future")
+        let onSuccessDelayedExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess delayed future")
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             onSuccessImmediateExpectation()
@@ -99,8 +99,8 @@ class StreamSuccessTests: XCTestCase {
         var countFailure = 0
         let promise = StreamPromise<Bool>()
         let stream = promise.future
-        let onFailureExpectation = fulfillAfterCalled(1, message:"onFailure future")
-        let onSuccessExpectation = fulfillAfterCalled(1, message:"onSuccess future")
+        let onFailureExpectation = XCTExpectFullfilledCountTimes(1, message:"onFailure future")
+        let onSuccessExpectation = XCTExpectFullfilledCountTimes(1, message:"onSuccess future")
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
             onSuccessExpectation()

@@ -7,8 +7,8 @@
 //
 
 import UIKit
-import SimpleFutures
 import XCTest
+import SimpleFutures
 
 struct TestFailure {
     static let error = NSError(domain:"SimpleFutures Tests", code:100, userInfo:[NSLocalizedDescriptionKey:"Testing"])
@@ -29,21 +29,6 @@ func writeSuccesfulFutures<T>(promise:StreamPromise<T>, values:[T]) {
 func writeFailedFutures<T>(promise:StreamPromise<T>, times:Int) {
     for _ in (1...times) {
         promise.failure(TestFailure.error)
-    }
-}
-
-extension XCTestCase {
-    func fulfillAfterCalled(maxCount:Int, message:String) -> Void -> Void {
-        let expectation = self.expectationWithDescription("\(message) fulfilled")
-        var count = 0
-        return {
-            count += 1
-            if count == maxCount {
-                expectation.fulfill()
-            } else if count > maxCount {
-                XCTAssert(false, "\(message) called more than \(maxCount) times")
-            }
-        }
     }
 }
 
