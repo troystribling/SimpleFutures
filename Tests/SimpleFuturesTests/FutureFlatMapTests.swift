@@ -125,7 +125,7 @@ class FutureFlatMapTests : XCTestCase {
         future.onFailure {error in
             XCTAssert(false, "future onFailure called")
         }
-        let mapped = future.flatMap {value -> FutureStream<Int> in
+        let mapped = future.flatMap { value -> FutureStream<Int> in
             mapExpectation.fulfill()
             let promise = StreamPromise<Int>()
             promise.success(1)

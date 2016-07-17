@@ -171,7 +171,8 @@ public class ImmediateContext : ExecutionContext {
 }
 
 public struct QueueContext : ExecutionContext {
-    public static let main =  QueueContext(queue: Queue.main)
+    public static var futuresDefault = QueueContext.main
+    public static let main = QueueContext(queue: Queue.main)
     public static let global = QueueContext(queue: Queue.global)
     public let queue:Queue
     public init(queue: Queue) {
@@ -184,10 +185,10 @@ public struct QueueContext : ExecutionContext {
 
 // MARK: - Queue -
 public struct Queue {
-    public static let main                  = Queue(dispatch_get_main_queue());
-    public static let global                = Queue(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
+    public static let main = Queue(dispatch_get_main_queue());
+    public static let global = Queue(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
     
-    internal static let simpleFutures       = Queue("us.gnos.simpleFutures.main")
+    internal static let simpleFutures = Queue("us.gnos.simpleFutures.main")
     internal static let simpleFutureStreams = Queue("us.gnos.simpleFutures.streams")
     
     public let queue: dispatch_queue_t
@@ -250,11 +251,7 @@ public class Promise<T> {
         self.future = Future<T>()
     }
 
-    public func completeWith(future: Future<T>) {
-        completeWith(self.future.defaultExecutionContext, future: future)
-    }
-    
-    public func completeWith(executionContext: ExecutionContext, future: Future<T>) {
+    public func completeWith(executionContext: ExecutionContext = QueueContext.futuresDefault, future: Future<T>) {
         self.future.completeWith(executionContext, future: future)
     }
     
@@ -273,7 +270,6 @@ public class Promise<T> {
 
 // MARK: - Future -
 public class Future<T> {
-    internal let defaultExecutionContext: ExecutionContext = QueueContext.main
 
     private var result: Try<T>?
 
@@ -299,11 +295,7 @@ public class Future<T> {
         saveCompletes.removeAll()
     }
 
-    internal func completeWith(future: Future<T>) {
-        completeWith(defaultExecutionContext, future: future)
-    }
-
-    internal func completeWith(executionContext: ExecutionContext, future: Future<T>) {
+    internal func completeWith(executionContext: ExecutionContext = QueueContext.futuresDefault, future: Future<T>) {
         if !completed {
             future.onComplete(executionContext) { result in
                 self.complete(result)
@@ -319,18 +311,14 @@ public class Future<T> {
         complete(Try<T>(error))
     }
 
-    internal func completeWith(stream: FutureStream<T>) {
-        completeWith(defaultExecutionContext, stream: stream)
-    }
-
-    internal func completeWith(executionContext: ExecutionContext, stream: FutureStream<T>) {
+    internal func completeWith(executionContext: ExecutionContext = QueueContext.futuresDefault, stream: FutureStream<T>) {
         stream.onComplete(executionContext) { result in
             self.complete(result)
         }
     }
 
     // MARK: Callbacks
-    public func onComplete(executionContext: ExecutionContext, complete: Try<T> -> Void) -> Void {
+    public func onComplete(executionContext: ExecutionContext = QueueContext.futuresDefault, complete: Try<T> -> Void) -> Void {
         let savedCompletion : OnComplete = { result in
             executionContext.execute {
                 complete(result)
@@ -343,15 +331,7 @@ public class Future<T> {
         }
     }
     
-    public func onComplete(complete: Try<T> -> Void) {
-        onComplete(defaultExecutionContext, complete:complete)
-    }
-    
-    public func onSuccess(success: T -> Void) {
-        onSuccess(defaultExecutionContext, success:success)
-    }
-    
-    public func onSuccess(executionContext: ExecutionContext, success: T -> Void){
+    public func onSuccess(executionContext: ExecutionContext = QueueContext.futuresDefault, success: T -> Void){
         onComplete(executionContext) { result in
             switch result {
             case .Success(let value):
@@ -362,11 +342,7 @@ public class Future<T> {
         }
     }
     
-    public func onFailure(failure: NSError -> Void) -> Void {
-        return onFailure(defaultExecutionContext, failure: failure)
-    }
-    
-    public func onFailure(executionContext: ExecutionContext, failure: NSError -> Void) {
+    public func onFailure(executionContext: ExecutionContext = QueueContext.futuresDefault, failure: NSError -> Void) {
         onComplete(executionContext) { result in
             switch result {
             case .Failure(let error):
@@ -378,11 +354,7 @@ public class Future<T> {
     }
 
     // MARK: Future Combinators
-    public func map<M>(mapping: T -> Try<M>) -> Future<M> {
-        return map(defaultExecutionContext, mapping: mapping)
-    }
-    
-    public func map<M>(executionContext: ExecutionContext, mapping: T -> Try<M>) -> Future<M> {
+    public func map<M>(executionContext: ExecutionContext = QueueContext.futuresDefault, mapping: T -> Try<M>) -> Future<M> {
         let future = Future<M>()
         onComplete(executionContext) { result in
             future.complete(result.flatMap(mapping))
@@ -390,11 +362,7 @@ public class Future<T> {
         return future
     }
     
-    public func flatMap<M>(mapping: T -> Future<M>) -> Future<M> {
-        return flatMap(defaultExecutionContext, mapping: mapping)
-    }
-    
-    public func flatMap<M>(executionContext: ExecutionContext, mapping: T -> Future<M>) -> Future<M> {
+    public func flatMap<M>(executionContext: ExecutionContext = QueueContext.futuresDefault, mapping: T -> Future<M>) -> Future<M> {
         let future = Future<M>()
         onComplete(executionContext) { result in
             switch result {
@@ -407,11 +375,7 @@ public class Future<T> {
         return future
     }
     
-    public func andThen(complete: Try<T> -> Void) -> Future<T> {
-        return andThen(defaultExecutionContext, complete: complete)
-    }
-    
-    public func andThen(executionContext: ExecutionContext, complete: Try<T> -> Void) -> Future<T> {
+    public func andThen(executionContext: ExecutionContext = QueueContext.futuresDefault, complete: Try<T> -> Void) -> Future<T> {
         let future = Future<T>()
         future.onComplete(executionContext, complete: complete)
         onComplete(executionContext) { result in
@@ -420,11 +384,7 @@ public class Future<T> {
         return future
     }
     
-    public func recover(recovery: NSError -> Try<T>) -> Future<T> {
-        return recover(defaultExecutionContext, recovery: recovery)
-    }
-    
-    public func recover(executionContext: ExecutionContext, recovery: NSError -> Try<T>) -> Future<T> {
+    public func recover(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: NSError -> Try<T>) -> Future<T> {
         let future = Future<T>()
         onComplete(executionContext) { result in
             future.complete(result.recoverWith(recovery))
@@ -432,11 +392,7 @@ public class Future<T> {
         return future
     }
     
-    public func recoverWith(recovery: NSError -> Future<T>) -> Future<T> {
-        return recoverWith(defaultExecutionContext, recovery: recovery)
-    }
-    
-    public func recoverWith(executionContext: ExecutionContext, recovery: NSError -> Future<T>) -> Future<T> {
+    public func recoverWith(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: NSError -> Future<T>) -> Future<T> {
         let future = Future<T>()
         onComplete(executionContext) { result in
             switch result {
@@ -449,11 +405,7 @@ public class Future<T> {
         return future
     }
     
-    public func withFilter(filter: T -> Bool) -> Future<T> {
-        return withFilter(defaultExecutionContext, filter: filter)
-    }
-    
-    public func withFilter(executionContext: ExecutionContext, filter: T -> Bool) -> Future<T> {
+    public func withFilter(executionContext: ExecutionContext = QueueContext.futuresDefault, filter: T -> Bool) -> Future<T> {
         let future = Future<T>()
         onComplete(executionContext) { result in
             future.complete(result.filter(filter))
@@ -461,55 +413,19 @@ public class Future<T> {
         return future
     }
     
-    public func forEach(apply: T -> Void) {
-        forEach(defaultExecutionContext, apply: apply)
-    }
-    
-    public func forEach(executionContext:ExecutionContext, apply: T -> Void) {
+    public func forEach(executionContext:ExecutionContext = QueueContext.futuresDefault, apply: T -> Void) {
         onComplete(executionContext) { result in
             result.forEach(apply)
         }
     }
     
     // MARK: FutureStream Combinators
-    public func flatMap<M>(capacity: Int, mapping: T -> FutureStream<M>) -> FutureStream<M> {
-        return flatMapStream(capacity, executionContext: defaultExecutionContext, mapping: mapping)
-    }
-    
-    public func flatMap<M>(mapping: T -> FutureStream<M>) -> FutureStream<M> {
-        return flatMapStream(nil, executionContext: defaultExecutionContext, mapping: mapping)
-    }
-    
-    public func flatMap<M>(capacity: Int, executionContext: ExecutionContext, mapping: T -> FutureStream<M>) -> FutureStream<M>  {
-        return flatMapStream(capacity, executionContext: defaultExecutionContext, mapping: mapping)
-    }
-    
-    public func flatMap<M>(executionContext: ExecutionContext, mapping: T -> FutureStream<M>) -> FutureStream<M>  {
-        return flatMapStream(nil, executionContext: executionContext, mapping: mapping)
-    }
-    
-    public func recoverWith(recovery: NSError -> FutureStream<T>) -> FutureStream<T> {
-        return recoverWithStream(nil, executionContext: defaultExecutionContext, recovery: recovery)
-    }
-    
-    public func recoverWith(capacity: Int, recovery: NSError -> FutureStream<T>) -> FutureStream<T> {
-        return recoverWithStream(capacity, executionContext: defaultExecutionContext, recovery: recovery)
-    }
-    
-    public func recoverWith(executionContext: ExecutionContext, recovery: NSError -> FutureStream<T>) -> FutureStream<T> {
-        return recoverWithStream(nil, executionContext: executionContext, recovery: recovery)
-    }
-    
-    public func recoverWith(capacity: Int, executionContext: ExecutionContext, recovery: NSError -> FutureStream<T>) -> FutureStream<T> {
-        return recoverWithStream(capacity, executionContext: executionContext, recovery: recovery)
-    }
-    
-    internal func flatMapStream<M>(capacity: Int?, executionContext: ExecutionContext, mapping: T -> FutureStream<M>) -> FutureStream<M> {
+    internal func flatMap<M>(capacity: Int = Int.max, executionContext: ExecutionContext = QueueContext.futuresDefault, mapping: T -> FutureStream<M>) -> FutureStream<M> {
         let stream = FutureStream<M>(capacity: capacity)
         onComplete(executionContext) { result in
             switch result {
             case .Success(let value):
-                stream.completeWith(executionContext, stream: mapping(value))
+                stream.completeWith(mapping(value), executionContext: executionContext)
             case .Failure(let error):
                 stream.failure(error)
             }
@@ -517,28 +433,26 @@ public class Future<T> {
         return stream
     }
     
-    internal func recoverWithStream(capacity: Int?, executionContext: ExecutionContext, recovery: NSError -> FutureStream<T>) -> FutureStream<T> {
-        let stream = FutureStream<T>(capacity:capacity)
+    internal func recoverWith(capacity: Int = Int.max, executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: NSError -> FutureStream<T>) -> FutureStream<T> {
+        let stream = FutureStream<T>(capacity: capacity)
         onComplete(executionContext) { result in
             switch result {
             case .Success(let value):
                 stream.success(value)
             case .Failure(let error):
-                stream.completeWith(executionContext, stream: recovery(error))
+                stream.completeWith(recovery(error), executionContext: executionContext)
             }
         }
         return stream
     }
-    
 }
 
 
 // MARK: - StreamPromise -
 public class StreamPromise<T> {
-    
     public let future: FutureStream<T>
     
-    public init(capacity: Int?=nil) {
+    public init(capacity: Int = Int.max) {
         self.future = FutureStream<T>(capacity: capacity)
     }
     
@@ -546,12 +460,8 @@ public class StreamPromise<T> {
         future.complete(result)
     }
     
-    public func completeWith(future: Future<T>) {
-        completeWith(self.future.defaultExecutionContext, future: future)
-    }
-    
-    public func completeWith(executionContext: ExecutionContext, future: Future<T>) {
-        future.completeWith(executionContext, future: future)
+    public func completeWith(future: Future<T>, executionContext: ExecutionContext = QueueContext.futuresDefault) {
+        self.future.completeWith(future, executionContext: executionContext)
     }
     
     public func success(value: T) {
@@ -562,32 +472,24 @@ public class StreamPromise<T> {
         future.failure(error)
     }
     
-    public func completeWith(stream: FutureStream<T>) {
-        completeWith(self.future.defaultExecutionContext, stream: stream)
+    public func completeWith(stream: FutureStream<T>, executionContext: ExecutionContext = QueueContext.futuresDefault) {
+        future.completeWith(stream, executionContext: executionContext)
     }
-    
-    public func completeWith(executionContext: ExecutionContext, stream: FutureStream<T>) {
-        future.completeWith(executionContext, stream: stream)
-    }
-    
 }
 
 // MARK: - FutureStream -
 public class FutureStream<T> {
-    
     private var futures = [Future<T>]()
     private typealias InFuture = Future<T> -> Void
 
     private var saveCompletes = [InFuture]()
-    private var capacity: Int?
-    
-    internal let defaultExecutionContext: ExecutionContext  = QueueContext.main
-    
+    private var capacity: Int
+
     public var count: Int {
         return futures.count
     }
     
-    public init(capacity: Int?=nil) {
+    public init(capacity: Int = Int.max) {
         self.capacity = capacity
     }
 
@@ -601,11 +503,7 @@ public class FutureStream<T> {
         }
     }
 
-    internal func completeWith(stream: FutureStream<T>) {
-        completeWith(defaultExecutionContext, stream: stream)
-    }
-
-    internal func completeWith(executionContext: ExecutionContext, stream: FutureStream<T>) {
+    internal func completeWith(stream: FutureStream<T>, executionContext: ExecutionContext = QueueContext.futuresDefault) {
         stream.onComplete(executionContext) { result in
             self.complete(result)
         }
@@ -619,25 +517,21 @@ public class FutureStream<T> {
         complete(Try<T>(error))
     }
 
-    internal func completeWith(future: Future<T>) {
-        completeWith(defaultExecutionContext, future: future)
-    }
-
-    internal func completeWith(executionContext: ExecutionContext, future: Future<T>) {
+    internal func completeWith(future: Future<T>, executionContext: ExecutionContext = QueueContext.futuresDefault) {
         future.onComplete(executionContext) {result in
             self.complete(result)
         }
     }
 
     internal func addFuture(future: Future<T>) {
-        if let capacity = capacity where futures.count >= capacity  {
+        if futures.count >= capacity  {
             futures.removeAtIndex(0)
         }
         futures.append(future)
     }
 
     // MARK: Callbacks
-    public func onComplete(executionContext: ExecutionContext, complete: Try<T> -> Void) {
+    public func onComplete(executionContext: ExecutionContext = QueueContext.futuresDefault, complete: Try<T> -> Void) {
         let futureComplete : InFuture = { future in
             future.onComplete(executionContext, complete: complete)
         }
@@ -646,16 +540,8 @@ public class FutureStream<T> {
             futureComplete(future)
         }
     }
-    
-    public func onComplete(complete: Try<T> -> Void) {
-        onComplete(defaultExecutionContext, complete: complete)
-    }
 
-    public func onSuccess(success: T -> Void) {
-        onSuccess(defaultExecutionContext, success: success)
-    }
-    
-    public func onSuccess(executionContext:ExecutionContext, success: T -> Void) {
+    public func onSuccess(executionContext:ExecutionContext = QueueContext.futuresDefault, success: T -> Void) {
         onComplete(executionContext) { result in
             switch result {
             case .Success(let value):
@@ -666,11 +552,7 @@ public class FutureStream<T> {
         }
     }
     
-    public func onFailure(failure: NSError -> Void) {
-        onFailure(defaultExecutionContext, failure: failure)
-    }
-    
-    public func onFailure(executionContext: ExecutionContext, failure: NSError -> Void) {
+    public func onFailure(executionContext: ExecutionContext = QueueContext.futuresDefault, failure: NSError -> Void) {
         onComplete(executionContext) { result in
             switch result {
             case .Failure(let error):
@@ -682,11 +564,7 @@ public class FutureStream<T> {
     }
 
     // MARK: Combinators
-    public func map<M>(mapping: T -> Try<M>) -> FutureStream<M> {
-        return map(defaultExecutionContext, mapping: mapping)
-    }
-    
-    public func map<M>(executionContext: ExecutionContext, mapping: T -> Try<M>) -> FutureStream<M> {
+    public func map<M>(executionContext: ExecutionContext = QueueContext.futuresDefault, mapping: T -> Try<M>) -> FutureStream<M> {
         let future = FutureStream<M>(capacity: capacity)
         onComplete(executionContext) { result in
             future.complete(result.flatMap(mapping))
@@ -694,16 +572,12 @@ public class FutureStream<T> {
         return future
     }
     
-    public func flatMap<M>(mapping: T -> FutureStream<M>) -> FutureStream<M> {
-        return flatMap(defaultExecutionContext, mapping: mapping)
-    }
-    
-    public func flatMap<M>(executionContext:ExecutionContext, mapping: T -> FutureStream<M>) -> FutureStream<M> {
+    public func flatMap<M>(executionContext:ExecutionContext = QueueContext.futuresDefault, mapping: T -> FutureStream<M>) -> FutureStream<M> {
         let future = FutureStream<M>(capacity: capacity)
         onComplete(executionContext) { result in
             switch result {
             case .Success(let value):
-                future.completeWith(executionContext, stream:mapping(value))
+                future.completeWith(mapping(value), executionContext: executionContext)
             case .Failure(let error):
                 future.failure(error)
             }
@@ -711,11 +585,7 @@ public class FutureStream<T> {
         return future
     }
     
-    public func andThen(complete: Try<T> -> Void) -> FutureStream<T> {
-        return andThen(defaultExecutionContext, complete: complete)
-    }
-    
-    public func andThen(executionContext: ExecutionContext, complete: Try<T> -> Void) -> FutureStream<T> {
+    public func andThen(executionContext: ExecutionContext = QueueContext.futuresDefault, complete: Try<T> -> Void) -> FutureStream<T> {
         let future = FutureStream<T>(capacity: capacity)
         future.onComplete(executionContext, complete: complete)
         onComplete(executionContext) { result in
@@ -724,11 +594,7 @@ public class FutureStream<T> {
         return future
     }
     
-    public func recover(recovery: NSError -> Try<T>) -> FutureStream<T> {
-        return recover(defaultExecutionContext, recovery: recovery)
-    }
-    
-    public func recover(executionContext: ExecutionContext, recovery: NSError -> Try<T>) -> FutureStream<T> {
+    public func recover(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: NSError -> Try<T>) -> FutureStream<T> {
         let future = FutureStream<T>(capacity: capacity)
         onComplete(executionContext) { result in
             future.complete(result.recoverWith(recovery))
@@ -736,28 +602,20 @@ public class FutureStream<T> {
         return future
     }
     
-    public func recoverWith(recovery: NSError -> FutureStream<T>) -> FutureStream<T> {
-        return recoverWith(defaultExecutionContext, recovery: recovery)
-    }
-    
-    public func recoverWith(executionContext: ExecutionContext, recovery: NSError -> FutureStream<T>) -> FutureStream<T> {
+    public func recoverWith(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: NSError -> FutureStream<T>) -> FutureStream<T> {
         let future = FutureStream<T>(capacity: capacity)
         onComplete(executionContext) { result in
             switch result {
             case .Success(let value):
                 future.success(value)
             case .Failure(let error):
-                future.completeWith(executionContext, stream: recovery(error))
+                future.completeWith(recovery(error), executionContext: executionContext)
             }
         }
         return future
     }
     
-    public func withFilter(filter: T -> Bool) -> FutureStream<T> {
-        return withFilter(defaultExecutionContext, filter: filter)
-    }
-    
-    public func withFilter(executionContext: ExecutionContext, filter: T -> Bool) -> FutureStream<T> {
+    public func withFilter(executionContext: ExecutionContext = QueueContext.futuresDefault, filter: T -> Bool) -> FutureStream<T> {
         let future = FutureStream<T>(capacity: capacity)
         onComplete(executionContext) { result in
             future.complete(result.filter(filter))
@@ -765,27 +623,19 @@ public class FutureStream<T> {
         return future
     }
     
-    public func forEach(apply: T -> Void) {
-        forEach(defaultExecutionContext, apply: apply)
-    }
-    
-    public func forEach(executionContext: ExecutionContext, apply: T -> Void) {
+    public func forEach(executionContext: ExecutionContext = QueueContext.futuresDefault, apply: T -> Void) {
         onComplete(executionContext) { result in
             result.forEach(apply)
         }
     }
 
     // MARK: Future Combinators
-    public func flatMap<M>(mapping: T -> Future<M>) -> FutureStream<M> {
-        return flatMap(defaultExecutionContext, mapping: mapping)
-    }
-    
-    public func flatMap<M>(executionContext: ExecutionContext, mapping: T -> Future<M>) -> FutureStream<M> {
+    public func flatMap<M>(executionContext: ExecutionContext = QueueContext.futuresDefault, mapping: T -> Future<M>) -> FutureStream<M> {
         let future = FutureStream<M>(capacity: capacity)
         onComplete(executionContext) { result in
             switch result {
             case .Success(let value):
-                future.completeWith(executionContext, future:mapping(value))
+                future.completeWith(mapping(value), executionContext: executionContext)
             case .Failure(let error):
                 future.failure(error)
             }
@@ -793,18 +643,14 @@ public class FutureStream<T> {
         return future
     }
     
-    public func recoverWith(recovery: NSError -> Future<T>) -> FutureStream<T> {
-        return recoverWith(defaultExecutionContext, recovery: recovery)
-    }
-    
-    public func recoverWith(executionContext: ExecutionContext, recovery: NSError -> Future<T>) -> FutureStream<T> {
+    public func recoverWith(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: NSError -> Future<T>) -> FutureStream<T> {
         let future = FutureStream<T>(capacity: capacity)
         onComplete(executionContext) { result in
             switch result {
             case .Success(let value):
                 future.success(value)
             case .Failure(let error):
-                future.completeWith(executionContext, future: recovery(error))
+                future.completeWith(recovery(error), executionContext: executionContext)
             }
         }
         return future
