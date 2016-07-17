@@ -12,10 +12,8 @@
 		05F415D21CFAA87000A72FAA /* FutureAndThenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415B81CFAA87000A72FAA /* FutureAndThenTests.swift */; };
 		05F415D31CFAA87000A72FAA /* FutureCompleteWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415B91CFAA87000A72FAA /* FutureCompleteWithTests.swift */; };
 		05F415D41CFAA87000A72FAA /* FutureFailureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415BA1CFAA87000A72FAA /* FutureFailureTests.swift */; };
-		05F415D51CFAA87000A72FAA /* FutureFlatmapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415BB1CFAA87000A72FAA /* FutureFlatmapTests.swift */; };
-		05F415D61CFAA87000A72FAA /* FutureForcompTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415BC1CFAA87000A72FAA /* FutureForcompTests.swift */; };
-		05F415D71CFAA87000A72FAA /* FutureForcompYieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415BD1CFAA87000A72FAA /* FutureForcompYieldTests.swift */; };
-		05F415D81CFAA87000A72FAA /* FutureForeachTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415BE1CFAA87000A72FAA /* FutureForeachTests.swift */; };
+		05F415D51CFAA87000A72FAA /* FutureFlatMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415BB1CFAA87000A72FAA /* FutureFlatMapTests.swift */; };
+		05F415D81CFAA87000A72FAA /* FutureForEachTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415BE1CFAA87000A72FAA /* FutureForEachTests.swift */; };
 		05F415D91CFAA87000A72FAA /* FutureMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415BF1CFAA87000A72FAA /* FutureMapTests.swift */; };
 		05F415DA1CFAA87000A72FAA /* FutureRecoverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C01CFAA87000A72FAA /* FutureRecoverTests.swift */; };
 		05F415DB1CFAA87000A72FAA /* FutureRecoverWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C11CFAA87000A72FAA /* FutureRecoverWithTests.swift */; };
@@ -25,8 +23,8 @@
 		05F415E01CFAA87000A72FAA /* StreamCapacityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C61CFAA87000A72FAA /* StreamCapacityTests.swift */; };
 		05F415E11CFAA87000A72FAA /* StreamCompleteWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C71CFAA87000A72FAA /* StreamCompleteWithTests.swift */; };
 		05F415E21CFAA87000A72FAA /* StreamFailureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C81CFAA87000A72FAA /* StreamFailureTests.swift */; };
-		05F415E31CFAA87000A72FAA /* StreamFlatmapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C91CFAA87000A72FAA /* StreamFlatmapTests.swift */; };
-		05F415E41CFAA87000A72FAA /* StreamForeachTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415CA1CFAA87000A72FAA /* StreamForeachTests.swift */; };
+		05F415E31CFAA87000A72FAA /* StreamFlatMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C91CFAA87000A72FAA /* StreamFlatMapTests.swift */; };
+		05F415E41CFAA87000A72FAA /* StreamForEachTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415CA1CFAA87000A72FAA /* StreamForEachTests.swift */; };
 		05F415E51CFAA87000A72FAA /* StreamMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415CB1CFAA87000A72FAA /* StreamMapTests.swift */; };
 		05F415E61CFAA87000A72FAA /* StreamRecoverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415CC1CFAA87000A72FAA /* StreamRecoverTests.swift */; };
 		05F415E71CFAA87000A72FAA /* StreamRecoverWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415CD1CFAA87000A72FAA /* StreamRecoverWithTests.swift */; };
@@ -42,10 +40,8 @@
 		05F415B81CFAA87000A72FAA /* FutureAndThenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureAndThenTests.swift; sourceTree = "<group>"; };
 		05F415B91CFAA87000A72FAA /* FutureCompleteWithTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureCompleteWithTests.swift; sourceTree = "<group>"; };
 		05F415BA1CFAA87000A72FAA /* FutureFailureTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFailureTests.swift; sourceTree = "<group>"; };
-		05F415BB1CFAA87000A72FAA /* FutureFlatmapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFlatmapTests.swift; sourceTree = "<group>"; };
-		05F415BC1CFAA87000A72FAA /* FutureForcompTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureForcompTests.swift; sourceTree = "<group>"; };
-		05F415BD1CFAA87000A72FAA /* FutureForcompYieldTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureForcompYieldTests.swift; sourceTree = "<group>"; };
-		05F415BE1CFAA87000A72FAA /* FutureForeachTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureForeachTests.swift; sourceTree = "<group>"; };
+		05F415BB1CFAA87000A72FAA /* FutureFlatMapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFlatMapTests.swift; sourceTree = "<group>"; };
+		05F415BE1CFAA87000A72FAA /* FutureForEachTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureForEachTests.swift; sourceTree = "<group>"; };
 		05F415BF1CFAA87000A72FAA /* FutureMapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureMapTests.swift; sourceTree = "<group>"; };
 		05F415C01CFAA87000A72FAA /* FutureRecoverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureRecoverTests.swift; sourceTree = "<group>"; };
 		05F415C11CFAA87000A72FAA /* FutureRecoverWithTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureRecoverWithTests.swift; sourceTree = "<group>"; };
@@ -55,8 +51,8 @@
 		05F415C61CFAA87000A72FAA /* StreamCapacityTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamCapacityTests.swift; sourceTree = "<group>"; };
 		05F415C71CFAA87000A72FAA /* StreamCompleteWithTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamCompleteWithTests.swift; sourceTree = "<group>"; };
 		05F415C81CFAA87000A72FAA /* StreamFailureTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamFailureTests.swift; sourceTree = "<group>"; };
-		05F415C91CFAA87000A72FAA /* StreamFlatmapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamFlatmapTests.swift; sourceTree = "<group>"; };
-		05F415CA1CFAA87000A72FAA /* StreamForeachTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamForeachTests.swift; sourceTree = "<group>"; };
+		05F415C91CFAA87000A72FAA /* StreamFlatMapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamFlatMapTests.swift; sourceTree = "<group>"; };
+		05F415CA1CFAA87000A72FAA /* StreamForEachTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamForEachTests.swift; sourceTree = "<group>"; };
 		05F415CB1CFAA87000A72FAA /* StreamMapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamMapTests.swift; sourceTree = "<group>"; };
 		05F415CC1CFAA87000A72FAA /* StreamRecoverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamRecoverTests.swift; sourceTree = "<group>"; };
 		05F415CD1CFAA87000A72FAA /* StreamRecoverWithTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamRecoverWithTests.swift; sourceTree = "<group>"; };
@@ -115,10 +111,8 @@
 				05F415B81CFAA87000A72FAA /* FutureAndThenTests.swift */,
 				05F415B91CFAA87000A72FAA /* FutureCompleteWithTests.swift */,
 				05F415BA1CFAA87000A72FAA /* FutureFailureTests.swift */,
-				05F415BB1CFAA87000A72FAA /* FutureFlatmapTests.swift */,
-				05F415BC1CFAA87000A72FAA /* FutureForcompTests.swift */,
-				05F415BD1CFAA87000A72FAA /* FutureForcompYieldTests.swift */,
-				05F415BE1CFAA87000A72FAA /* FutureForeachTests.swift */,
+				05F415BB1CFAA87000A72FAA /* FutureFlatMapTests.swift */,
+				05F415BE1CFAA87000A72FAA /* FutureForEachTests.swift */,
 				05F415BF1CFAA87000A72FAA /* FutureMapTests.swift */,
 				05F415C01CFAA87000A72FAA /* FutureRecoverTests.swift */,
 				05F415C11CFAA87000A72FAA /* FutureRecoverWithTests.swift */,
@@ -128,8 +122,8 @@
 				05F415C61CFAA87000A72FAA /* StreamCapacityTests.swift */,
 				05F415C71CFAA87000A72FAA /* StreamCompleteWithTests.swift */,
 				05F415C81CFAA87000A72FAA /* StreamFailureTests.swift */,
-				05F415C91CFAA87000A72FAA /* StreamFlatmapTests.swift */,
-				05F415CA1CFAA87000A72FAA /* StreamForeachTests.swift */,
+				05F415C91CFAA87000A72FAA /* StreamFlatMapTests.swift */,
+				05F415CA1CFAA87000A72FAA /* StreamForEachTests.swift */,
 				05F415CB1CFAA87000A72FAA /* StreamMapTests.swift */,
 				05F415CC1CFAA87000A72FAA /* StreamRecoverTests.swift */,
 				05F415CD1CFAA87000A72FAA /* StreamRecoverWithTests.swift */,
@@ -279,8 +273,7 @@
 				05F415DA1CFAA87000A72FAA /* FutureRecoverTests.swift in Sources */,
 				05BF91F91CFCA79A00B78B12 /* TestHelper.swift in Sources */,
 				05F415DD1CFAA87000A72FAA /* FutureWithFilterTests.swift in Sources */,
-				05F415D71CFAA87000A72FAA /* FutureForcompYieldTests.swift in Sources */,
-				05F415E41CFAA87000A72FAA /* StreamForeachTests.swift in Sources */,
+				05F415E41CFAA87000A72FAA /* StreamForEachTests.swift in Sources */,
 				05F415D21CFAA87000A72FAA /* FutureAndThenTests.swift in Sources */,
 				05F415D91CFAA87000A72FAA /* FutureMapTests.swift in Sources */,
 				05F415E71CFAA87000A72FAA /* StreamRecoverWithTests.swift in Sources */,
@@ -289,16 +282,15 @@
 				05BF91FA1CFCA79A00B78B12 /* XCTTestCase+SimpleFuturesAssertions.swift in Sources */,
 				05F415E61CFAA87000A72FAA /* StreamRecoverTests.swift in Sources */,
 				05F415E11CFAA87000A72FAA /* StreamCompleteWithTests.swift in Sources */,
-				05F415E31CFAA87000A72FAA /* StreamFlatmapTests.swift in Sources */,
+				05F415E31CFAA87000A72FAA /* StreamFlatMapTests.swift in Sources */,
 				05F415E01CFAA87000A72FAA /* StreamCapacityTests.swift in Sources */,
-				05F415D81CFAA87000A72FAA /* FutureForeachTests.swift in Sources */,
+				05F415D81CFAA87000A72FAA /* FutureForEachTests.swift in Sources */,
 				05F415E21CFAA87000A72FAA /* StreamFailureTests.swift in Sources */,
-				05F415D51CFAA87000A72FAA /* FutureFlatmapTests.swift in Sources */,
+				05F415D51CFAA87000A72FAA /* FutureFlatMapTests.swift in Sources */,
 				05F415D31CFAA87000A72FAA /* FutureCompleteWithTests.swift in Sources */,
 				05F415E51CFAA87000A72FAA /* StreamMapTests.swift in Sources */,
 				05F415DF1CFAA87000A72FAA /* StreamAndThenTests.swift in Sources */,
 				05F415DC1CFAA87000A72FAA /* FutureSuccessTests.swift in Sources */,
-				05F415D61CFAA87000A72FAA /* FutureForcompTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

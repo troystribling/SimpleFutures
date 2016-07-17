@@ -1,5 +1,5 @@
 //
-//  StreamFlatmapTests.swift
+//  StreamFlatMapTests.swift
 //  SimpleFutures
 //
 //  Created by Troy Stribling on 12/20/14.
@@ -10,7 +10,7 @@ import UIKit
 import XCTest
 @testable import SimpleFutures
 
-class StreamFlatmapTests: XCTestCase {
+class StreamFlatMapTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
@@ -24,7 +24,7 @@ class StreamFlatmapTests: XCTestCase {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
-        let flatmapExpectation = XCTExpectFullfilledCountTimes(2, message:"flatmap")
+        let flatmapExpectation = XCTExpectFullfilledCountTimes(2, message:"flatMap")
         let onSuccessMappedExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess mapped future")
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
@@ -33,7 +33,7 @@ class StreamFlatmapTests: XCTestCase {
         stream.onFailure {error in
             XCTAssert(false, "future onFailure called")
         }
-        let mapped = stream.flatmap {value -> Future<Int> in
+        let mapped = stream.flatMap {value -> Future<Int> in
             flatmapExpectation()
             let promise = Promise<Int>()
             promise.success(1)
@@ -56,7 +56,7 @@ class StreamFlatmapTests: XCTestCase {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
-        let flatmapExpectation = XCTExpectFullfilledCountTimes(2, message:"flatmap")
+        let flatmapExpectation = XCTExpectFullfilledCountTimes(2, message:"flatMap")
         let onFailureMappedExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure mapped future")
         stream.onSuccess {value in
             XCTAssertTrue(value, "Invalid value")
@@ -65,7 +65,7 @@ class StreamFlatmapTests: XCTestCase {
         stream.onFailure {error in
             XCTAssert(false, "future onFailure called")
         }
-        let mapped = stream.flatmap {value -> Future<Int> in
+        let mapped = stream.flatMap {value -> Future<Int> in
             flatmapExpectation()
             let promise = Promise<Int>()
             promise.failure(TestFailure.error)
@@ -94,8 +94,8 @@ class StreamFlatmapTests: XCTestCase {
         stream.onFailure {error in
             onFailureExpectation()
         }
-        let mapped = stream.flatmap {value -> Future<Int> in
-            XCTAssert(false, "flatmap called")
+        let mapped = stream.flatMap {value -> Future<Int> in
+            XCTAssert(false, "flatMap called")
             let promise = Promise<Int>()
             promise.failure(TestFailure.error)
             return promise.future
@@ -116,7 +116,7 @@ class StreamFlatmapTests: XCTestCase {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
-        let flatmapExpectation = XCTExpectFullfilledCountTimes(2, message:"flatmap")
+        let flatmapExpectation = XCTExpectFullfilledCountTimes(2, message:"flatMap")
         let onSuccessMappedExpectation = XCTExpectFullfilledCountTimes(4, message:"onSuccess mapped future")
         stream.onSuccess {value in
             onSuccessExpectation()
@@ -124,7 +124,7 @@ class StreamFlatmapTests: XCTestCase {
         stream.onFailure {error in
             XCTAssert(false, "future onFailure called")
         }
-        let mapped = stream.flatmap {value -> FutureStream<Int> in
+        let mapped = stream.flatMap {value -> FutureStream<Int> in
             flatmapExpectation()
             let promise = StreamPromise<Int>()
             if value {
@@ -158,8 +158,8 @@ class StreamFlatmapTests: XCTestCase {
         stream.onFailure {error in
             onFailureExpectation()
         }
-        let mapped = stream.flatmap {value -> FutureStream<Int> in
-            XCTAssert(false, "flatmap called")
+        let mapped = stream.flatMap {value -> FutureStream<Int> in
+            XCTAssert(false, "flatMap called")
             return  StreamPromise<Int>().future
         }
         mapped.onSuccess {value in
@@ -178,7 +178,7 @@ class StreamFlatmapTests: XCTestCase {
         let promise = StreamPromise<Bool>()
         let stream = promise.future
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
-        let flatmapExpectation = XCTExpectFullfilledCountTimes(2, message:"flatmap")
+        let flatmapExpectation = XCTExpectFullfilledCountTimes(2, message:"flatMap")
         let onFailureMappedExpectation = XCTExpectFullfilledCountTimes(4, message:"onFailure mapped future")
         stream.onSuccess {value in
             onSuccessExpectation()
@@ -186,7 +186,7 @@ class StreamFlatmapTests: XCTestCase {
         stream.onFailure {error in
             XCTAssert(false, "future onFailure called")
         }
-        let mapped = stream.flatmap {value -> FutureStream<Int> in
+        let mapped = stream.flatMap {value -> FutureStream<Int> in
             flatmapExpectation()
             let promise = StreamPromise<Int>()
             writeFailedFutures(promise, times:2)
