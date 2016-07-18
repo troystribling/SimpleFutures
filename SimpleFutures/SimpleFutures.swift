@@ -8,6 +8,13 @@
 
 import Foundation
 
+// MARK: - Errors -
+enum SimpleFuturesErrors: Int, ErrorType {
+    case futureCompleted = 0
+    case futureNotCompleted = 1
+    case filterFailed = 2
+}
+
 // MARK: - Optional -
 public extension Optional {
     
@@ -32,21 +39,16 @@ public extension Optional {
 }
 
 // MARK: - Try -
-public struct TryError {
-    public static let domain = "Wrappers"
-    public static let filterFailed = NSError(domain: domain, code: 1, userInfo: [NSLocalizedDescriptionKey: "Filter failed"])
-}
-
 public enum Try<T> {
     
     case Success(T)
-    case Failure(NSError)
+    case Failure(ErrorType)
     
-    public init(_ value:T) {
+    public init(_ value: T) {
         self = .Success(value)
     }
     
-    public init(_ error: NSError) {
+    public init(_ error: ErrorType) {
         self = .Failure(error)
     }
     
@@ -69,59 +71,83 @@ public enum Try<T> {
     }
 
     // MARK: Combinators
-    public func map<M>(mapping: T -> M) -> Try<M> {
+    public func map<M>(@noescape mapping: T throws -> M) -> Try<M> {
         switch self {
         case .Success(let value):
-            return Try<M>(mapping(value))
+            do {
+                return try Try<M>(mapping(value))
+            } catch {
+                Try<M>(error)
+            }
         case .Failure(let error):
             return Try<M>(error)
         }
     }
     
-    public func flatMap<M>(mapping: T -> Try<M>) -> Try<M> {
+    public func flatMap<M>(@noescape mapping: T throws -> Try<M>) -> Try<M> {
         switch self {
         case .Success(let value):
-            return mapping(value)
+            do {
+                return try mapping(value)
+            } catch {
+                return Try<M>(error)
+            }
         case .Failure(let error):
             return Try<M>(error)
         }
     }
     
-    public func recover(recovery: NSError -> T) -> Try<T> {
+    public func recover(@noescape recovery: ErrorType throws -> T) -> Try<T> {
         switch self {
         case .Success(let value):
             return Try(value)
         case .Failure(let error):
-            return Try<T>(recovery(error))
+            do {
+                return try Try<T>(recovery(error))
+            } catch {
+                return Try<T>(error)
+            }
         }
     }
     
-    public func recoverWith(recovery: NSError -> Try<T>) -> Try<T> {
+    public func recoverWith(@noescape recovery: ErrorType throws -> Try<T>) -> Try<T> {
         switch self {
         case .Success(let value):
             return Try(value)
         case .Failure(let error):
-            return recovery(error)
+            do {
+                return try recovery(error)
+            } catch {
+                return Try<T>(error)
+            }
         }
     }
     
-    public func filter(predicate: T -> Bool) -> Try<T> {
+    public func filter(@noescape predicate: T throws -> Bool) -> Try<T> {
         switch self {
         case .Success(let value):
-            if !predicate(value) {
-                return Try<T>(TryError.filterFailed)
-            } else {
-                return Try(value)
+            do {
+                if try !predicate(value) {
+                    return Try<T>(SimpleFuturesErrors.filterFailed)
+                } else {
+                    return Try(value)
+                }
+            } catch {
+                return Try<T>(error)
             }
         case .Failure(_):
             return self
         }
     }
     
-    public func forEach(apply: T -> Void) {
+    public func forEach(@noescape apply: T throws -> Void) {
         switch self {
         case .Success(let value):
-            apply(value)
+            do {
+                try apply(value)
+            } catch {
+                return
+            }
         case .Failure:
             return
         }
@@ -129,8 +155,8 @@ public enum Try<T> {
 
     public func orElse(failed: Try<T>) -> Try<T> {
         switch self {
-        case .Success(let box):
-            return Try(box)
+        case .Success(let value):
+            return Try(value)
         case .Failure(_):
             return failed
         }
@@ -154,7 +180,6 @@ public enum Try<T> {
             return failed
         }
     }
-
 }
 
 
@@ -165,7 +190,7 @@ public protocol ExecutionContext {
 
 public class ImmediateContext : ExecutionContext {
     public init() {}
-    public func execute(task:Void->Void) {
+    public func execute(task: Void->Void) {
         task()
     }
 }
@@ -223,22 +248,6 @@ public struct Queue {
     }
 }
 
-// MARK: - Errors -
-enum SimpleFuturesErrorCodes: Int {
-    case FutureCompleted    = 0
-    case FutureNotCompleted = 1
-}
-
-public struct SimpleFuturesError {
-    static let domain               = "SimpleFutures"
-    static let futureCompleted      = NSError(domain: domain, code: SimpleFuturesErrorCodes.FutureCompleted.rawValue, userInfo: [NSLocalizedDescriptionKey: "Future has been completed"])
-    static let futureNotCompleted   = NSError(domain: domain, code: SimpleFuturesErrorCodes.FutureNotCompleted.rawValue, userInfo: [NSLocalizedDescriptionKey: "Future has not been completed"])
-}
-
-public struct SimpleFuturesException {
-    static let futureCompleted = NSException(name: "Future complete error", reason: "Future previously completed.", userInfo: nil)
-}
-
 // MARK: - Promise -
 public class Promise<T> {
     public let future: Future<T>
@@ -255,7 +264,7 @@ public class Promise<T> {
         self.future.completeWith(executionContext, future: future)
     }
     
-    public func complete(result: Try<T>) {
+    public func complete(result: Try<T>) throws {
         future.complete(result)
     }
     
@@ -263,7 +272,7 @@ public class Promise<T> {
         future.success(value)
     }
 
-    public func failure(error: NSError)  {
+    public func failure(error: ErrorType)  {
         future.failure(error)
     }
 }
@@ -273,8 +282,8 @@ public class Future<T> {
 
     private var result: Try<T>?
 
-    typealias OnComplete        = Try<T> -> Void
-    private var saveCompletes   = [OnComplete]()
+    typealias OnComplete = Try<T> -> Void
+    private var saveCompletes = [OnComplete]()
 
     public var completed: Bool {
         return result != nil
@@ -284,7 +293,7 @@ public class Future<T> {
     }
 
     // MARK: Complete
-    internal func complete(result: Try<T>) {
+    internal func complete(result: Try<T>) throws {
         if self.result != nil {
             SimpleFuturesException.futureCompleted.raise()
         }
