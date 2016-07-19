@@ -44,7 +44,7 @@ class StreamWithFilter: XCTestCase {
         filter.onFailure {error in
             XCTAssert(false, "filter future onFailure called")
         }
-        writeSuccesfulFutures(promise, value:true, times:2)
+        writeSuccesfulFutures(promise, value: true, times: 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -56,14 +56,14 @@ class StreamWithFilter: XCTestCase {
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
         let withFilterExpectation = XCTExpectFullfilledCountTimes(2, message:"withFilter")
         let onFailureFilterExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure filter future")
-        stream.onSuccess {value in
+        stream.onSuccess { value in
             XCTAssert(!value, "future onSucces value invalid")
             onSuccessExpectation()
         }
-        stream.onFailure {error in
+        stream.onFailure { error in
             XCTAssert(false, "future onFailure called")
         }
-        let filter = stream.withFilter {value in
+        let filter = stream.withFilter { value in
             withFilterExpectation()
             return value
         }
@@ -71,11 +71,10 @@ class StreamWithFilter: XCTestCase {
             XCTAssert(false, "filter future onSuccess called")
         }
         filter.onFailure {error in
-            XCTAssertEqual(error.domain, "Wrappers", "filter future onFailure invalid error domain")
-            XCTAssertEqual(error.code, 1, "filter future onFailure invalid error code")
+            XCTAssertEqualErrors(error, SimpleFuturesErrors.filterFailed)
             onFailureFilterExpectation()
         }
-        writeSuccesfulFutures(promise, value:false, times:2)
+        writeSuccesfulFutures(promise, value: false, times: 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -99,11 +98,11 @@ class StreamWithFilter: XCTestCase {
             XCTAssert(false, "filter future onSuccess called")
         }
         filter.onFailure {error in
-            XCTAssertEqual(error.domain, "SimpleFutures Tests", "filter future onFailure invalid error domain")
+            XCTAssertEqual(error._domain, TestFailure.error._domain, "filter future onFailure invalid error domain")
             XCTAssertEqual(error.code, 100, "filter future onFailure invalid error code")
             onFailureFilterExpectation()
         }
-        writeFailedFutures(promise, times:2)
+        writeFailedFutures(promise, times: 2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }

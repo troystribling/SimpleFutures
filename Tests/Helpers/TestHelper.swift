@@ -10,8 +10,8 @@ import UIKit
 import XCTest
 import SimpleFutures
 
-struct TestFailure {
-    static let error = NSError(domain:"SimpleFutures Tests", code:100, userInfo:[NSLocalizedDescriptionKey:"Testing"])
+enum TestFailure : ErrorType {
+    case error
 }
 
 func writeSuccesfulFutures<T>(promise:StreamPromise<T>, value:T, times:Int) {

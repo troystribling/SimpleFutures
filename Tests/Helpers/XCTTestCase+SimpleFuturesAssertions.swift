@@ -12,7 +12,7 @@ import SimpleFutures
 
 extension XCTestCase  {
 
-    func XCTAssertFutureSucceeds<T>(future: Future<T>, context: ExecutionContext = QueueContext.main, timeout: NSTimeInterval = 10.0,
+    func XCTAssertFutureSucceeds<T>(future: Future<T>, context: ExecutionContext = QueueContext.main, timeout: Double = 10.0,
                                  line: UInt = #line, file: String = #file, validate: ((T) -> Void)? = nil) {
         var expectation: XCTestExpectation?
         var onSuccessCalled = false
@@ -45,7 +45,7 @@ extension XCTestCase  {
         }
     }
 
-    func XCTAssertFutureStreamSucceeds<T>(future: FutureStream<T>, context: ExecutionContext = QueueContext.main, timeout: NSTimeInterval = 10.0, line: UInt = #line, file: String = #file, validations: [((T) -> Void)] = []) {
+    func XCTAssertFutureStreamSucceeds<T>(future: FutureStream<T>, context: ExecutionContext = QueueContext.main, timeout: Double = 10.0, line: UInt = #line, file: String = #file, validations: [((T) -> Void)] = []) {
         var expectation: XCTestExpectation?
         let maxCount = validations.count
         var count = 0
@@ -105,8 +105,8 @@ extension XCTestCase  {
     }
 
 
-    func XCTAssertFutureFails<T>(future: Future<T>, context: ExecutionContext = QueueContext.main, timeout: NSTimeInterval = 10.0,
-                              line: UInt = #line, file: String = #file, validate: ((NSError) -> Void)? = nil) {
+    func XCTAssertFutureFails<T>(future: Future<T>, context: ExecutionContext = QueueContext.main, timeout: Double = 10.0,
+                              line: UInt = #line, file: String = #file, validate: ((ErrorType) -> Void)? = nil) {
         var expectation: XCTestExpectation?
         var onFailureCalled = false
         if context is QueueContext {
@@ -138,8 +138,8 @@ extension XCTestCase  {
         }
     }
 
-    func XCTAssertFutureStreamFails<T>(future: FutureStream<T>, context: ExecutionContext = QueueContext.main, timeout: NSTimeInterval = 10.0,
-                                    line: UInt = #line, file: String = #file, validations: [((NSError) -> Void)] = []) {
+    func XCTAssertFutureStreamFails<T>(future: FutureStream<T>, context: ExecutionContext = QueueContext.main, timeout: Double = 10.0,
+                                    line: UInt = #line, file: String = #file, validations: [((ErrorType) -> Void)] = []) {
         var expectation: XCTestExpectation?
         let maxCount = validations.count
         var count = 0
@@ -209,6 +209,11 @@ extension XCTestCase  {
                 XCTAssert(false, "\(message) called more than \(maxCount) times")
             }
         }
+    }
+
+    func XCTAssertEqualErrors(error1: ErrorType, _ error2: ErrorType, line: UInt = #line, file: StaticString = #file) {
+        XCTAssertEqual(error1._domain, error2._domain, line: line, file: file, "invalid error domain")
+        XCTAssertEqual(error1._code, error2._code, line: line, file: file, "invalid error code")
     }
 
 }

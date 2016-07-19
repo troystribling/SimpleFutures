@@ -77,7 +77,7 @@ public enum Try<T> {
             do {
                 return try Try<M>(mapping(value))
             } catch {
-                Try<M>(error)
+                return Try<M>(error)
             }
         case .Failure(let error):
             return Try<M>(error)
@@ -264,7 +264,7 @@ public class Promise<T> {
         self.future.completeWith(executionContext, future: future)
     }
     
-    public func complete(result: Try<T>) throws {
+    public func complete(result: Try<T>) {
         future.complete(result)
     }
     
@@ -289,13 +289,12 @@ public class Future<T> {
         return result != nil
     }
     
-    public init() {
-    }
+    public init() {}
 
     // MARK: Complete
-    internal func complete(result: Try<T>) throws {
+    internal func complete(result: Try<T>) {
         if self.result != nil {
-            SimpleFuturesException.futureCompleted.raise()
+            self.result = Try<T>(SimpleFuturesErrors.futureCompleted)
         }
         self.result = result
         for complete in saveCompletes {
@@ -316,7 +315,7 @@ public class Future<T> {
         complete(Try(value))
     }
 
-    internal func failure(error: NSError) {
+    internal func failure(error: ErrorType) {
         complete(Try<T>(error))
     }
 
@@ -351,7 +350,7 @@ public class Future<T> {
         }
     }
     
-    public func onFailure(executionContext: ExecutionContext = QueueContext.futuresDefault, failure: NSError -> Void) {
+    public func onFailure(executionContext: ExecutionContext = QueueContext.futuresDefault, failure: ErrorType -> Void) {
         onComplete(executionContext) { result in
             switch result {
             case .Failure(let error):
@@ -393,7 +392,7 @@ public class Future<T> {
         return future
     }
     
-    public func recover(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: NSError -> Try<T>) -> Future<T> {
+    public func recover(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: ErrorType -> Try<T>) -> Future<T> {
         let future = Future<T>()
         onComplete(executionContext) { result in
             future.complete(result.recoverWith(recovery))
@@ -401,7 +400,7 @@ public class Future<T> {
         return future
     }
     
-    public func recoverWith(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: NSError -> Future<T>) -> Future<T> {
+    public func recoverWith(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: ErrorType -> Future<T>) -> Future<T> {
         let future = Future<T>()
         onComplete(executionContext) { result in
             switch result {
@@ -442,7 +441,7 @@ public class Future<T> {
         return stream
     }
     
-    internal func recoverWith(capacity: Int = Int.max, executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: NSError -> FutureStream<T>) -> FutureStream<T> {
+    internal func recoverWith(capacity: Int = Int.max, executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: ErrorType -> FutureStream<T>) -> FutureStream<T> {
         let stream = FutureStream<T>(capacity: capacity)
         onComplete(executionContext) { result in
             switch result {
@@ -477,7 +476,7 @@ public class StreamPromise<T> {
         future.success(value)
     }
     
-    public func failure(error: NSError) {
+    public func failure(error: ErrorType) {
         future.failure(error)
     }
     
@@ -522,7 +521,7 @@ public class FutureStream<T> {
         complete(Try(value))
     }
 
-    internal func failure(error: NSError) {
+    internal func failure(error: ErrorType) {
         complete(Try<T>(error))
     }
 
@@ -561,7 +560,7 @@ public class FutureStream<T> {
         }
     }
     
-    public func onFailure(executionContext: ExecutionContext = QueueContext.futuresDefault, failure: NSError -> Void) {
+    public func onFailure(executionContext: ExecutionContext = QueueContext.futuresDefault, failure: ErrorType -> Void) {
         onComplete(executionContext) { result in
             switch result {
             case .Failure(let error):
@@ -603,7 +602,7 @@ public class FutureStream<T> {
         return future
     }
     
-    public func recover(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: NSError -> Try<T>) -> FutureStream<T> {
+    public func recover(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: ErrorType -> Try<T>) -> FutureStream<T> {
         let future = FutureStream<T>(capacity: capacity)
         onComplete(executionContext) { result in
             future.complete(result.recoverWith(recovery))
@@ -611,7 +610,7 @@ public class FutureStream<T> {
         return future
     }
     
-    public func recoverWith(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: NSError -> FutureStream<T>) -> FutureStream<T> {
+    public func recoverWith(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: ErrorType -> FutureStream<T>) -> FutureStream<T> {
         let future = FutureStream<T>(capacity: capacity)
         onComplete(executionContext) { result in
             switch result {
@@ -652,7 +651,7 @@ public class FutureStream<T> {
         return future
     }
     
-    public func recoverWith(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: NSError -> Future<T>) -> FutureStream<T> {
+    public func recoverWith(executionContext: ExecutionContext = QueueContext.futuresDefault, recovery: ErrorType -> Future<T>) -> FutureStream<T> {
         let future = FutureStream<T>(capacity: capacity)
         onComplete(executionContext) { result in
             switch result {
