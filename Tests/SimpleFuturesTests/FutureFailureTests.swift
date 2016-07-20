@@ -29,7 +29,7 @@ class FutureFailureTests: XCTestCase {
             XCTAssert(false, "onSuccess called")
         }
         future.onFailure {error in
-            XCTAssertEqual(error.code, 100, "\(error)")
+            self.XCTAssertEqualErrors(error, TestFailure.error)
             onFailureExpectation.fulfill()
         }
         waitForExpectationsWithTimeout(2) {error in
@@ -45,7 +45,7 @@ class FutureFailureTests: XCTestCase {
             XCTAssert(false, "onSuccess called")
         }
         future.onFailure {error in
-            XCTAssertEqual(error.code, 100, "\(error)")
+            self.XCTAssertEqualErrors(error, TestFailure.error)
             onFailureExpectation.fulfill()
         }
         promise.failure(TestFailure.error)
@@ -63,7 +63,7 @@ class FutureFailureTests: XCTestCase {
             XCTAssert(false, "Delayed onSuccess called")
         }
         future.onFailure {error in
-            XCTAssertEqual(error.code, 100, "Delayed onFailure \(error)")
+            self.XCTAssertEqualErrors(error, TestFailure.error)
             onFailureDelayedExpectation.fulfill()
         }
         promise.failure(TestFailure.error)
@@ -71,7 +71,7 @@ class FutureFailureTests: XCTestCase {
             XCTAssert(false, "Immediate onSuccess called")
         }
         future.onFailure {error in
-            XCTAssertEqual(error.code, 100, "Immediate onFailure \(error)")
+            self.XCTAssertEqualErrors(error, TestFailure.error)
             onFailureImmediateExpectation.fulfill()
         }
         waitForExpectationsWithTimeout(2) {error in

@@ -17,7 +17,6 @@ enum SimpleFuturesErrors: Int, ErrorType {
 
 // MARK: - Optional -
 public extension Optional {
-    
     func filter(predicate: Wrapped -> Bool) -> Wrapped? {
         switch self {
         case .Some(let value):
@@ -35,12 +34,10 @@ public extension Optional {
             break
         }
     }
-    
 }
 
 // MARK: - Try -
 public enum Try<T> {
-    
     case Success(T)
     case Failure(ErrorType)
     
@@ -663,6 +660,5 @@ public class FutureStream<T> {
         }
         return future
     }
-
 }
 

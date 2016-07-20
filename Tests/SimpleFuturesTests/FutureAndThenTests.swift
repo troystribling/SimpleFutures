@@ -56,7 +56,7 @@ class FutureAndThenTests : XCTestCase {
         promise.failure(TestFailure.error)
         XCTAssert(failureCalled, "andThen .Failure not called")
         XCTAssertFutureFails(andThen, context: self.immediateContext) { error in
-            XCTAssertEqual(error.code, TestFailure.error.code, "Error code invalid")
+            self.XCTAssertEqualErrors(error, TestFailure.error)
         }
     }
     

@@ -71,8 +71,7 @@ class FutureWithFilterTests: XCTestCase {
             XCTAssert(false, "filter future onSuccess called")
         }
         filter.onFailure {error in
-            XCTAssertEqual(error.domain, "Wrappers", "filter future onFailure invalid error domain")
-            XCTAssertEqual(error.code, 1, "filter future onFailure invalid error code")
+            self.XCTAssertEqualErrors(error, SimpleFuturesErrors.filterFailed)
             onFailureFilterExpectation.fulfill()
         }
         promise.success(false)
@@ -100,8 +99,7 @@ class FutureWithFilterTests: XCTestCase {
             XCTAssert(false, "filter future onSuccess called")
         }
         filter.onFailure {error in
-            XCTAssertEqual(error.domain, "SimpleFutures Tests", "filter future onFailure invalid error domain")
-            XCTAssertEqual(error.code, 100, "filter future onFailure invalid error code")
+            self.XCTAssertEqualErrors(error, TestFailure.error)
             onFailureFilterExpectation.fulfill()
         }
         promise.failure(TestFailure.error)

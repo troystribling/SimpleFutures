@@ -128,14 +128,15 @@ class FutureCompleteWithTests: XCTestCase {
         }
         future.onFailure(self.immediateContext) { error in
             onFailureCalled = true
-            XCTAssertEqual(error.code, TestFailure.error.code, "Invalid error code")
+            self.XCTAssertEqualErrors(error, TestFailure.error)
+
         }
         futureCompleted.onSuccess(self.immediateContext) {  value in
             XCTAssert(false, "futureCompleted onSuccess called")
         }
         futureCompleted.onFailure(self.immediateContext) { error in
             completedOnFailureCalled = true
-            XCTAssertEqual(error.code, TestFailure.error.code, "Invalid error code")
+            self.XCTAssertEqualErrors(error, TestFailure.error)
         }
         promise.completeWith(self.immediateContext, future: futureCompleted)
         promiseCompleted.failure(TestFailure.error)
