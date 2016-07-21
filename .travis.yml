@@ -20,5 +20,6 @@ script:
   - cd $PROJECT_DIR/Tests;
   - pwd;
   - pod install;
+  - killall "Simulator";
   - xcodebuild -workspace SimpleFuturesTests.xcworkspace -scheme SimpleFuturesTests -sdk "$SDK" -destination "$DESTINATION" -configuration Debug ONLY_ACTIVE_ARCH=NO ENABLE_TESTABILITY=YES build test | xcpretty -c;
 
