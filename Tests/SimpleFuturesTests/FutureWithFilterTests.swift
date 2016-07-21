@@ -71,7 +71,7 @@ class FutureWithFilterTests: XCTestCase {
             XCTAssert(false, "filter future onSuccess called")
         }
         filter.onFailure {error in
-            self.XCTAssertEqualErrors(error, SimpleFuturesErrors.filterFailed)
+            XCTAssertEqualErrors(error, SimpleFuturesErrors.filterFailed)
             onFailureFilterExpectation.fulfill()
         }
         promise.success(false)
@@ -99,7 +99,7 @@ class FutureWithFilterTests: XCTestCase {
             XCTAssert(false, "filter future onSuccess called")
         }
         filter.onFailure {error in
-            self.XCTAssertEqualErrors(error, TestFailure.error)
+            XCTAssertEqualErrors(error, TestFailure.error)
             onFailureFilterExpectation.fulfill()
         }
         promise.failure(TestFailure.error)
