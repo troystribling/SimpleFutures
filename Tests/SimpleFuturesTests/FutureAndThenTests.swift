@@ -22,11 +22,11 @@ class FutureAndThenTests : XCTestCase {
         super.tearDown()
     }
     
-    func testAndThen_FollwingSuccessfulFuture_CompletesSuccessfully() {
+    func testAndThen_FollowingSuccessfulFuture_CompletesSuccessfully() {
         var successCalled = false
         let promise = Promise<Bool>()
         let future = promise.future
-        let andThen = future.andThen(self.immediateContext) { result in
+        let andThen = future.andThen(immediateContext) { result in
             switch result {
             case .Success(_):
                 successCalled = true
@@ -45,7 +45,7 @@ class FutureAndThenTests : XCTestCase {
         var failureCalled = false
         let promise = Promise<Bool>()
         let future = promise.future
-        let andThen = future.andThen(self.immediateContext) {result in
+        let andThen = future.andThen(immediateContext) {result in
             switch result {
             case .Success(_):
                 XCTAssert(false, "andThen Failure")

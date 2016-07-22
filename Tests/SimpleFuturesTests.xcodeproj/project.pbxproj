@@ -11,13 +11,13 @@
 		05BF91FA1CFCA79A00B78B12 /* XCTTestCase+SimpleFuturesAssertions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BF91F81CFCA79A00B78B12 /* XCTTestCase+SimpleFuturesAssertions.swift */; };
 		05F415D21CFAA87000A72FAA /* FutureAndThenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415B81CFAA87000A72FAA /* FutureAndThenTests.swift */; };
 		05F415D31CFAA87000A72FAA /* FutureCompleteWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415B91CFAA87000A72FAA /* FutureCompleteWithTests.swift */; };
-		05F415D41CFAA87000A72FAA /* FutureFailureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415BA1CFAA87000A72FAA /* FutureFailureTests.swift */; };
+		05F415D41CFAA87000A72FAA /* FutureOnFailureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415BA1CFAA87000A72FAA /* FutureOnFailureTests.swift */; };
 		05F415D51CFAA87000A72FAA /* FutureFlatMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415BB1CFAA87000A72FAA /* FutureFlatMapTests.swift */; };
 		05F415D81CFAA87000A72FAA /* FutureForEachTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415BE1CFAA87000A72FAA /* FutureForEachTests.swift */; };
 		05F415D91CFAA87000A72FAA /* FutureMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415BF1CFAA87000A72FAA /* FutureMapTests.swift */; };
 		05F415DA1CFAA87000A72FAA /* FutureRecoverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C01CFAA87000A72FAA /* FutureRecoverTests.swift */; };
 		05F415DB1CFAA87000A72FAA /* FutureRecoverWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C11CFAA87000A72FAA /* FutureRecoverWithTests.swift */; };
-		05F415DC1CFAA87000A72FAA /* FutureSuccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C21CFAA87000A72FAA /* FutureSuccessTests.swift */; };
+		05F415DC1CFAA87000A72FAA /* FutureOnSuccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C21CFAA87000A72FAA /* FutureOnSuccessTests.swift */; };
 		05F415DD1CFAA87000A72FAA /* FutureWithFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C31CFAA87000A72FAA /* FutureWithFilterTests.swift */; };
 		05F415DF1CFAA87000A72FAA /* StreamAndThenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C51CFAA87000A72FAA /* StreamAndThenTests.swift */; };
 		05F415E01CFAA87000A72FAA /* StreamCapacityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415C61CFAA87000A72FAA /* StreamCapacityTests.swift */; };
@@ -30,7 +30,7 @@
 		05F415E71CFAA87000A72FAA /* StreamRecoverWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415CD1CFAA87000A72FAA /* StreamRecoverWithTests.swift */; };
 		05F415E81CFAA87000A72FAA /* StreamSuccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415CE1CFAA87000A72FAA /* StreamSuccessTests.swift */; };
 		05F415E91CFAA87000A72FAA /* StreamWithFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F415CF1CFAA87000A72FAA /* StreamWithFilter.swift */; };
-		DF73A906AAF9E1AA41B0471B /* Pods_SimpleFuturesTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BD15E316BF9248E20D14729 /* Pods_SimpleFuturesTests.framework */; };
+		76A2B190CA4DDAA4E835E8DA /* Pods_SimpleFuturesTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DAE7FC762C409C8F47D70C5 /* Pods_SimpleFuturesTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,13 +40,13 @@
 		05F415A81CFAA4FD00A72FAA /* SimpleFuturesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimpleFuturesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		05F415B81CFAA87000A72FAA /* FutureAndThenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureAndThenTests.swift; sourceTree = "<group>"; };
 		05F415B91CFAA87000A72FAA /* FutureCompleteWithTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureCompleteWithTests.swift; sourceTree = "<group>"; };
-		05F415BA1CFAA87000A72FAA /* FutureFailureTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFailureTests.swift; sourceTree = "<group>"; };
+		05F415BA1CFAA87000A72FAA /* FutureOnFailureTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureOnFailureTests.swift; sourceTree = "<group>"; };
 		05F415BB1CFAA87000A72FAA /* FutureFlatMapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFlatMapTests.swift; sourceTree = "<group>"; };
 		05F415BE1CFAA87000A72FAA /* FutureForEachTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureForEachTests.swift; sourceTree = "<group>"; };
 		05F415BF1CFAA87000A72FAA /* FutureMapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureMapTests.swift; sourceTree = "<group>"; };
 		05F415C01CFAA87000A72FAA /* FutureRecoverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureRecoverTests.swift; sourceTree = "<group>"; };
 		05F415C11CFAA87000A72FAA /* FutureRecoverWithTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureRecoverWithTests.swift; sourceTree = "<group>"; };
-		05F415C21CFAA87000A72FAA /* FutureSuccessTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureSuccessTests.swift; sourceTree = "<group>"; };
+		05F415C21CFAA87000A72FAA /* FutureOnSuccessTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureOnSuccessTests.swift; sourceTree = "<group>"; };
 		05F415C31CFAA87000A72FAA /* FutureWithFilterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureWithFilterTests.swift; sourceTree = "<group>"; };
 		05F415C51CFAA87000A72FAA /* StreamAndThenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamAndThenTests.swift; sourceTree = "<group>"; };
 		05F415C61CFAA87000A72FAA /* StreamCapacityTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamCapacityTests.swift; sourceTree = "<group>"; };
@@ -60,9 +60,9 @@
 		05F415CE1CFAA87000A72FAA /* StreamSuccessTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamSuccessTests.swift; sourceTree = "<group>"; };
 		05F415CF1CFAA87000A72FAA /* StreamWithFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamWithFilter.swift; sourceTree = "<group>"; };
 		05F415ED1CFAAB3A00A72FAA /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
-		40E78D8643B2DB2FF9E378B4 /* Pods-SimpleFuturesTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleFuturesTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests.debug.xcconfig"; sourceTree = "<group>"; };
-		4BD15E316BF9248E20D14729 /* Pods_SimpleFuturesTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimpleFuturesTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		7A1FB073F41EBE13E6DD2CAF /* Pods-SimpleFuturesTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleFuturesTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests.release.xcconfig"; sourceTree = "<group>"; };
+		4DAE7FC762C409C8F47D70C5 /* Pods_SimpleFuturesTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimpleFuturesTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		74E67CA3351B0FA6E62348B2 /* Pods-SimpleFuturesTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleFuturesTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests.debug.xcconfig"; sourceTree = "<group>"; };
+		DE4C1BD80C2C2BBF8BD0F746 /* Pods-SimpleFuturesTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleFuturesTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,7 +70,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DF73A906AAF9E1AA41B0471B /* Pods_SimpleFuturesTests.framework in Frameworks */,
+				76A2B190CA4DDAA4E835E8DA /* Pods_SimpleFuturesTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,8 +94,8 @@
 				05BF91F61CFCA78B00B78B12 /* Helpers */,
 				05F4159F1CFAA4FC00A72FAA /* Products */,
 				05F415A01CFAA4FC00A72FAA /* SimpleFuturesTests */,
-				7F1F29442121EC5ACFA2FCF2 /* Pods */,
-				4DD596337583233C7C117D5C /* Frameworks */,
+				AFCBC7C1BCD1FAA32BFB2FF5 /* Pods */,
+				E3136CB9751DC1C82C38E67C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -112,13 +112,13 @@
 			children = (
 				05F415B81CFAA87000A72FAA /* FutureAndThenTests.swift */,
 				05F415B91CFAA87000A72FAA /* FutureCompleteWithTests.swift */,
-				05F415BA1CFAA87000A72FAA /* FutureFailureTests.swift */,
+				05F415BA1CFAA87000A72FAA /* FutureOnFailureTests.swift */,
 				05F415BB1CFAA87000A72FAA /* FutureFlatMapTests.swift */,
 				05F415BE1CFAA87000A72FAA /* FutureForEachTests.swift */,
 				05F415BF1CFAA87000A72FAA /* FutureMapTests.swift */,
 				05F415C01CFAA87000A72FAA /* FutureRecoverTests.swift */,
 				05F415C11CFAA87000A72FAA /* FutureRecoverWithTests.swift */,
-				05F415C21CFAA87000A72FAA /* FutureSuccessTests.swift */,
+				05F415C21CFAA87000A72FAA /* FutureOnSuccessTests.swift */,
 				05F415C31CFAA87000A72FAA /* FutureWithFilterTests.swift */,
 				05F415C51CFAA87000A72FAA /* StreamAndThenTests.swift */,
 				05F415C61CFAA87000A72FAA /* StreamCapacityTests.swift */,
@@ -135,21 +135,21 @@
 			path = SimpleFuturesTests;
 			sourceTree = "<group>";
 		};
-		4DD596337583233C7C117D5C /* Frameworks */ = {
+		AFCBC7C1BCD1FAA32BFB2FF5 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				4BD15E316BF9248E20D14729 /* Pods_SimpleFuturesTests.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		7F1F29442121EC5ACFA2FCF2 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				40E78D8643B2DB2FF9E378B4 /* Pods-SimpleFuturesTests.debug.xcconfig */,
-				7A1FB073F41EBE13E6DD2CAF /* Pods-SimpleFuturesTests.release.xcconfig */,
+				74E67CA3351B0FA6E62348B2 /* Pods-SimpleFuturesTests.debug.xcconfig */,
+				DE4C1BD80C2C2BBF8BD0F746 /* Pods-SimpleFuturesTests.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		E3136CB9751DC1C82C38E67C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4DAE7FC762C409C8F47D70C5 /* Pods_SimpleFuturesTests.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -159,12 +159,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 05F415B51CFAA4FD00A72FAA /* Build configuration list for PBXNativeTarget "SimpleFuturesTests" */;
 			buildPhases = (
-				5CC2EA985D9295956C8E0FC6 /* 📦 Check Pods Manifest.lock */,
+				F15CC505C3F85C33691C9162 /* 📦 Check Pods Manifest.lock */,
 				05F415A41CFAA4FD00A72FAA /* Sources */,
 				05F415A51CFAA4FD00A72FAA /* Frameworks */,
 				05F415A61CFAA4FD00A72FAA /* Resources */,
-				DCE2AA1F8EBA90753E6059BB /* 📦 Embed Pods Frameworks */,
-				6A935DC39B1212076D00A97F /* 📦 Copy Pods Resources */,
+				FF0F1E73618465D0AE636605 /* 📦 Embed Pods Frameworks */,
+				5A9B8F163CBDEACF6E896068 /* 📦 Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -218,22 +218,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		5CC2EA985D9295956C8E0FC6 /* 📦 Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "📦 Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		6A935DC39B1212076D00A97F /* 📦 Copy Pods Resources */ = {
+		5A9B8F163CBDEACF6E896068 /* 📦 Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -248,7 +233,22 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		DCE2AA1F8EBA90753E6059BB /* 📦 Embed Pods Frameworks */ = {
+		F15CC505C3F85C33691C9162 /* 📦 Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		FF0F1E73618465D0AE636605 /* 📦 Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -271,7 +271,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				05F415E91CFAA87000A72FAA /* StreamWithFilter.swift in Sources */,
-				05F415D41CFAA87000A72FAA /* FutureFailureTests.swift in Sources */,
+				05F415D41CFAA87000A72FAA /* FutureOnFailureTests.swift in Sources */,
 				05F415DA1CFAA87000A72FAA /* FutureRecoverTests.swift in Sources */,
 				05BF91F91CFCA79A00B78B12 /* TestHelper.swift in Sources */,
 				05F415DD1CFAA87000A72FAA /* FutureWithFilterTests.swift in Sources */,
@@ -292,7 +292,7 @@
 				05F415D31CFAA87000A72FAA /* FutureCompleteWithTests.swift in Sources */,
 				05F415E51CFAA87000A72FAA /* StreamMapTests.swift in Sources */,
 				05F415DF1CFAA87000A72FAA /* StreamAndThenTests.swift in Sources */,
-				05F415DC1CFAA87000A72FAA /* FutureSuccessTests.swift in Sources */,
+				05F415DC1CFAA87000A72FAA /* FutureOnSuccessTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -394,7 +394,7 @@
 		};
 		05F415B61CFAA4FD00A72FAA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 40E78D8643B2DB2FF9E378B4 /* Pods-SimpleFuturesTests.debug.xcconfig */;
+			baseConfigurationReference = 74E67CA3351B0FA6E62348B2 /* Pods-SimpleFuturesTests.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = Info.plist;
@@ -407,7 +407,7 @@
 		};
 		05F415B71CFAA4FD00A72FAA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7A1FB073F41EBE13E6DD2CAF /* Pods-SimpleFuturesTests.release.xcconfig */;
+			baseConfigurationReference = DE4C1BD80C2C2BBF8BD0F746 /* Pods-SimpleFuturesTests.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = Info.plist;

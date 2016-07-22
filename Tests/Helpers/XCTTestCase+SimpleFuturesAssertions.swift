@@ -109,7 +109,7 @@ func XCTAssertFutureStreamSucceeds<T>(future: FutureStream<T>, context: Executio
 }
 
 
-func XCTAssertFutureFails<T>(future: Future<T>, context: ExecutionContext = QueueContext.main, timeout: Double = 10.0, line: UInt = #line, file: String = #file, validate: ((ErrorType) -> Void)? = nil) {
+func XCTAssertFutureFails<T>(future: Future<T>, context: ExecutionContext = QueueContext.main, timeout: Double = 10.0, line: UInt = #line, file: String = #file, validate: (ErrorType -> Void)? = nil) {
 
     guard let currentTest = _XCTCurrentTestCase() else { fatalError("XCTGuardAssert attempted without a running test.") }
 
@@ -144,7 +144,7 @@ func XCTAssertFutureFails<T>(future: Future<T>, context: ExecutionContext = Queu
     }
 }
 
-func XCTAssertFutureStreamFails<T>(future: FutureStream<T>, context: ExecutionContext = QueueContext.main, timeout: Double = 10.0, line: UInt = #line, file: String = #file, validations: [((ErrorType) -> Void)] = []) {
+func XCTAssertFutureStreamFails<T>(future: FutureStream<T>, context: ExecutionContext = QueueContext.main, timeout: Double = 10.0, line: UInt = #line, file: String = #file, validations: [(ErrorType -> Void)] = []) {
 
     guard let currentTest = _XCTCurrentTestCase() else { fatalError("XCTGuardAssert attempted without a running test.") }
 
