@@ -32,3 +32,7 @@ func writeFailedFutures<T>(promise:StreamPromise<T>, times:Int) {
     }
 }
 
+struct TestContext {
+    static let immediate = ImmediateContext()
+}
+

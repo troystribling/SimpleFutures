@@ -31,7 +31,7 @@ class StreamAndThenTests: XCTestCase {
             onSuccessExpectation()
         }
         stream.onFailure {error in
-            XCTAssert(false, "future onFailure called")
+            XCTFail("future onFailure called")
         }
         let andThen = stream.andThen {result in
             switch result {

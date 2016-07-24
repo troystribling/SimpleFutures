@@ -56,7 +56,7 @@ func XCTAssertFutureStreamSucceeds<T>(future: FutureStream<T>, context: Executio
     if context is QueueContext {
         expectation = currentTest.expectationWithDescription("onSuccess expectation failed")
     }
-    future.onSuccess(context) { result in
+    future.onSuccess(context: context) { result in
         count += 1
         if maxCount == 0 {
             expectation?.fulfill()
@@ -69,7 +69,7 @@ func XCTAssertFutureStreamSucceeds<T>(future: FutureStream<T>, context: Executio
             }
         }
     }
-    future.onFailure(context) { _ in
+    future.onFailure(context: context) { _ in
         XCTFail("onFailure called")
     }
     if context is QueueContext {
@@ -154,10 +154,10 @@ func XCTAssertFutureStreamFails<T>(future: FutureStream<T>, context: ExecutionCo
     if context is QueueContext {
         expectation = currentTest.expectationWithDescription("onSuccess expectation failed")
     }
-    future.onSuccess(context) { _ in
+    future.onSuccess(context: context) { _ in
         XCTFail("onFailure called")
     }
-    future.onFailure(context) { error in
+    future.onFailure(context: context) { error in
         count += 1
         if maxCount == 0 {
             expectation?.fulfill()
