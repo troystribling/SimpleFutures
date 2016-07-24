@@ -20,12 +20,12 @@ func XCTAssertFutureSucceeds<T>(future: Future<T>, context: ExecutionContext = Q
     if context is QueueContext {
         expectation = currentTest.expectationWithDescription("onSuccess expectation failed")
     }
-    future.onSuccess(context) { result in
+    future.onSuccess(context: context) { result in
         onSuccessCalled = true
         expectation?.fulfill()
         validate?(result)
     }
-    future.onFailure(context) { _ in
+    future.onFailure(context: context) { _ in
         XCTFail("onFailure called")
     }
     if context is QueueContext {
@@ -118,10 +118,10 @@ func XCTAssertFutureFails<T>(future: Future<T>, context: ExecutionContext = Queu
     if context is QueueContext {
         expectation = currentTest.expectationWithDescription("onSuccess expectation failed")
     }
-    future.onSuccess(context) { _ in
+    future.onSuccess(context: context) { _ in
         XCTFail("onSuccess called")
     }
-    future.onFailure(context) { error in
+    future.onFailure(context: context) { error in
         onFailureCalled = true
         expectation?.fulfill()
         validate?(error)

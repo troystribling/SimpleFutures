@@ -26,7 +26,7 @@ class FutureAndThenTests : XCTestCase {
         var successCalled = false
         let promise = Promise<Bool>()
         let future = promise.future
-        let andThen = future.andThen(immediateContext) { result in
+        let andThen = future.andThen(context: TestContext.immediate) { result in
             switch result {
             case .Success(_):
                 successCalled = true
@@ -45,7 +45,7 @@ class FutureAndThenTests : XCTestCase {
         var failureCalled = false
         let promise = Promise<Bool>()
         let future = promise.future
-        let andThen = future.andThen(immediateContext) {result in
+        let andThen = future.andThen(context: TestContext.immediate) {result in
             switch result {
             case .Success(_):
                 XCTAssert(false, "andThen Failure")

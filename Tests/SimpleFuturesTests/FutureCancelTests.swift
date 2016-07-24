@@ -23,7 +23,7 @@ class FutureCancelTests: XCTestCase {
         let promise = Promise<Int>()
         let future = promise.future
         let cancelToken = CancelToken()
-        future.onSuccess(TestContext.immediate, cancelToken: cancelToken) { _ in
+        future.onSuccess(context: TestContext.immediate, cancelToken: cancelToken) { _ in
             XCTFail("onSuccess called")
         }
         let status = future.cancel(cancelToken)
@@ -46,7 +46,7 @@ class FutureCancelTests: XCTestCase {
         let future = promise.future
         let cancelToken = CancelToken()
         var onSuccessCalled = false
-        future.onSuccess(TestContext.immediate) { _ in
+        future.onSuccess(context: TestContext.immediate) { _ in
             onSuccessCalled = true
         }
         let status = future.cancel(cancelToken)

@@ -135,7 +135,7 @@ public enum Try<T> {
                 if try !predicate(value) {
                     return Try<T>(SimpleFuturesErrors.filterFailed)
                 } else {
-                    return Try(value)
+                    return .Success(value)
                 }
             } catch {
                 return Try<T>(error)
@@ -188,6 +188,7 @@ public enum Try<T> {
 
 }
 
+// MARK: - Try Sequence Type-
 
 // MARK: - ExecutionContext -
 
@@ -391,6 +392,20 @@ public struct CancelToken {
 
 }
 
+// MARK: - Futuable -
+public protocol Futurable {
+
+    associatedtype T
+
+    var result: Try<T>? { get }
+    var completed: Bool { get }
+
+    func complete(result: Try<T>)
+    func success(value: T)
+    func failure(error: ErrorType)
+    
+}
+
 // MARK: - Promise -
 
 public final class Promise<T> {
@@ -405,8 +420,8 @@ public final class Promise<T> {
         self.future = Future<T>()
     }
 
-    public func completeWith(executionContext: ExecutionContext = QueueContext.futuresDefault, future: Future<T>) {
-        self.future.completeWith(executionContext, future: future)
+    public func completeWith(context context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>) {
+        self.future.completeWith(context: context, future: future)
     }
     
     public func complete(result: Try<T>) {
@@ -425,12 +440,16 @@ public final class Promise<T> {
 
 // MARK: - Future -
 
-public final class Future<T> {
-
-    private var result: Try<T>?
+public final class Future<T> : Futurable {
 
     typealias OnComplete = Try<T> -> Void
     private var savedCompletions = SerialIODictionary<CompletionId, OnComplete>(Queue.simpleFutures)
+
+    public private(set) var result: Try<T>? {
+        willSet {
+            assert(self.result == nil)
+        }
+    }
 
     public var completed: Bool {
         return result != nil
@@ -440,33 +459,29 @@ public final class Future<T> {
 
     // MARK: Complete
 
-    internal func complete(result: Try<T>) {
-        if self.result == nil {
-            self.result = result
-        } else {
-            self.result = Try<T>(SimpleFuturesErrors.futureCompleted)
-        }
+    public func complete(result: Try<T>) {
+        self.result = result
         for complete in savedCompletions.values {
             complete(result)
         }
         savedCompletions.removeAll()
     }
 
-    internal func completeWith(executionContext: ExecutionContext = QueueContext.futuresDefault, future: Future<T>) {
-        future.onComplete(executionContext) { result in
+    public func completeWith(context context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>) {
+        future.onComplete(context: context) { result in
             self.complete(result)
         }
     }
 
-    internal func success(value: T) {
+    public func success(value: T) {
         complete(Try(value))
     }
 
-    internal func failure(error: ErrorType) {
+    public func failure(error: ErrorType) {
         complete(Try<T>(error))
     }
 
-    internal func completeWith(context context: ExecutionContext = QueueContext.futuresDefault, stream: FutureStream<T>) {
+    public func completeWith(context context: ExecutionContext = QueueContext.futuresDefault, stream: FutureStream<T>) {
         stream.onComplete(context: context) { result in
             self.complete(result)
         }
@@ -474,9 +489,9 @@ public final class Future<T> {
 
     // MARK: Callbacks
 
-    public func onComplete(executionContext: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), complete: Try<T> -> Void) -> Void {
+    public func onComplete(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), complete: Try<T> -> Void) -> Void {
         let savedCompletion : OnComplete = { result in
-            executionContext.execute {
+            context.execute {
                 complete(result)
             }
         }
@@ -487,8 +502,8 @@ public final class Future<T> {
         }
     }
     
-    public func onSuccess(executionContext: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: T -> Void){
-        onComplete(executionContext, cancelToken: cancelToken) { result in
+    public func onSuccess(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: T -> Void){
+        onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
             case .Success(let value):
                 success(value)
@@ -498,8 +513,8 @@ public final class Future<T> {
         }
     }
     
-    public func onFailure(executionContext: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), failure: ErrorType -> Void) {
-        onComplete(executionContext, cancelToken: cancelToken) { result in
+    public func onFailure(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), failure: ErrorType -> Void) {
+        onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
             case .Failure(let error):
                 failure(error)
@@ -518,20 +533,20 @@ public final class Future<T> {
 
     // MARK: Future Combinators
 
-    public func map<M>(executionContext: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: T -> Try<M>) -> Future<M> {
+    public func map<M>(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: T -> Try<M>) -> Future<M> {
         let future = Future<M>()
-        onComplete(executionContext, cancelToken: cancelToken) { result in
+        onComplete(context: context, cancelToken: cancelToken) { result in
             future.complete(result.flatMap(mapping))
         }
         return future
     }
     
-    public func flatMap<M>(executionContext: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: T -> Future<M>) -> Future<M> {
+    public func flatMap<M>(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: T -> Future<M>) -> Future<M> {
         let future = Future<M>()
-        onComplete(executionContext, cancelToken: cancelToken) { result in
+        onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
             case .Success(let value):
-                future.completeWith(executionContext, future: mapping(value))
+                future.completeWith(context: context, future: mapping(value))
             case .Failure(let error):
                 future.failure(error)
             }
@@ -539,58 +554,58 @@ public final class Future<T> {
         return future
     }
     
-    public func andThen(executionContext: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), complete: Try<T> -> Void) -> Future<T> {
+    public func andThen(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), complete: Try<T> -> Void) -> Future<T> {
         let future = Future<T>()
-        future.onComplete(executionContext, complete: complete)
-        onComplete(executionContext, cancelToken: cancelToken) { result in
+        future.onComplete(context: context, complete: complete)
+        onComplete(context: context, cancelToken: cancelToken) { result in
             future.complete(result)
         }
         return future
     }
     
-    public func recover(executionContext: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: ErrorType -> Try<T>) -> Future<T> {
+    public func recover(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: ErrorType -> Try<T>) -> Future<T> {
         let future = Future<T>()
-        onComplete(executionContext, cancelToken: cancelToken) { result in
+        onComplete(context: context, cancelToken: cancelToken) { result in
             future.complete(result.recoverWith(recovery))
         }
         return future
     }
     
-    public func recoverWith(executionContext: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: ErrorType -> Future<T>) -> Future<T> {
+    public func recoverWith(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: ErrorType -> Future<T>) -> Future<T> {
         let future = Future<T>()
-        onComplete(executionContext, cancelToken: cancelToken) { result in
+        onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
             case .Success(let value):
                 future.success(value)
             case .Failure(let error):
-                future.completeWith(executionContext, future: recovery(error))
+                future.completeWith(context: context, future: recovery(error))
             }
         }
         return future
     }
     
-    public func withFilter(executionContext: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), filter: T -> Bool) -> Future<T> {
+    public func withFilter(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), filter: T -> Bool) -> Future<T> {
         let future = Future<T>()
-        onComplete(executionContext, cancelToken: cancelToken) { result in
+        onComplete(context: context, cancelToken: cancelToken) { result in
             future.complete(result.filter(filter))
         }
         return future
     }
     
-    public func forEach(executionContext:ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: T -> Void) {
-        onComplete(executionContext, cancelToken: cancelToken) { result in
+    public func forEach(context context:ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: T -> Void) {
+        onComplete(context: context, cancelToken: cancelToken) { result in
             result.forEach(apply)
         }
     }
     
     // MARK: FutureStream Combinators
 
-    internal func flatMap<M>(capacity: Int = Int.max, executionContext: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: T -> FutureStream<M>) -> FutureStream<M> {
+    internal func flatMap<M>(capacity: Int = Int.max, context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: T -> FutureStream<M>) -> FutureStream<M> {
         let stream = FutureStream<M>(capacity: capacity)
-        onComplete(executionContext, cancelToken: cancelToken) { result in
+        onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
             case .Success(let value):
-                stream.completeWith(mapping(value), context: executionContext)
+                stream.completeWith(mapping(value), context: context)
             case .Failure(let error):
                 stream.failure(error)
             }
@@ -598,14 +613,14 @@ public final class Future<T> {
         return stream
     }
     
-    internal func recoverWith(capacity: Int = Int.max, executionContext: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: ErrorType -> FutureStream<T>) -> FutureStream<T> {
+    internal func recoverWith(capacity: Int = Int.max, context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: ErrorType -> FutureStream<T>) -> FutureStream<T> {
         let stream = FutureStream<T>(capacity: capacity)
-        onComplete(executionContext, cancelToken: cancelToken) { result in
+        onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
             case .Success(let value):
                 stream.success(value)
             case .Failure(let error):
-                stream.completeWith(recovery(error), context: executionContext)
+                stream.completeWith(recovery(error), context: context)
             }
         }
         return stream
@@ -690,7 +705,7 @@ public final class FutureStream<T> {
     }
 
     internal func completeWith(future: Future<T>, context: ExecutionContext = QueueContext.futuresDefault) {
-        future.onComplete(context) {result in
+        future.onComplete(context: context) {result in
             self.complete(result)
         }
     }
@@ -706,7 +721,7 @@ public final class FutureStream<T> {
 
     public func onComplete(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), complete: Try<T> -> Void) {
         let futureComplete : InFuture = { future in
-            future.onComplete(context, complete: complete)
+            future.onComplete(context: context, complete: complete)
         }
         savedCompletions[cancelToken.completionId] = futureComplete
         futures.forEach { futureComplete($0) }

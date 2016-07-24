@@ -35,10 +35,10 @@ class FutureOnFailureTests: XCTestCase {
         let promise = Promise<Bool>()
         var onFailureCalled = false
         let future = promise.future
-        future.onSuccess(immediateContext) {value in
+        future.onSuccess(context: TestContext.immediate) {value in
             XCTAssert(false, "onSuccess called")
         }
-        future.onFailure(immediateContext) {error in
+        future.onFailure(context: TestContext.immediate) {error in
             onFailureCalled = true
             XCTAssertEqualErrors(error, TestFailure.error)
         }
@@ -51,19 +51,19 @@ class FutureOnFailureTests: XCTestCase {
         let future = promise.future
         var onFailure1Called = false
         var onFailure2Called = false
-        future.onSuccess(immediateContext) { value in
+        future.onSuccess(context: TestContext.immediate) { value in
             XCTAssert(false, "Delayed onSuccess called")
         }
-        future.onFailure(immediateContext) { error in
+        future.onFailure(context: TestContext.immediate) { error in
             onFailure1Called = true
             XCTAssertEqualErrors(error, TestFailure.error)
         }
         XCTAssertFalse(onFailure1Called)
         promise.failure(TestFailure.error)
-        future.onSuccess(immediateContext) { value in
+        future.onSuccess(context: TestContext.immediate) { value in
             XCTAssert(false, "Immediate onSuccess called")
         }
-        future.onFailure(immediateContext) { error in
+        future.onFailure(context: TestContext.immediate) { error in
             onFailure2Called = true
             XCTAssertEqualErrors(error, TestFailure.error)
         }
