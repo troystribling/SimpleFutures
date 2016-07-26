@@ -517,6 +517,10 @@ public final class Future<T> {
 
 }
 
+// MARK: - Future SequenceType -
+extension SequenceType {
+    
+}
 
 // MARK: - StreamPromise -
 
@@ -554,7 +558,8 @@ public final class StreamPromise<T> {
 
 public final class FutureStream<T> {
 
-    private var futures = [Future<T>]()
+    public private(set) var futures = [Future<T>]()
+
     private typealias InFuture = Future<T> -> Void
     private var savedCompletions = [CompletionId : InFuture]()
 
@@ -639,10 +644,12 @@ public final class FutureStream<T> {
     }
 
     public func cancel(cancelToken: CancelToken) -> Bool {
-        guard let _ = savedCompletions.removeValueForKey(cancelToken.completionId) else {
-            return false
+        return Queue.simpleFutureStreams.sync {
+            guard let _ = self.savedCompletions.removeValueForKey(cancelToken.completionId) else {
+                return false
+            }
+            return true
         }
-        return true
     }
 
     // MARK: Combinators
