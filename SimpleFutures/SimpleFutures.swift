@@ -226,10 +226,7 @@ public struct Queue {
 
     public static let main = Queue(dispatch_get_main_queue());
     public static let global = Queue(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
-    
-    static let simpleFutures = Queue("us.gnos.simpleFutures.main")
-    static let simpleFutureStreams = Queue("us.gnos.simpleFutures.streams")
-    
+
     public let queue: dispatch_queue_t
     
     public init(_ queueName: String) {
@@ -321,12 +318,19 @@ public final class Promise<T> {
 
 }
 
+// MARK: - Futurable -
+public protocol Futurable {
+    typealias T
+    func onComplete(context context: ExecutionContext, cancelToken: CancelToken, complete: Try<T> -> Void) -> Void
+}
+
 // MARK: - Future -
 
-public final class Future<T> {
+public final class Future<T> : Futurable {
 
     typealias OnComplete = Try<T> -> Void
     private var savedCompletions = [CompletionId : OnComplete]()
+    private let queue = Queue("us.gnos.simpleFutures.main")
 
     public private(set) var result: Try<T>? {
         willSet {
@@ -344,10 +348,8 @@ public final class Future<T> {
 
     func complete(result: Try<T>) {
         self.result = result
-        Queue.simpleFutures.sync {
-            for completion in self.savedCompletions.values {
-                completion(result)
-            }
+        queue.sync {
+            self.savedCompletions.values.forEach { $0(result) }
             self.savedCompletions.removeAll()
         }
     }
@@ -358,11 +360,11 @@ public final class Future<T> {
         }
     }
 
-    func success(value: T) {
+    public func success(value: T) {
         complete(Try(value))
     }
 
-    func failure(error: ErrorType) {
+    public func failure(error: ErrorType) {
         complete(Try<T>(error))
     }
 
@@ -383,7 +385,7 @@ public final class Future<T> {
         if let result = result {
             savedCompletion(result)
         } else {
-            Queue.simpleFutures.sync {
+            queue.sync {
                 self.savedCompletions[cancelToken.completionId] = savedCompletion
             }
         }
@@ -412,7 +414,7 @@ public final class Future<T> {
     }
 
     public func cancel(cancelToken: CancelToken) -> Bool {
-        return Queue.simpleFutures.sync {
+        return queue.sync {
             guard let _ = self.savedCompletions.removeValueForKey(cancelToken.completionId) else {
                 return false
             }
@@ -519,7 +521,7 @@ public final class Future<T> {
 
 // MARK: - Future SequenceType -
 extension SequenceType {
-    
+
 }
 
 // MARK: - StreamPromise -
@@ -562,6 +564,7 @@ public final class FutureStream<T> {
 
     private typealias InFuture = Future<T> -> Void
     private var savedCompletions = [CompletionId : InFuture]()
+    let queue = Queue("us.gnos.simpleFuturesStreams.main")
 
     private let capacity: Int
 
@@ -578,7 +581,7 @@ public final class FutureStream<T> {
     func complete(result: Try<T>) {
         let future = Future<T>()
         future.complete(result)
-        Queue.simpleFutureStreams.sync {
+        queue.sync {
             if self.futures.count >= self.capacity  {
                 self.futures.removeAtIndex(0)
             }
@@ -615,7 +618,7 @@ public final class FutureStream<T> {
         let futureComplete : InFuture = { future in
             future.onComplete(context: context, complete: complete)
         }
-        Queue.simpleFutureStreams.sync {
+        queue.sync {
             self.savedCompletions[cancelToken.completionId] = futureComplete
             self.futures.forEach { futureComplete($0) }
         }
@@ -644,7 +647,7 @@ public final class FutureStream<T> {
     }
 
     public func cancel(cancelToken: CancelToken) -> Bool {
-        return Queue.simpleFutureStreams.sync {
+        return queue.sync {
             guard let _ = self.savedCompletions.removeValueForKey(cancelToken.completionId) else {
                 return false
             }
