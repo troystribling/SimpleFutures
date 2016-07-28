@@ -42,13 +42,43 @@ public extension Optional {
 
 }
 
+// MARK: - Tryable -
+public protocol Tryable {
+    associatedtype T
+
+    var value: T? { get }
+    var error: ErrorType? { get }
+
+    init(_ value: T)
+    init(_ error: ErrorType)
+
+}
+
 // MARK: - Try -
 
-public enum Try<T> {
+public enum Try<T>: Tryable {
 
     case Success(T)
     case Failure(ErrorType)
-    
+
+    public var value: T? {
+        switch self {
+        case .Success(let value):
+            return value
+        case .Failure:
+            return nil
+        }
+    }
+
+    public var error: ErrorType? {
+        switch self {
+        case .Success:
+            return nil
+        case .Failure(let error):
+            return error
+        }
+    }
+
     public init(_ value: T) {
         self = .Success(value)
     }
@@ -321,12 +351,15 @@ public final class Promise<T> {
 // MARK: - Futurable -
 public protocol Futurable {
     typealias T
+    init()
+    init(_ result: T)
+    init(_ dependent: Self)
     func onComplete(context context: ExecutionContext, cancelToken: CancelToken, complete: Try<T> -> Void) -> Void
 }
 
 // MARK: - Future -
 
-public final class Future<T> : Futurable {
+public final class Future<T>: Futurable {
 
     typealias OnComplete = Try<T> -> Void
     private var savedCompletions = [CompletionId : OnComplete]()
@@ -342,7 +375,15 @@ public final class Future<T> : Futurable {
         return result != nil
     }
 
-    public init() {}
+    public required init() {}
+
+    public required init(_ result: T) {
+        self.result = Try(result)
+    }
+
+    public required init(_ dependent: Future<T>) {
+        completeWith(future: dependent)
+    }
 
     // MARK: Complete
 
@@ -520,7 +561,8 @@ public final class Future<T> : Futurable {
 }
 
 // MARK: - Future SequenceType -
-extension SequenceType {
+
+extension SequenceType where Generator.Element : Futurable, Generator.Element.T: Tryable {
 
 }
 
