@@ -33,9 +33,9 @@ class FutureMapTests : XCTestCase {
         future.onFailure {error in
             XCTAssert(false, "future onFailure called")
         }
-        let mapped = future.map {value -> Try<Int> in
+        let mapped = future.map {value -> Int in
             mapExpectation.fulfill()
-            return Try(Int(1))
+            return Int(1)
         }
         mapped.onSuccess {value in
             XCTAssertEqual(value, 1, "mapped onSuccess value invalid")
@@ -65,7 +65,7 @@ class FutureMapTests : XCTestCase {
         }
         let mapped = future.map {value -> Try<Int> in
             mapExpectation.fulfill()
-            return Try<Int>(TestFailure.error)
+            throw TestFailure.error
         }
         mapped.onSuccess { value in
             XCTAssert(false, "mapped onSuccess called")

@@ -349,12 +349,39 @@ public final class Promise<T> {
 }
 
 // MARK: - Futurable -
+
 public protocol Futurable {
     typealias T
+
+    var result: Try<T>? { get }
+
     init()
     init(_ result: T)
     init(_ dependent: Self)
+
+    func complete(result: Try<T>)
     func onComplete(context context: ExecutionContext, cancelToken: CancelToken, complete: Try<T> -> Void) -> Void
+}
+
+public extension Futurable {
+
+    //MARK: - Combinators -
+    public func map<M>(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: T throws -> M) -> Future<M> {
+        let future = Future<M>()
+        onComplete(context: context, cancelToken: cancelToken) { result in
+            future.complete(result.map(mapping))
+        }
+        return future
+    }
+
+    public func flatMap<M>(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: T throws -> Future<M>) -> Future<M> {
+        let future = Future<M>()
+        onComplete(context: context, cancelToken: cancelToken) { result in
+            future.completeWith(context: context, future: result.map(mapping))
+        }
+        return future
+    }
+
 }
 
 // MARK: - Future -
@@ -387,7 +414,7 @@ public final class Future<T>: Futurable {
 
     // MARK: Complete
 
-    func complete(result: Try<T>) {
+    public func complete(result: Try<T>) {
         self.result = result
         queue.sync {
             self.savedCompletions.values.forEach { $0(result) }
@@ -395,7 +422,18 @@ public final class Future<T>: Futurable {
         }
     }
 
-    func completeWith(context context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>) {
+    public func completeWith(context context: ExecutionContext = QueueContext.futuresDefault, future: Try<Future<T>>) {
+        switch future {
+        case .Success(let future):
+            future.onComplete(context: context) { result in
+                self.complete(result)
+            }
+        case .Failure(let error):
+            failure(error)
+        }
+    }
+
+    public func completeWith(context context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>) {
         future.onComplete(context: context) { result in
             self.complete(result)
         }
@@ -409,18 +447,18 @@ public final class Future<T>: Futurable {
         complete(Try<T>(error))
     }
 
-    func completeWith(context context: ExecutionContext = QueueContext.futuresDefault, stream: FutureStream<T>) {
+    public func completeWith(context context: ExecutionContext = QueueContext.futuresDefault, stream: FutureStream<T>) {
         stream.onComplete(context: context) { result in
             self.complete(result)
         }
     }
-
+    
     // MARK: Callbacks
 
     public func onComplete(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), complete: Try<T> -> Void) -> Void {
         let savedCompletion : OnComplete = { result in
             context.execute {
-                complete(result)
+                    complete(result)
             }
         }
         if let result = result {
@@ -465,27 +503,6 @@ public final class Future<T>: Futurable {
 
     // MARK: Future Combinators
 
-    public func map<M>(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: T -> Try<M>) -> Future<M> {
-        let future = Future<M>()
-        onComplete(context: context, cancelToken: cancelToken) { result in
-            future.complete(result.flatMap(mapping))
-        }
-        return future
-    }
-    
-    public func flatMap<M>(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: T -> Future<M>) -> Future<M> {
-        let future = Future<M>()
-        onComplete(context: context, cancelToken: cancelToken) { result in
-            switch result {
-            case .Success(let value):
-                future.completeWith(context: context, future: mapping(value))
-            case .Failure(let error):
-                future.failure(error)
-            }
-        }
-        return future
-    }
-    
     public func andThen(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), complete: Try<T> -> Void) -> Future<T> {
         let future = Future<T>()
         future.onComplete(context: context, complete: complete)
@@ -562,8 +579,26 @@ public final class Future<T>: Futurable {
 
 // MARK: - Future SequenceType -
 
-extension SequenceType where Generator.Element : Futurable, Generator.Element.T: Tryable {
+extension SequenceType where Generator.Element : Futurable {
 
+    func fold<R>(context: ExecutionContext = QueueContext.futuresDefault, initial: R,  combine: (R, Generator.Element.T) -> R) -> Future<R> {
+        var accumulatorFuture = Future<R>(initial)
+        for future in self {
+            accumulatorFuture = accumulatorFuture.flatMap { accumulatorValue in
+                future.map { value in
+                    return combine(accumulatorValue, value)
+                }
+            }
+        }
+        return accumulatorFuture
+//        return reduce(Future<R>(initial)) { accumulator, element in
+//            accumulator.flatMap(context: context) { accumulatorValue in
+//                return element.map(context: context) { elementValue in
+//                    return combine(accumulatorValue, elementValue)
+//                }
+//            }
+//        }
+    }
 }
 
 // MARK: - StreamPromise -
