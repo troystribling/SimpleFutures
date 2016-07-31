@@ -29,18 +29,18 @@ class FutureRecoverTests : XCTestCase {
             XCTAssert(value, "future onSuccess value invalid")
             onSuccessExpectation.fulfill()
         }
-        future.onFailure {error in
+        future.onFailure { error in
             XCTAssert(false, "future onFailure called")
         }
-        let recovered = future.recover {error -> Try<Bool> in
+        let recovered = future.recover { error -> Bool in
             XCTAssert(false, "recover called")
-            return Try(false)
+            return false
         }
-        recovered.onSuccess {value in
+        recovered.onSuccess { value in
             XCTAssert(value, "recovered onSuccess value invalid")
             onSuccessRecoveryExpectation.fulfill()
         }
-        recovered.onFailure {error in
+        recovered.onFailure { error in
             XCTAssert(false, "recovered onFailure called")
         }
         promise.success(true)
@@ -55,21 +55,21 @@ class FutureRecoverTests : XCTestCase {
         let onFailureExpectation = expectationWithDescription("OnFailure fulfilled")
         let onSuccessRecoveryExpectation = expectationWithDescription("OnSuccess fulfilled for recovered future")
         let recoverExpectation = expectationWithDescription("recover fulfilled")
-        future.onSuccess {value in
+        future.onSuccess { value in
             XCTAssert(false, "future onSuccess called")
         }
-        future.onFailure {error in
+        future.onFailure { error in
             onFailureExpectation.fulfill()
         }
-        let recovered = future.recover {error -> Try<Bool> in
+        let recovered = future.recover { error -> Bool in
             recoverExpectation.fulfill()
-            return Try(false)
+            return false
         }
-        recovered.onSuccess {value in
+        recovered.onSuccess { value in
             XCTAssertFalse(value, "recovered onSuccess invalid value")
             onSuccessRecoveryExpectation.fulfill()
         }
-        recovered.onFailure {error in
+        recovered.onFailure { error in
             XCTAssert(false, "recovered onFailure called")
         }
         promise.failure(TestFailure.error)
@@ -87,12 +87,12 @@ class FutureRecoverTests : XCTestCase {
         future.onSuccess {value in
             XCTAssert(false, "future onSuccess called")
         }
-        future.onFailure {error in
+        future.onFailure { error in
             onFailureExpectation.fulfill()
         }
-        let recovered = future.recover {error -> Try<Bool> in
+        let recovered = future.recover { error -> Bool in
             recoverExpectation.fulfill()
-            return Try<Bool>(TestFailure.error)
+            throw TestFailure.error
         }
         recovered.onSuccess {value in
             XCTAssert(false, "recovered onSuccess callsd")
