@@ -22,9 +22,9 @@ class StreamCompleteWithTests: XCTestCase {
 
     func testSuccessImmediate() {
         let promise = StreamPromise<Int>()
-        let stream = promise.future
+        let stream = promise.stream
         let promiseCompleted = StreamPromise<Int>()
-        let streamCompleted = promiseCompleted.future
+        let streamCompleted = promiseCompleted.stream
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
         let onSuccessCompletedExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess completed future")
         writeSuccesfulFutures(promiseCompleted, values:[1,2])
@@ -42,7 +42,7 @@ class StreamCompleteWithTests: XCTestCase {
         streamCompleted.onFailure{error in
             XCTAssert(false, "futureComleted onFailure called")
         }
-        promise.completeWith(streamCompleted)
+        promise.completeWith(stream: streamCompleted)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
         }
@@ -50,9 +50,9 @@ class StreamCompleteWithTests: XCTestCase {
 
     func testSuccessDelayed() {
         let promise = StreamPromise<Int>()
-        let stream = promise.future
+        let stream = promise.stream
         let promiseCompleted = StreamPromise<Int>()
-        let streamCompleted = promiseCompleted.future
+        let streamCompleted = promiseCompleted.stream
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
         let onSuccessCompletedExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess completed future")
         stream.onSuccess {value in
@@ -69,7 +69,7 @@ class StreamCompleteWithTests: XCTestCase {
         streamCompleted.onFailure{error in
             XCTAssert(false, "futureComleted onFailure called")
         }
-        promise.completeWith(streamCompleted)
+        promise.completeWith(stream: streamCompleted)
         writeSuccesfulFutures(promiseCompleted, values:[1,2])
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
@@ -78,9 +78,9 @@ class StreamCompleteWithTests: XCTestCase {
 
     func testFailure() {
         let promise = StreamPromise<Bool>()
-        let stream = promise.future
+        let stream = promise.stream
         let promiseCompleted = StreamPromise<Bool>()
-        let streamCompleted = promiseCompleted.future
+        let streamCompleted = promiseCompleted.stream
         let onFailureExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure future")
         let onFailureCompletedExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure completed future")
         stream.onSuccess {value in
@@ -95,7 +95,7 @@ class StreamCompleteWithTests: XCTestCase {
         streamCompleted.onFailure{error in
             onFailureCompletedExpectation()
         }
-        promise.completeWith(streamCompleted)
+        promise.completeWith(stream: streamCompleted)
         writeFailedFutures(promiseCompleted, times:2)
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")
@@ -104,9 +104,9 @@ class StreamCompleteWithTests: XCTestCase {
 
     func testCompleted() {
         let promise = StreamPromise<Int>()
-        let stream = promise.future
+        let stream = promise.stream
         let promiseCompleted = StreamPromise<Int>()
-        let streamCompleted = promiseCompleted.future
+        let streamCompleted = promiseCompleted.stream
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(4, message:"onSuccess future")
         let onSuccessCompletedExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess completed future")
         stream.onSuccess {value in
@@ -124,7 +124,7 @@ class StreamCompleteWithTests: XCTestCase {
             XCTAssert(false, "futureComleted onFailure called")
         }
         writeSuccesfulFutures(promise, values:[1,2])
-        promise.completeWith(streamCompleted)
+        promise.completeWith(stream: streamCompleted)
         writeSuccesfulFutures(promiseCompleted, values:[3,4])
         waitForExpectationsWithTimeout(2) {error in
             XCTAssertNil(error, "\(error)")

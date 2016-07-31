@@ -129,7 +129,7 @@ class FutureFlatMapTests : XCTestCase {
             mapExpectation.fulfill()
             let promise = StreamPromise<Int>()
             promise.success(1)
-            return promise.future
+            return promise.stream
         }
         mapped.onSuccess {value in
             XCTAssertEqual(value, 1, "mapped onSuccess value invalid")
@@ -161,7 +161,7 @@ class FutureFlatMapTests : XCTestCase {
             mapExpectation.fulfill()
             let promise = StreamPromise<Int>()
             promise.failure(TestFailure.error)
-            return promise.future
+            return promise.stream
         }
         mapped.onSuccess {value in
             XCTAssert(false, "mapped onSuccess called")
@@ -190,7 +190,7 @@ class FutureFlatMapTests : XCTestCase {
             XCTAssert(false, "mapping called")
             let promise = StreamPromise<Int>()
             promise.success(1)
-            return promise.future
+            return promise.stream
         }
         mapped.onSuccess {value in
             XCTAssert(false, "mapped onSuccess called")

@@ -22,7 +22,7 @@ class StreamWithFilter: XCTestCase {
 
     func testSuccessfulFilter() {
         let promise = StreamPromise<Bool>()
-        let stream = promise.future
+        let stream = promise.stream
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
         let withFilterExpectation = XCTExpectFullfilledCountTimes(2, message:"withFilter")
         let onSuccessFilterExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess filter future")
@@ -52,7 +52,7 @@ class StreamWithFilter: XCTestCase {
     
     func testFailedFilter() {
         let promise = StreamPromise<Bool>()
-        let stream = promise.future
+        let stream = promise.stream
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
         let withFilterExpectation = XCTExpectFullfilledCountTimes(2, message:"withFilter")
         let onFailureFilterExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure filter future")
@@ -82,7 +82,7 @@ class StreamWithFilter: XCTestCase {
     
     func testFailedFuture() {
         let promise = StreamPromise<Bool>()
-        let stream = promise.future
+        let stream = promise.stream
         let onFailureExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure future")
         let onFailureFilterExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure filter future")
         stream.onSuccess {value in

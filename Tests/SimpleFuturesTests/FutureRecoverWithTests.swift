@@ -155,7 +155,7 @@ class FutureRecoverWithTests : XCTestCase {
             recoverExpectation.fulfill()
             let promise = StreamPromise<Bool>()
             promise.success(false)
-            return promise.future
+            return promise.stream
         }
         recovered.onSuccess {value in
             XCTAssertFalse(value, "recovered onSuccess invalid value")
@@ -186,7 +186,7 @@ class FutureRecoverWithTests : XCTestCase {
             recoverExpectation.fulfill()
             let promise = StreamPromise<Bool>()
             promise.failure(TestFailure.error)
-            return promise.future
+            return promise.stream
         }
         recovered.onSuccess {value in
             XCTAssert(false, "recovered onSuccess callsd")

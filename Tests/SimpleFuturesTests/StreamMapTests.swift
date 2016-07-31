@@ -22,22 +22,22 @@ class StreamMapTests: XCTestCase {
 
     func testSuccessfulMapping() {
         let promise = StreamPromise<Bool>()
-        let stream = promise.future
+        let stream = promise.stream
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
         let mapExpectation = XCTExpectFullfilledCountTimes(2, message:"map")
         let onSuccessMappedExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess mapped future")
-        stream.onSuccess {value in
+        stream.onSuccess { value in
             XCTAssertTrue(value, "Invalid value")
             onSuccessExpectation()
         }
-        stream.onFailure {error in
+        stream.onFailure { error in
             XCTAssert(false, "future onFailure called")
         }
-        let mapped = stream.map {value -> Try<Int> in
+        let mapped = stream.map { value -> Int in
             mapExpectation()
-            return Try(Int(1))
+            return 1
         }
-        mapped.onSuccess {value in
+        mapped.onSuccess { value in
             XCTAssertEqual(value, 1, "mapped onSuccess value invalid")
             onSuccessMappedExpectation()
         }
@@ -52,7 +52,7 @@ class StreamMapTests: XCTestCase {
     
     func testFailedMapping() {
         let promise = StreamPromise<Bool>()
-        let stream = promise.future
+        let stream = promise.stream
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
         let mapExpectation = XCTExpectFullfilledCountTimes(2, message:"map")
         let onFailureMappedExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure mapped future")
@@ -63,9 +63,9 @@ class StreamMapTests: XCTestCase {
         stream.onFailure {error in
             XCTAssert(false, "future onFailure called")
         }
-        let mapped = stream.map {value -> Try<Int> in
+        let mapped = stream.map {value -> Int in
             mapExpectation()
-            return Try<Int>(TestFailure.error)
+            throw TestFailure.error
         }
         mapped.onSuccess {value in
             XCTAssert(false, "mapped onSuccess called")
@@ -81,7 +81,7 @@ class StreamMapTests: XCTestCase {
 
     func testMappingToFailedFuture() {
         let promise = StreamPromise<Bool>()
-        let stream = promise.future
+        let stream = promise.stream
         let onFailureExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure future")
         let onFailureMappedExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure mapped future")
         stream.onSuccess {value in
