@@ -43,6 +43,7 @@ public extension Optional {
 }
 
 // MARK: - Tryable -
+
 public protocol Tryable {
     associatedtype T
 
@@ -106,6 +107,7 @@ public enum Try<T>: Tryable {
     }
 
     // MARK: Combinators
+
     public func map<M>(@noescape mapping: T throws -> M) -> Try<M> {
         switch self {
         case .Success(let value):
@@ -198,6 +200,7 @@ public enum Try<T>: Tryable {
     }
 
     // MARK: Coversion
+
     public func toOptional() -> Optional<T> {
         switch self {
         case .Success(let value):
@@ -218,18 +221,22 @@ public enum Try<T>: Tryable {
 
 }
 
+public func ??<T>(left: Try<T>, right: T) -> T {
+    return left.getOrElse(right)
+}
+
 // MARK: - ExecutionContext -
 
 public protocol ExecutionContext {
 
-    func execute(task:Void->Void)
+    func execute(task: Void -> Void)
 
 }
 
 public class ImmediateContext : ExecutionContext {
 
     public init() {}
-    public func execute(task: Void->Void) {
+    public func execute(task: Void -> Void) {
         task()
     }
 
@@ -240,12 +247,37 @@ public struct QueueContext : ExecutionContext {
     public static var futuresDefault = QueueContext.main
     public static let main = QueueContext(queue: Queue.main)
     public static let global = QueueContext(queue: Queue.global)
-    public let queue:Queue
+    public let queue: Queue
+
     public init(queue: Queue) {
         self.queue = queue
     }
+
     public func execute(task: Void -> Void) {
         queue.async(task)
+    }
+
+}
+
+public struct MaxStackDepthContest : ExecutionContext {
+
+    static let taskDepthKey = "us.gnos.taskDepthKey"
+    let maxDepth: Int
+
+    init(maxDepth: Int = 20) {
+        self.maxDepth = maxDepth
+    }
+
+    public func execute(task: Void -> Void) {
+        let localThreadDictionary = NSThread.currentThread().threadDictionary
+        let previousDepth = localThreadDictionary[MaxStackDepthContest.taskDepthKey] as? Int ?? 0
+        if previousDepth < maxDepth {
+            localThreadDictionary[MaxStackDepthContest.taskDepthKey] = previousDepth + 1
+            task()
+            localThreadDictionary[MaxStackDepthContest.taskDepthKey] = previousDepth
+        } else {
+            QueueContext.global.execute(task)
+        }
     }
 
 }
@@ -329,11 +361,13 @@ public protocol Futurable {
 
     func complete(result: Try<T>)
     func onComplete(context context: ExecutionContext, cancelToken: CancelToken, complete: Try<T> -> Void) -> Void
+
 }
 
 public extension Futurable {
 
     //MARK: - Combinators -
+
     public func map<M>(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: T throws -> M) -> Future<M> {
         let future = Future<M>()
         onComplete(context: context, cancelToken: cancelToken) { result in
@@ -388,7 +422,16 @@ public extension Futurable {
             result.forEach(apply)
         }
     }
-    
+
+    public func andThen(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: T -> Void) -> Future<T> {
+        let future = Future<T>()
+        future.onSuccess(context: context, cancelToken: cancelToken, success: success)
+        onComplete(context: context, cancelToken: cancelToken) { result in
+            future.complete(result)
+        }
+        return future
+    }
+
 }
 
 // MARK: - Promise -
@@ -792,6 +835,15 @@ public final class FutureStream<T> {
         onComplete(context: context, cancelToken: cancelToken) { result in
             result.forEach(apply)
         }
+    }
+
+    public func andThen(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: T -> Void) -> FutureStream<T> {
+        let future = FutureStream<T>(capacity: capacity)
+        future.onSuccess(context: context, cancelToken: cancelToken, success: success)
+        onComplete(context: context, cancelToken: cancelToken) { result in
+            future.complete(result)
+        }
+        return future
     }
 
     // MARK: Future Combinators
