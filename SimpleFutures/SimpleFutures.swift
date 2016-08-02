@@ -87,6 +87,14 @@ public enum Try<T>: Tryable {
     public init(_ error: ErrorType) {
         self = .Failure(error)
     }
+
+    public init(_ task: Void throws -> T) {
+        do {
+            self = try .Success(task())
+        } catch {
+            self = .Failure(error)
+        }
+    }
     
     public func isSuccess() -> Bool {
         switch self {
@@ -356,8 +364,8 @@ public protocol Futurable {
     var result: Try<T>? { get }
 
     init()
-    init(_ result: T)
-    init(_ dependent: Self)
+    init(result: T)
+    init(context: ExecutionContext, dependent: Self)
 
     func complete(result: Try<T>)
     func onComplete(context context: ExecutionContext, cancelToken: CancelToken, complete: Try<T> -> Void) -> Void
@@ -486,12 +494,12 @@ public final class Future<T>: Futurable {
 
     public required init() {}
 
-    public required init(_ result: T) {
+    public required init(result: T) {
         self.result = Try(result)
     }
 
-    public required init(_ dependent: Future<T>) {
-        completeWith(future: dependent)
+    public required init(context context: ExecutionContext = QueueContext.futuresDefault, dependent: Future<T>) {
+        completeWith(context: context, future: dependent)
     }
 
     // MARK: Complete
@@ -612,12 +620,21 @@ public final class Future<T>: Futurable {
 
 }
 
+// MARK: - future -
+func future<T>(context context: ExecutionContext = QueueContext.futuresDefault, task: Void throws -> T) -> Future<T> {
+    let future = Future<T>()
+    context.execute {
+        future.complete(Try<T>(task))
+    }
+    return future
+}
+
 // MARK: - Future SequenceType -
 
 extension SequenceType where Generator.Element : Futurable {
 
     func fold<R>(context: ExecutionContext = QueueContext.futuresDefault, initial: R,  combine: (R, Generator.Element.T) -> R) -> Future<R> {
-        return reduce(Future<R>(initial)) { accumulator, element in
+        return reduce(Future<R>(result: initial)) { accumulator, element in
             accumulator.flatMap(context: context) { accumulatorValue in
                 return element.map(context: context) { elementValue in
                     return combine(accumulatorValue, elementValue)
@@ -677,6 +694,21 @@ public final class FutureStream<T> {
     
     public init(capacity: Int = Int.max) {
         self.capacity = capacity
+    }
+
+    public convenience init(capacity: Int = Int.max, result: T) {
+        self.init(capacity: capacity)
+        complete(Try<T>(result))
+    }
+
+    public convenience init(capacity: Int = Int.max, dependent: Future<T>) {
+        self.init(capacity: capacity)
+        completeWith(future: dependent)
+    }
+
+    public convenience init(capacity: Int = Int.max, context: ExecutionContext = QueueContext.futuresDefault, dependent: FutureStream<T>) {
+        self.init(capacity: capacity)
+        completeWith(context: context, stream: dependent)
     }
 
     // MARK: Callbacks

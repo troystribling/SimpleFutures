@@ -1,5 +1,5 @@
 //
-//  Future0NFailureTests.swift
+//  FutureONFailureTests.swift
 //  SimpleFutures
 //
 //  Created by Troy Stribling on 12/20/14.
@@ -23,50 +23,46 @@ class FutureOnFailureTests: XCTestCase {
     }
     
     func testOnFailure_CompletedBeforeCallbacksDefined_CompletesWithError() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        promise.failure(TestFailure.error)
+        let future = Future<Bool>()
+        future.failure(TestFailure.error)
         XCTAssertFutureFails(future, context: immediateContext) { error in
             XCTAssertEqualErrors(error, TestFailure.error)
         }
     }
     
     func testOnFailure_CompletedAfterCallbacksDefined_CompletesWithError() {
-        let promise = Promise<Bool>()
+        let future = Future<Bool>()
         var onFailureCalled = false
-        let future = promise.future
-        future.onSuccess(context: TestContext.immediate) {value in
-            XCTAssert(false, "onSuccess called")
+        future.onSuccess(context: TestContext.immediate) { _ in
+            XCTFail()
         }
         future.onFailure(context: TestContext.immediate) {error in
             onFailureCalled = true
             XCTAssertEqualErrors(error, TestFailure.error)
         }
-       promise.failure(TestFailure.error)
+       future.failure(TestFailure.error)
         XCTAssertTrue(onFailureCalled)
     }
     
-    func testOnFailure_WithCallbacksDefinedBothBeforeAndAfterCompletion_CompletesWithError() {
-        let promise = Promise<Bool>()
-        let future = promise.future
+    func testOnFailure_WithMultipleCallbacksDefined_CompletesWithError() {
+        let future = Future<Bool>()
         var onFailure1Called = false
         var onFailure2Called = false
         future.onSuccess(context: TestContext.immediate) { value in
-            XCTAssert(false, "Delayed onSuccess called")
+            XCTFail()
         }
         future.onFailure(context: TestContext.immediate) { error in
             onFailure1Called = true
             XCTAssertEqualErrors(error, TestFailure.error)
         }
-        XCTAssertFalse(onFailure1Called)
-        promise.failure(TestFailure.error)
         future.onSuccess(context: TestContext.immediate) { value in
-            XCTAssert(false, "Immediate onSuccess called")
+            XCTFail()
         }
         future.onFailure(context: TestContext.immediate) { error in
             onFailure2Called = true
             XCTAssertEqualErrors(error, TestFailure.error)
         }
+        future.failure(TestFailure.error)
         XCTAssertTrue(onFailure1Called)
         XCTAssertTrue(onFailure2Called)
     }

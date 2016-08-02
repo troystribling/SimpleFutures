@@ -20,39 +20,36 @@ class FutureCancelTests: XCTestCase {
     }
 
     func testOnSuccess_WhenCancled_DoesNotComplete() {
-        let promise = Promise<Int>()
-        let future = promise.future
+        let future = Future<Int>()
         let cancelToken = CancelToken()
         future.onSuccess(context: TestContext.immediate, cancelToken: cancelToken) { _ in
-            XCTFail("onSuccess called")
+            XCTFail()
         }
         let status = future.cancel(cancelToken)
-        promise.success(1)
-        XCTAssertTrue(status, "Cancel returned invalid status")
+        future.success(1)
+        XCTAssertTrue(status)
     }
 
     func testOnSuccess_WhenFutureCompleted_CancelFails() {
-        let promise = Promise<Int>()
-        let future = promise.future
+        let future = Future<Int>()
         let cancelToken = CancelToken()
-        promise.success(1)
+        future.success(1)
         let status = future.cancel(cancelToken)
         XCTAssertFutureSucceeds(future, context: TestContext.immediate)
-        XCTAssertFalse(status, "Cancel returned invalid status")
+        XCTAssertFalse(status)
     }
 
     func testOnSuccess_WithInvalidCancelToken_CancelFails() {
-        let promise = Promise<Int>()
-        let future = promise.future
+        let future = Future<Int>()
         let cancelToken = CancelToken()
         var onSuccessCalled = false
         future.onSuccess(context: TestContext.immediate) { _ in
             onSuccessCalled = true
         }
         let status = future.cancel(cancelToken)
-        promise.success(1)
-        XCTAssertFalse(status, "Cancel returned invalid status")
-        XCTAssertTrue(onSuccessCalled, "onSuccess not called")
+        future.success(1)
+        XCTAssertFalse(status)
+        XCTAssertTrue(onSuccessCalled)
     }
 
     func testOnFailure_WhenCancled_DoesNotComplete() {

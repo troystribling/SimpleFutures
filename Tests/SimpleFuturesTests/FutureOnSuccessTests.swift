@@ -1,5 +1,5 @@
 //
-//  Future0NSuccessTests.swift
+//  FutureOnSuccessTests.swift
 //  SimpleFuturesTests
 //
 //  Created by Troy Stribling on 12/14/14.
@@ -10,7 +10,7 @@ import UIKit
 import XCTest
 @testable import SimpleFutures
 
-class Future0NSuccessTests: XCTestCase {
+class FutureOnSuccessTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
@@ -20,63 +20,47 @@ class Future0NSuccessTests: XCTestCase {
         super.tearDown()
     }
     
-    func testImediate() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onSuccessExpectation = expectationWithDescription("Imediate future onSuccess fulfilled")
-        promise.success(true)
-        future.onSuccess {value in
-            XCTAssertTrue(value, "onSuccess Invalid value")
-            onSuccessExpectation.fulfill()
-        }
-        future.onFailure {error in
-            XCTAssert(false, "onFailure called")
-        }
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+    func testOnSuccess_WhenCompletedBeforeCallbacksDefined_CompletesSuccessfully() {
+        let future = Future<Bool>()
+        future.success(true)
+        XCTAssertFutureSucceeds(future)
     }
     
-    func testDelayed() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onSuccessExpectation = expectationWithDescription("Delayed future onSuccess fulfilled")
-        future.onSuccess {value in
-            XCTAssertTrue(value, "Invalid value")
-            onSuccessExpectation.fulfill()
+    func testOnSuccess_WhenCompletedAfterCallbacksDefined_CompletesSuccessfully() {
+        let future = Future<Bool>()
+        var onSuccessCalled = false
+        future.onSuccess(context: TestContext.immediate) { value in
+            onSuccessCalled = true
+            XCTAssertTrue(value)
         }
-        future.onFailure {error in
-            XCTAssert(false, "onFailure called")
+        future.onFailure(context: TestContext.immediate) { _ in
+            XCTFail()
         }
-        promise.success(true)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        future.success(true)
+        XCTAssertTrue(onSuccessCalled)
     }
 
-    func testImmediateAndDelayed() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onSuccesImmediateExpectation = expectationWithDescription("Immediate future onSuccess fulfilled")
-        let onSuccessDelayedExpectation = expectationWithDescription("Delayed future onSuccess fulfilled")
-        future.onSuccess {value in
-            XCTAssertTrue(value, "Delayed Invalid value")
-            onSuccessDelayedExpectation.fulfill()
+    func testOnSuccess_WhenCompletedWithMultipleCallbacksDefined_CompletesSuccessfully() {
+        let future = Future<Bool>()
+        var onSuccessCalled1 = false
+        var onSuccessCalled2 = false
+        future.onSuccess(context: TestContext.immediate) { value in
+            onSuccessCalled1 = true
+            XCTAssertTrue(value)
         }
-        future.onFailure {error in
-            XCTAssert(false, "Delayed onFailure called")
+        future.onFailure(context: TestContext.immediate) { _ in
+            XCTFail()
         }
-        promise.success(true)
-        future.onSuccess {value in
-            XCTAssertTrue(value, "Immediate Invalid value")
-            onSuccesImmediateExpectation.fulfill()
+        future.onSuccess(context: TestContext.immediate) { value in
+            onSuccessCalled2 = true
+            XCTAssertTrue(value)
         }
-        future.onFailure {error in
-            XCTAssert(false, "Immediate onFailure called")
+        future.onFailure(context: TestContext.immediate) { _ in
+            XCTFail()
         }
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        future.success(true)
+        XCTAssertTrue(onSuccessCalled1)
+        XCTAssertTrue(onSuccessCalled2)
     }
 
 }

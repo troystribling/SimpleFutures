@@ -20,35 +20,14 @@ class FutureFlatMapTests : XCTestCase {
         super.tearDown()
     }
     
-    func testSuccessfulMappingToFuture() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onSuccessExpectation = expectationWithDescription("OnSuccess fulfilled")
-        let onSuccessMappedExpectation = expectationWithDescription("OnSuccess fulfilled for mapped future")
-        let mapExpectation = expectationWithDescription("map fulfilled")
-        future.onSuccess {value in
-            XCTAssert(value, "future onSuccess value invalid")
-            onSuccessExpectation.fulfill()
+    func testFlatMap_WhenFutureAndFlatMapSucceed_FlatMapFutureCompletesSuccessfully() {
+        let future = Future<Bool>()
+        let mapped = future.flatMap(context: TestContext.immediate) {value -> Future<Int> in
+            return Future<Int>(result: 1)
         }
-        future.onFailure {error in
-            XCTAssert(false, "future onFailure called")
-        }
-        let mapped = future.flatMap {value -> Future<Int> in
-            mapExpectation.fulfill()
-            let promise = Promise<Int>()
-            promise.success(1)
-            return promise.future
-        }
-        mapped.onSuccess {value in
+        future.success(true)
+        XCTAssertFutureSucceeds(mapped, context: TestContext.immediate) { value in
             XCTAssertEqual(value, 1, "mapped onSuccess value invalid")
-            onSuccessMappedExpectation.fulfill()
-        }
-        mapped.onFailure {error in
-            XCTAssert(false, "mapped onFailure called")
-        }
-        promise.success(true)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
         }
     }
     
