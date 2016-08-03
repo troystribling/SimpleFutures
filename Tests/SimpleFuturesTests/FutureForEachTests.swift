@@ -20,45 +20,23 @@ class FutureForEachTests: XCTestCase {
         super.tearDown()
     }
 
-    func testSuccess() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onSuccessExpectation = expectationWithDescription("OnSuccess fulfilled")
-        let foreachExpectation = expectationWithDescription("forEach fulfilled")
-        future.onSuccess {value in
-            XCTAssert(value, "future onSuccess value invalid")
-            onSuccessExpectation.fulfill()
+    func testForEach_WhenFutureSucceeds_IsCalled() {
+        let future = Future<Bool>()
+        var forEachCalled = false
+        future.forEach(context: TestContext.immediate) { value in
+            forEachCalled = true
+            XCTAssertTrue(value)
         }
-        future.onFailure {error in
-            XCTAssert(false, "future onFailure called")
-        }
-        future.forEach {value in
-            XCTAssert(value, "forEach valuseinvalid")
-            foreachExpectation.fulfill()
-        }
-        promise.success(true)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        future.success(true)
+        XCTAssertTrue(forEachCalled)
     }
     
-    func testFailure() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onFailureExpectation = expectationWithDescription("OnFailure fulfilled")
-        future.onSuccess {value in
-            XCTAssert(false, "future onSucces called")
+    func testForEach_WhenFutureFails_IsNotCalled() {
+        let future = Future<Bool>()
+        future.forEach(context: TestContext.immediate) { _ in
+            XCTFail()
         }
-        future.onFailure {error in
-            onFailureExpectation.fulfill()
-        }
-        future.forEach {value in
-            XCTAssert(false, "forEach called")
-        }
-        promise.failure(TestFailure.error)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        future.failure(TestFailure.error)
     }
     
 }

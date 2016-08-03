@@ -46,7 +46,7 @@ func XCTAssertFutureSucceeds<T>(future: Future<T>, context: ExecutionContext = Q
     }
 }
 
-func XCTAssertFutureStreamSucceeds<T>(future: FutureStream<T>, context: ExecutionContext = QueueContext.main, timeout: Double = 10.0, line: UInt = #line, file: String = #file, validations: [((T) -> Void)] = []) {
+func XCTAssertFutureStreamSucceeds<T>(stream: FutureStream<T>, context: ExecutionContext = QueueContext.main, timeout: Double = 10.0, line: UInt = #line, file: String = #file, validations: [((T) -> Void)] = []) {
 
     guard let currentTest = _XCTCurrentTestCase() else { fatalError("XCTGuardAssert attempted without a running test.") }
 
@@ -56,7 +56,7 @@ func XCTAssertFutureStreamSucceeds<T>(future: FutureStream<T>, context: Executio
     if context is QueueContext {
         expectation = currentTest.expectationWithDescription("onSuccess expectation failed")
     }
-    future.onSuccess(context: context) { result in
+    stream.onSuccess(context: context) { result in
         count += 1
         if maxCount == 0 {
             expectation?.fulfill()
@@ -69,7 +69,7 @@ func XCTAssertFutureStreamSucceeds<T>(future: FutureStream<T>, context: Executio
             }
         }
     }
-    future.onFailure(context: context) { _ in
+    stream.onFailure(context: context) { _ in
         XCTFail("onFailure called")
     }
     if context is QueueContext {
@@ -144,7 +144,7 @@ func XCTAssertFutureFails<T>(future: Future<T>, context: ExecutionContext = Queu
     }
 }
 
-func XCTAssertFutureStreamFails<T>(future: FutureStream<T>, context: ExecutionContext = QueueContext.main, timeout: Double = 10.0, line: UInt = #line, file: String = #file, validations: [(ErrorType -> Void)] = []) {
+func XCTAssertFutureStreamFails<T>(stream: FutureStream<T>, context: ExecutionContext = QueueContext.main, timeout: Double = 10.0, line: UInt = #line, file: String = #file, validations: [(ErrorType -> Void)] = []) {
 
     guard let currentTest = _XCTCurrentTestCase() else { fatalError("XCTGuardAssert attempted without a running test.") }
 
@@ -154,10 +154,10 @@ func XCTAssertFutureStreamFails<T>(future: FutureStream<T>, context: ExecutionCo
     if context is QueueContext {
         expectation = currentTest.expectationWithDescription("onSuccess expectation failed")
     }
-    future.onSuccess(context: context) { _ in
+    stream.onSuccess(context: context) { _ in
         XCTFail("onFailure called")
     }
-    future.onFailure(context: context) { error in
+    stream.onFailure(context: context) { error in
         count += 1
         if maxCount == 0 {
             expectation?.fulfill()

@@ -23,26 +23,20 @@ class FutureAndThenTests : XCTestCase {
     }
 
     func testAndThen_FollowingSuccessfulFuture_CompletesSuccessfully() {
-        var successCalled = false
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let andThen = future.andThen(context: TestContext.immediate) { value in
-            successCalled = true
+        let future = Future<Bool>()
+        let andThen = future.andThen(context: TestContext.immediate) { _ in
         }
-        promise.success(true)
-        XCTAssert(successCalled, "andThen .Success not called")
+        future.success(true)
         XCTAssertFutureSucceeds(andThen, context: self.immediateContext) { value in
             XCTAssert(value, "andThen onSuccess value invalid")
         }
     }
 
     func testAndThen_FollowingFailedFuture_CompletesWithError() {
-        let promise = Promise<Bool>()
-        let future = promise.future
+        let future = Future<Bool>()
         let andThen = future.andThen(context: TestContext.immediate) { _ in
-            XCTAssert(false, "andThen Failure")
         }
-        promise.failure(TestFailure.error)
+        future.failure(TestFailure.error)
         XCTAssertFutureFails(andThen, context: self.immediateContext) { error in
             XCTAssertEqualErrors(error, TestFailure.error)
         }

@@ -548,7 +548,7 @@ public final class Future<T>: Futurable {
     public func onComplete(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), complete: Try<T> -> Void) -> Void {
         let savedCompletion : OnComplete = { result in
             context.execute {
-                    complete(result)
+                complete(result)
             }
         }
         if let result = result {
@@ -694,16 +694,6 @@ public final class FutureStream<T> {
     
     public init(capacity: Int = Int.max) {
         self.capacity = capacity
-    }
-
-    public convenience init(capacity: Int = Int.max, result: T) {
-        self.init(capacity: capacity)
-        complete(Try<T>(result))
-    }
-
-    public convenience init(capacity: Int = Int.max, dependent: Future<T>) {
-        self.init(capacity: capacity)
-        completeWith(future: dependent)
     }
 
     public convenience init(capacity: Int = Int.max, context: ExecutionContext = QueueContext.futuresDefault, dependent: FutureStream<T>) {
