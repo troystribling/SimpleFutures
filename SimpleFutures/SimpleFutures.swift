@@ -364,7 +364,8 @@ public protocol Futurable {
     var result: Try<T>? { get }
 
     init()
-    init(result: T)
+    init(value: T)
+    init(error: ErrorType)
     init(context: ExecutionContext, dependent: Self)
 
     func complete(result: Try<T>)
@@ -492,13 +493,17 @@ public final class Future<T>: Futurable {
         return result != nil
     }
 
-    public required init() {}
+    public init() {}
 
-    public required init(result: T) {
-        self.result = Try(result)
+    public init(value: T) {
+        self.result = Try(value)
     }
 
-    public required init(context context: ExecutionContext = QueueContext.futuresDefault, dependent: Future<T>) {
+    public init(error: ErrorType) {
+        self.result = Try(error)
+    }
+
+    public init(context context: ExecutionContext = QueueContext.futuresDefault, dependent: Future<T>) {
         completeWith(context: context, future: dependent)
     }
 
@@ -634,7 +639,7 @@ func future<T>(context context: ExecutionContext = QueueContext.futuresDefault, 
 extension SequenceType where Generator.Element : Futurable {
 
     func fold<R>(context: ExecutionContext = QueueContext.futuresDefault, initial: R,  combine: (R, Generator.Element.T) -> R) -> Future<R> {
-        return reduce(Future<R>(result: initial)) { accumulator, element in
+        return reduce(Future<R>(value: initial)) { accumulator, element in
             accumulator.flatMap(context: context) { accumulatorValue in
                 return element.map(context: context) { elementValue in
                     return combine(accumulatorValue, elementValue)

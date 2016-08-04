@@ -20,185 +20,84 @@ class FutureRecoverWithTests : XCTestCase {
         super.tearDown()
     }
     
-    func testSuccessfulToFuture() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onSuccessExpectation = expectationWithDescription("OnSuccess fulfilled")
-        let onSuccessRecoveryExpectation = expectationWithDescription("OnSuccess fulfilled for recovered future")
-        future.onSuccess {value in
-            XCTAssert(value, "future onSuccess value invalid")
-            onSuccessExpectation.fulfill()
-        }
-        future.onFailure {error in
-            XCTAssert(false, "future onFailure called")
-        }
-        let recovered = future.recoverWith {error -> Future<Bool> in
-            XCTAssert(false, "recover called")
+    func testRecoverWith_WhenFutureSucceeds_CompletesSuccessfully() {
+        let future = Future<Bool>()
+        let recovered = future.recoverWith(context: TestContext.immediate) { _ -> Future<Bool> in
+            XCTFail()
             return Future<Bool>()
         }
-        recovered.onSuccess {value in
-            XCTAssert(value, "recovered onSuccess value invalid")
-            onSuccessRecoveryExpectation.fulfill()
-        }
-        recovered.onFailure {error in
-            XCTAssert(false, "recovered onFailure called")
-        }
-        promise.success(true)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
+        future.success(true)
+        XCTAssertFutureSucceeds(recovered, context: TestContext.immediate) { value in
+            XCTAssertTrue(value)
         }
     }
     
-    func testSuccessfulRecoveryToFuture() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onFailureExpectation = expectationWithDescription("OnFailure fulfilled")
-        let onSuccessRecoveryExpectation = expectationWithDescription("OnSuccess fulfilled for recovered future")
-        let recoverExpectation = expectationWithDescription("recover fulfilled")
-        future.onSuccess {value in
-            XCTAssert(false, "future onSuccess called")
+    func testRecoverWith_WhenFutureFailsAndRecoverySucceeds_CompletesSuccessfully() {
+        let future = Future<Bool>()
+        let recovered = future.recoverWith(context: TestContext.immediate) {error -> Future<Bool> in
+            return Future<Bool>(value: true)
         }
-        future.onFailure {error in
-            onFailureExpectation.fulfill()
-        }
-        let recovered = future.recoverWith {error -> Future<Bool> in
-            recoverExpectation.fulfill()
-            let promise = Promise<Bool>()
-            promise.success(false)
-            return promise.future
-        }
-        recovered.onSuccess {value in
-            XCTAssertFalse(value, "recovered onSuccess invalid value")
-            onSuccessRecoveryExpectation.fulfill()
-        }
-        recovered.onFailure {error in
-            XCTAssert(false, "recovered onFailure called")
-        }
-        promise.failure(TestFailure.error)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
+        future.failure(TestFailure.error)
+        XCTAssertFutureSucceeds(recovered, context: TestContext.immediate) { value in
+            XCTAssertTrue(value)
         }
     }
     
-    func testFailedRecoveryToFuture() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onFailureExpectation = expectationWithDescription("OnFailure fulfilled")
-        let onFailureRecoveryExpectation = expectationWithDescription("OnFailure fulfilled for recovered future")
-        let recoverExpectation = expectationWithDescription("recover fulfilled")
-        future.onSuccess {value in
-            XCTAssert(false, "future onSuccess called")
+    func testRecoverWith_WhenFutureFailsAndRecoveryFails_CompletesWithError() {
+        let future = Future<Bool>()
+        let recovered = future.recoverWith(context: TestContext.immediate) {error -> Future<Bool> in
+            throw TestFailure.recoveryError
         }
-        future.onFailure {error in
-            onFailureExpectation.fulfill()
-        }
-        let recovered = future.recoverWith {error -> Future<Bool> in
-            recoverExpectation.fulfill()
-            let promise = Promise<Bool>()
-            promise.failure(TestFailure.error)
-            return promise.future
-        }
-        recovered.onSuccess {value in
-            XCTAssert(false, "recovered onSuccess callsd")
-        }
-        recovered.onFailure {error in
-            onFailureRecoveryExpectation.fulfill()
-        }
-        promise.failure(TestFailure.error)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
+        future.failure(TestFailure.error)
+        XCTAssertFutureFails(recovered, context: TestContext.immediate) { error in
+            XCTAssertEqual(error._code, TestFailure.recoveryError._code)
         }
     }
  
-    func testSuccessfulToFutureStream() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onSuccessExpectation = expectationWithDescription("OnSuccess fulfilled")
-        let onSuccessRecoveryExpectation = expectationWithDescription("OnSuccess fulfilled for recovered future")
-        future.onSuccess {value in
-            XCTAssert(value, "future onSuccess value invalid")
-            onSuccessExpectation.fulfill()
+    func testRecoverWith_WhenFutureSucceedsAndRecoveryReturnsSuccessfulFutureStream_CompletesSuccessfully() {
+        let future = Future<Bool>()
+        let stream = FutureStream<Bool>()
+        let recovered = future.recoverWith(context: TestContext.immediate) {error -> FutureStream<Bool> in
+            XCTFail()
+            return stream
         }
-        future.onFailure {error in
-            XCTAssert(false, "future onFailure called")
-        }
-        let recovered = future.recoverWith {error -> FutureStream<Bool> in
-            XCTAssert(false, "recover called")
-            return FutureStream<Bool>()
-        }
-        recovered.onSuccess {value in
-            XCTAssert(value, "recovered onSuccess value invalid")
-            onSuccessRecoveryExpectation.fulfill()
-        }
-        recovered.onFailure {error in
-            XCTAssert(false, "recovered onFailure called")
-        }
-        promise.success(true)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        future.success(true)
+        stream.success(false)
+        XCTAssertFutureStreamSucceeds(recovered, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssert(value)
+            }
+        ])
     }
     
-    func testSuccessfulRecoveryToFutureStream() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onFailureExpectation = expectationWithDescription("OnFailure fulfilled")
-        let onSuccessRecoveryExpectation = expectationWithDescription("OnSuccess fulfilled for recovered future")
-        let recoverExpectation = expectationWithDescription("recover fulfilled")
-        future.onSuccess {value in
-            XCTAssert(false, "future onSuccess called")
+    func testRecoverWith_WhenFutureFailsAndRecoveryReturnsSuccessfulFutureStream_CompletesSuccessfully() {
+        let future = Future<Bool>()
+        let stream = FutureStream<Bool>()
+        let recovered = future.recoverWith(context: TestContext.immediate) {error -> FutureStream<Bool> in
+            return stream
         }
-        future.onFailure {error in
-            onFailureExpectation.fulfill()
-        }
-        let recovered = future.recoverWith {error -> FutureStream<Bool> in
-            recoverExpectation.fulfill()
-            let promise = StreamPromise<Bool>()
-            promise.success(false)
-            return promise.stream
-        }
-        recovered.onSuccess {value in
-            XCTAssertFalse(value, "recovered onSuccess invalid value")
-            onSuccessRecoveryExpectation.fulfill()
-        }
-        recovered.onFailure {error in
-            XCTAssert(false, "recovered onFailure called")
-        }
-        promise.failure(TestFailure.error)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        future.failure(TestFailure.error)
+        stream.success(false)
+        XCTAssertFutureStreamSucceeds(recovered, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertFalse(value)
+            }
+        ])
     }
     
-    func testFailedRecoveryToFutureStream() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onFailureExpectation = expectationWithDescription("OnFailure fulfilled")
-        let onFailureRecoveryExpectation = expectationWithDescription("OnFailure fulfilled for recovered future")
-        let recoverExpectation = expectationWithDescription("recover fulfilled")
-        future.onSuccess {value in
-            XCTAssert(false, "future onSuccess called")
+    func testRecoverWith_WhenFutureFailsAndRecoveryReturnsFailedFutureStream_CompletesWithError() {
+        let future = Future<Bool>()
+        let stream = FutureStream<Bool>()
+        let recovered = future.recoverWith(context: TestContext.immediate) {error -> FutureStream<Bool> in
+            return stream
         }
-        future.onFailure {error in
-            onFailureExpectation.fulfill()
-        }
-        let recovered = future.recoverWith {error -> FutureStream<Bool> in
-            recoverExpectation.fulfill()
-            let promise = StreamPromise<Bool>()
-            promise.failure(TestFailure.error)
-            return promise.stream
-        }
-        recovered.onSuccess {value in
-            XCTAssert(false, "recovered onSuccess callsd")
-        }
-        recovered.onFailure {error in
-            onFailureRecoveryExpectation.fulfill()
-        }
-        promise.failure(TestFailure.error)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        future.failure(TestFailure.error)
+        stream.failure(TestFailure.recoveryError)
+        XCTAssertFutureStreamFails(recovered, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqual(error._code, TestFailure.recoveryError._code)
+            }
+        ])
     }
-
 
 }

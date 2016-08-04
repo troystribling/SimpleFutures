@@ -23,7 +23,7 @@ class FutureFlatMapTests : XCTestCase {
     func testFlatMap_WhenFutureAndFlatMapSucceed_FlatMapFutureCompletesSuccessfully() {
         let future = Future<Bool>()
         let mapped = future.flatMap(context: TestContext.immediate) {value -> Future<Int> in
-            return Future<Int>(result: 1)
+            return Future<Int>(value: 1)
         }
         future.success(true)
         XCTAssertFutureSucceeds(mapped, context: TestContext.immediate) { value in
@@ -31,6 +31,17 @@ class FutureFlatMapTests : XCTestCase {
         }
     }
     
+    func testFlatMap_WhenFutureFailsAndFlatMapSucceeds_FlatMapFutureCompletesSuccessfully() {
+        let future = Future<Bool>()
+        let mapped = future.flatMap(context: TestContext.immediate) { value -> Future<Int> in
+            return Future<Int>(value: 1)
+        }
+        future.failure(TestFailure.error)
+        XCTAssertFutureFails(mapped, context: TestContext.immediate) { error in
+            XCTAssertEqual(error._code, TestFailure.error._code)
+        }
+    }
+
     func testFlatMap_WhenFutureSucceedsAndFlatMapFails_FlatMapFutureCompletesWithError() {
         let future = Future<Bool>()
         let mapped = future.flatMap(context: TestContext.immediate) { value -> Future<Int> in
@@ -42,17 +53,17 @@ class FutureFlatMapTests : XCTestCase {
         }
     }
 
-    func testFlatMap_WhenFutureFailsAndFlatMapSucceeds_FlatMapFutureCompletesSuccessfully() {
+    func testFlatMap_WhenFutureSucceedsAndFlatMapFutureFails_FlatMapFutureCompletesWithError() {
         let future = Future<Bool>()
         let mapped = future.flatMap(context: TestContext.immediate) { value -> Future<Int> in
-            return Future<Int>(result: 1)
+            return Future<Int>(error: TestFailure.error)
         }
-        future.failure(TestFailure.error)
+        future.success(true)
         XCTAssertFutureFails(mapped, context: TestContext.immediate) { error in
             XCTAssertEqual(error._code, TestFailure.error._code)
         }
     }
-    
+
     func testFlatMap_WhenFutureSucceedsAndFlatMapReturnsSuccessfulFutureStream_FlatMapFutureCompletesSuccessfully() {
         let future = Future<Bool>()
         let stream = FutureStream<Int>()
@@ -63,20 +74,7 @@ class FutureFlatMapTests : XCTestCase {
         stream.success(1)
         XCTAssertFutureStreamSucceeds(mapped, context: TestContext.immediate, validations: [
             { value in
-                XCTAssertEqual(value, 1, "mapped onSuccess value invalid")
-            }
-        ])
-    }
-    
-    func testFlatMap_WhenFutureSucceedsAndFlatMapReturnsFailedFutureStream_FlatMapFutureCompletesWithError() {
-        let future = Future<Bool>()
-        let mapped = future.flatMap(context: TestContext.immediate) { value -> FutureStream<Int> in
-            throw TestFailure.error
-        }
-        future.success(true)
-        XCTAssertFutureStreamFails(mapped, context: TestContext.immediate, validations: [
-            { error in
-                XCTAssertEqual(error._code, TestFailure.error._code)
+                XCTAssertEqual(value, 1)
             }
         ])
     }
@@ -95,5 +93,20 @@ class FutureFlatMapTests : XCTestCase {
             }
         ])
     }
-    
+
+    func testFlatMap_WhenFutureSucceedsAndFlatMapReturnsFailedFutureStream_FlatMapFutureCompletesWithError() {
+        let future = Future<Bool>()
+        let stream = FutureStream<Int>()
+        let mapped = future.flatMap(context: TestContext.immediate) { value -> FutureStream<Int> in
+            return stream
+        }
+        future.success(true)
+        stream.failure(TestFailure.error)
+        XCTAssertFutureStreamFails(mapped, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqual(error._code, TestFailure.error._code)
+            }
+            ])
+    }
+
 }

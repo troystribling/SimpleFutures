@@ -43,15 +43,15 @@ class FutureRecoverTests : XCTestCase {
         }
     }
     
-//    func testRecover_WhenFutureFailsAndRecoveryFails_CompletesWithFailure() {
-//        let future = Future<Bool>()
-//        let recovered = future.recover(context: TestContext.immediate) { _ -> Bool in
-//            return false
-//        }
-//        future.failure(TestFailure.error)
-//        XCTAssertFutureFails(recovered, context: TestContext.immediate) { error in
-//            XCTAssertEqual(error._code, TestFailure.error._code)
-//        }
-//    }
+    func testRecover_WhenFutureFailsAndRecoveryFails_CompletesWithFailure() {
+        let future = Future<Bool>()
+        let recovered = future.recover(context: TestContext.immediate) { _ -> Bool in
+            throw TestFailure.recoveryError
+        }
+        future.failure(TestFailure.error)
+        XCTAssertFutureFails(recovered, context: TestContext.immediate) { error in
+            XCTAssertEqual(error._code, TestFailure.recoveryError._code)
+        }
+    }
 
 }

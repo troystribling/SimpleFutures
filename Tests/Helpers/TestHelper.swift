@@ -12,6 +12,7 @@ import SimpleFutures
 
 enum TestFailure : ErrorType {
     case error
+    case recoveryError
 }
 
 func writeSuccesfulFutures<T>(promise:StreamPromise<T>, value:T, times:Int) {
