@@ -1,5 +1,5 @@
 //
-//  StreamFailureTests.swift
+//  StreamOnFailureTests.swift
 //  SimpleFutures
 //
 //  Created by Troy Stribling on 12/20/14.
@@ -10,7 +10,7 @@ import UIKit
 import XCTest
 @testable import SimpleFutures
 
-class StreamFailureTests : XCTestCase {
+class StreamOnFailureTests : XCTestCase {
     
     override func setUp() {
         super.setUp()

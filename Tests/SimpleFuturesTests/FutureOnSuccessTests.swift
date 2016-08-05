@@ -22,8 +22,16 @@ class FutureOnSuccessTests: XCTestCase {
     
     func testOnSuccess_WhenCompletedBeforeCallbacksDefined_CompletesSuccessfully() {
         let future = Future<Bool>()
+        var onSuccessCalled = false
         future.success(true)
-        XCTAssertFutureSucceeds(future)
+        future.onSuccess(context: TestContext.immediate) { value in
+            onSuccessCalled = true
+            XCTAssertTrue(value)
+        }
+        future.onFailure(context: TestContext.immediate) { _ in
+            XCTFail()
+        }
+        XCTAssertTrue(onSuccessCalled)
     }
     
     func testOnSuccess_WhenCompletedAfterCallbacksDefined_CompletesSuccessfully() {

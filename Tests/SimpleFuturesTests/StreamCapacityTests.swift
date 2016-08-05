@@ -21,61 +21,103 @@ class StreamCapacityTests: XCTestCase {
     }
 
     func testOnSuccess_WithInfiniteCapacityCompletedBeforeCallbacksDefined_CompletesSuccessfully() {
-        let promise = StreamPromise<Bool>()
-        let future = promise.stream
-        let onSuccessExpectation = XCTExpectFullfilledCountTimes(10, message:"onSuccess future")
-        writeSuccesfulFutures(promise, value:true, times:10)
-        future.onSuccess {value in
-            onSuccessExpectation()
+        let future = FutureStream<Bool>()
+        var onSuccessCalled = 0
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.onSuccess(context: TestContext.immediate) {value in
+            if value {
+                onSuccessCalled += 1
+            }
         }
-        XCTAssertEqual(future.count, 10, "future count invalid")
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
+        future.onFailure(context: TestContext.immediate) { _ in
+            XCTFail()
         }
+        XCTAssertEqual(future.count, 10)
+        XCTAssertEqual(onSuccessCalled, 10)
     }
 
     func testOnSuccess_WithInfiniteCapacityCompletedAfterCallbacksDefined_CompletesSuccessfully() {
-        let promise = StreamPromise<Bool>()
-        let future = promise.stream
-        let onSuccessExpectation = XCTExpectFullfilledCountTimes(10, message:"onSuccess future")
-        future.onSuccess {value in
-            onSuccessExpectation()
+        let future = FutureStream<Bool>()
+        var onSuccessCalled = 0
+        future.onSuccess(context: TestContext.immediate) {value in
+            if value {
+                onSuccessCalled += 1
+            }
         }
-        writeSuccesfulFutures(promise, value:true, times:10)
-        XCTAssertEqual(future.count, 10, "future count invalid")
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
+        future.onFailure(context: TestContext.immediate) { _ in
+            XCTFail()
         }
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        XCTAssertEqual(future.count, 10)
+        XCTAssertEqual(onSuccessCalled, 10)
     }
 
     func testOnSuccess_WithFiniteCapacityCompletedBeforeCallbacksDefined_CompletesSuccessfully() {
-        let promise = StreamPromise<Int>(capacity:2)
-        let future = promise.stream
-        let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
-        writeSuccesfulFutures(promise, values:Array(1...10))
-        future.onSuccess {value in
-            XCTAssert(value == 9 || value == 10, "onSuccess invalid value")
-            onSuccessExpectation()
+        let future = FutureStream<Bool>(capacity: 2)
+        var onSuccessCalled = 0
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.onSuccess(context: TestContext.immediate) {value in
+            if value {
+                onSuccessCalled += 1
+            }
         }
-        XCTAssertEqual(future.count, 2, "future count invalid")
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
+        future.onFailure(context: TestContext.immediate) { _ in
+            XCTFail()
         }
+        XCTAssertEqual(future.count, 2)
+        XCTAssertEqual(onSuccessCalled, 2)
     }
 
     func testOnSuccess_WithFiniteCapacityCompletedAfterCallbacksDefined_CompletesSuccessfully() {
-        let promise = StreamPromise<Int>(capacity:2)
-        let future = promise.stream
-        let onSuccessExpectation = XCTExpectFullfilledCountTimes(10, message:"onSuccess future")
-        future.onSuccess {value in
-            XCTAssert(Array(1...10).contains(value), "onSuccess invalid value")
-            onSuccessExpectation()
+        let future = FutureStream<Bool>(capacity: 2)
+        var onSuccessCalled = 0
+        future.onSuccess(context: TestContext.immediate) {value in
+            if value {
+                onSuccessCalled += 1
+            }
         }
-        writeSuccesfulFutures(promise, values:Array(1...10))
-        XCTAssertEqual(future.count, 2, "future count invalid")
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
+        future.onFailure(context: TestContext.immediate) { _ in
+            XCTFail()
         }
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        future.success(true)
+        XCTAssertEqual(future.count, 2)
+        XCTAssertEqual(onSuccessCalled, 10)
     }
 
 }
