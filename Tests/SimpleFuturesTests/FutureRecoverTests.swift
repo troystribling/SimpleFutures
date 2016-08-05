@@ -50,7 +50,7 @@ class FutureRecoverTests : XCTestCase {
         }
         future.failure(TestFailure.error)
         XCTAssertFutureFails(recovered, context: TestContext.immediate) { error in
-            XCTAssertEqual(error._code, TestFailure.recoveryError._code)
+            XCTAssertEqualErrors(error, TestFailure.recoveryError)
         }
     }
 

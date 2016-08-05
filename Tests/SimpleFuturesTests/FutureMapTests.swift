@@ -33,15 +33,15 @@ class FutureMapTests : XCTestCase {
     
     func testMap_WhenFutureSucceedsAndMapFails_MapFutureCompletesWithError() {
         let future = Future<Bool>()
-        let mapped = future.map(context: TestContext.immediate) { _ -> Try<Int> in
+        let mapped = future.map(context: TestContext.immediate) { _ -> Int in
             throw TestFailure.error
         }
         future.success(true)
         XCTAssertFutureFails(mapped, context: TestContext.immediate) { error in
-            XCTAssertEqual(error._code, TestFailure.error._code)
+            XCTAssertEqualErrors(error, TestFailure.error)
         }
     }
-    
+
     func testMap_WhenFutureFailsAndMapSucceeds_MapFutureCompletesWithError() {
         let future = Future<Bool>()
         let mapped = future.map(context: TestContext.immediate) { value -> Int in
@@ -49,7 +49,7 @@ class FutureMapTests : XCTestCase {
         }
         future.failure(TestFailure.error)
         XCTAssertFutureFails(mapped, context: TestContext.immediate) { error in
-            XCTAssertEqual(error._code, TestFailure.error._code)
+            XCTAssertEqualErrors(error, TestFailure.error)
         }
     }
     

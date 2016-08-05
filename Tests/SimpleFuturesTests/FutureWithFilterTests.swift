@@ -20,91 +20,37 @@ class FutureWithFilterTests: XCTestCase {
         super.tearDown()
     }
     
-    func testSuccessfulFilter() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onSuccessExpectation = expectationWithDescription("onSuccess fullfilled")
-        let onSuccesFilterExpectation = expectationWithDescription("onSuccess fullfilled for filtered future")
-        let filterExpectation = expectationWithDescription("fullfilled for filter")
-        future.onSuccess {value in
-            XCTAssert(value, "future onSucces value invalid")
-            onSuccessExpectation.fulfill()
-        }
-        future.onFailure {error in
-            XCTAssert(false, "future onFailure called")
-        }
-        let filter = future.withFilter {value in
-            filterExpectation.fulfill()
+    func testWithFilter_WhenFutureAndFilterSucceed_FilterFutureCompletesSuccessfully() {
+        let future = Future<Bool>()
+        let filter = future.withFilter(context: TestContext.immediate) { value in
             return value
         }
-        filter.onSuccess {value in
-            XCTAssert(value, "filter future onSuccess value invalid")
-            onSuccesFilterExpectation.fulfill()
-        }
-        filter.onFailure {error in
-            XCTAssert(false, "filter future onFailure called")
-        }
-        promise.success(true)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
+        future.success(true)
+        XCTAssertFutureSucceeds(filter, context: TestContext.immediate) { value in
+            XCTAssertTrue(value)
         }
     }
     
-    func testFailedFilter() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onSuccessExpectation = expectationWithDescription("onSuccess fullfilled")
-        let onFailureFilterExpectation = expectationWithDescription("onFailure fullfilled for filtered future")
-        let filterExpectation = expectationWithDescription("fullfilled for filter")
-        future.onSuccess {value in
-            XCTAssertFalse(value, "future onSucces value invalid")
-            onSuccessExpectation.fulfill()
-        }
-        future.onFailure {error in
-            XCTAssert(false, "future onFailure called")
-        }
-        let filter = future.withFilter {value in
-            filterExpectation.fulfill()
+    func testWithFilter_WhenFutureSuccedsAndFilterFails_FilterFutureCompletesWithError() {
+        let future = Future<Bool>()
+        let filter = future.withFilter(context: TestContext.immediate) { value in
             return value
         }
-        filter.onSuccess {value in
-            XCTAssert(false, "filter future onSuccess called")
-        }
-        filter.onFailure {error in
+        future.success(false)
+        XCTAssertFutureFails(filter, context: TestContext.immediate) { error in
             XCTAssertEqualErrors(error, SimpleFuturesErrors.filterFailed)
-            onFailureFilterExpectation.fulfill()
-        }
-        promise.success(false)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
         }
     }
     
-    func testFailedFuture() {
-        let promise = Promise<Bool>()
-        let future = promise.future
-        let onFailureExpectation = expectationWithDescription("onFailure fullfilled")
-        let onFailureFilterExpectation = expectationWithDescription("onFailure fullfilled for filtered future")
-        future.onSuccess {value in
-            XCTAssert(false, "future onSuccess called")
-        }
-        future.onFailure {error in
-            onFailureExpectation.fulfill()
-        }
-        let filter = future.withFilter {value in
-            XCTAssert(false, "filter called")
+    func testWithFilter_WhenFutureFails_FilterFutureCompletesWithError() {
+        let future = Future<Bool>()
+        let filter = future.withFilter(context: TestContext.immediate) { value in
+            XCTFail()
             return value
         }
-        filter.onSuccess {value in
-            XCTAssert(false, "filter future onSuccess called")
-        }
-        filter.onFailure {error in
+        future.failure(TestFailure.error)
+        XCTAssertFutureFails(filter, context: TestContext.immediate) { error in
             XCTAssertEqualErrors(error, TestFailure.error)
-            onFailureFilterExpectation.fulfill()
-        }
-        promise.failure(TestFailure.error)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
         }
     }
 }

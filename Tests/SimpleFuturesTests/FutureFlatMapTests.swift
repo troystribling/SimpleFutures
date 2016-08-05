@@ -27,7 +27,7 @@ class FutureFlatMapTests : XCTestCase {
         }
         future.success(true)
         XCTAssertFutureSucceeds(mapped, context: TestContext.immediate) { value in
-            XCTAssertEqual(value, 1, "mapped onSuccess value invalid")
+            XCTAssertEqual(value, 1)
         }
     }
     
@@ -38,7 +38,7 @@ class FutureFlatMapTests : XCTestCase {
         }
         future.failure(TestFailure.error)
         XCTAssertFutureFails(mapped, context: TestContext.immediate) { error in
-            XCTAssertEqual(error._code, TestFailure.error._code)
+            XCTAssertEqualErrors(error, TestFailure.error)
         }
     }
 
@@ -49,7 +49,7 @@ class FutureFlatMapTests : XCTestCase {
         }
         future.success(true)
         XCTAssertFutureFails(mapped, context: TestContext.immediate) { error in
-            XCTAssertEqual(error._code, TestFailure.error._code)
+            XCTAssertEqualErrors(error, TestFailure.error)
         }
     }
 
@@ -60,7 +60,7 @@ class FutureFlatMapTests : XCTestCase {
         }
         future.success(true)
         XCTAssertFutureFails(mapped, context: TestContext.immediate) { error in
-            XCTAssertEqual(error._code, TestFailure.error._code)
+            XCTAssertEqualErrors(error, TestFailure.error)
         }
     }
 
@@ -89,7 +89,7 @@ class FutureFlatMapTests : XCTestCase {
         stream.success(1)
         XCTAssertFutureStreamFails(mapped, context: TestContext.immediate, validations: [
             { error in
-                XCTAssertEqual(error._code, TestFailure.error._code)
+                XCTAssertEqualErrors(error, TestFailure.error)
             }
         ])
     }
@@ -104,9 +104,10 @@ class FutureFlatMapTests : XCTestCase {
         stream.failure(TestFailure.error)
         XCTAssertFutureStreamFails(mapped, context: TestContext.immediate, validations: [
             { error in
-                XCTAssertEqual(error._code, TestFailure.error._code)
+                XCTAssertEqualErrors(error, TestFailure.error)
+
             }
-            ])
+        ])
     }
 
 }

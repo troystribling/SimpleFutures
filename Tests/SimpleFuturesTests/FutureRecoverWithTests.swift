@@ -50,7 +50,7 @@ class FutureRecoverWithTests : XCTestCase {
         }
         future.failure(TestFailure.error)
         XCTAssertFutureFails(recovered, context: TestContext.immediate) { error in
-            XCTAssertEqual(error._code, TestFailure.recoveryError._code)
+            XCTAssertEqualErrors(error, TestFailure.recoveryError)
         }
     }
  
@@ -95,7 +95,7 @@ class FutureRecoverWithTests : XCTestCase {
         stream.failure(TestFailure.recoveryError)
         XCTAssertFutureStreamFails(recovered, context: TestContext.immediate, validations: [
             { error in
-                XCTAssertEqual(error._code, TestFailure.recoveryError._code)
+                XCTAssertEqualErrors(error, TestFailure.recoveryError)
             }
         ])
     }

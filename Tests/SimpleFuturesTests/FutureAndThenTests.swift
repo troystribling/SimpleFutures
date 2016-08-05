@@ -22,17 +22,20 @@ class FutureAndThenTests : XCTestCase {
         super.tearDown()
     }
 
-    func testAndThen_FollowingSuccessfulFuture_CompletesSuccessfully() {
+    func testAndThen_WhenFutureSucceeds_AndThenCalledCompletesdSuccessfully() {
         let future = Future<Bool>()
+        var andThenCalled = false
         let andThen = future.andThen(context: TestContext.immediate) { _ in
+            andThenCalled = true
         }
         future.success(true)
         XCTAssertFutureSucceeds(andThen, context: self.immediateContext) { value in
             XCTAssert(value, "andThen onSuccess value invalid")
+            XCTAssertTrue(andThenCalled)
         }
     }
 
-    func testAndThen_FollowingFailedFuture_CompletesWithError() {
+    func testAndThen_WhenFutureFails_AndThenNotCalledCompletesWithError() {
         let future = Future<Bool>()
         let andThen = future.andThen(context: TestContext.immediate) { _ in
         }

@@ -20,49 +20,40 @@ class StreamAndThenTests: XCTestCase {
         super.tearDown()
     }
 
-    func testSuccessfulAndThen() {
-        let promise = StreamPromise<Bool>()
-        let stream = promise.stream
-        let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
-        let andThenExpectation = XCTExpectFullfilledCountTimes(2, message:"andThen")
-        let onSuccessAndThenExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess andThen future")
-        stream.onSuccess {value in
-            XCTAssert(value, "future onSuccess value invalid")
-            onSuccessExpectation()
+    func testAndThen_WhenFutureStreamSucceeds_AndThenCalledCompletesSuccessfully() {
+        let stream = FutureStream<Bool>()
+        var andThenCalled = 0
+        let andThen = stream.andThen(context: TestContext.immediate) { _ in
+            andThenCalled += 1
         }
-        stream.onFailure {error in
-            XCTFail("future onFailure called")
-        }
-        let andThen = stream.andThen { _ in
-            andThenExpectation()
-        }
-        andThen.onSuccess {value in
-            XCTAssert(value, "andThen onSuccess value invalid")
-            onSuccessAndThenExpectation()
-        }
-        andThen.onFailure {error in
-            XCTAssert(false, "andThen onFailure called")
-        }
-        writeSuccesfulFutures(promise, value:true, times:2)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        stream.success(true)
+        stream.success(true)
+        XCTAssertFutureStreamSucceeds(andThen, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertTrue(value)
+            },
+            { value in
+                XCTAssertTrue(value)
+            }
+        ])
+        XCTAssertEqual(andThenCalled, 2)
     }
 
-    func testFailedAndThen() {
-        let promise = StreamPromise<Bool>()
-        let stream = promise.stream
-        let onFailureAndThenExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure andThen future")
-        let andThen = stream.andThen {result in
-            XCTFail("andThen called")
+    func testAndThen_WhenFutureStreamFails_AndThenNotCalledCompletesWithFailure() {
+        let stream = FutureStream<Bool>()
+        let andThen = stream.andThen(context: TestContext.immediate) {result in
+            XCTFail()
         }
-        andThen.onFailure {error in
-            onFailureAndThenExpectation()
-        }
-        writeFailedFutures(promise, times:2)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
+        XCTAssertFutureStreamFails(andThen, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
     }
     
 }
