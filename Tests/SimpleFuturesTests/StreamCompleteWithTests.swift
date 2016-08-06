@@ -20,7 +20,7 @@ class StreamCompleteWithTests: XCTestCase {
         super.tearDown()
     }
 
-    func testSuccessImmediate() {
+    func testCompletesWith_WhenDependentFutureStreamCompletedFirst_CompletesSuccessfully() {
         let promise = StreamPromise<Int>()
         let stream = promise.stream
         let promiseCompleted = StreamPromise<Int>()
@@ -48,7 +48,7 @@ class StreamCompleteWithTests: XCTestCase {
         }
     }
 
-    func testSuccessDelayed() {
+    func testCompletesWith_WhenDependentFutureStreamCompletedLast_CompletesSuccessfully() {
         let promise = StreamPromise<Int>()
         let stream = promise.stream
         let promiseCompleted = StreamPromise<Int>()
@@ -76,7 +76,7 @@ class StreamCompleteWithTests: XCTestCase {
         }
     }
 
-    func testFailure() {
+    func testCompletesWith_WhenDependentFutureStreamFails_CompletesWithDependantFutureError() {
         let promise = StreamPromise<Bool>()
         let stream = promise.stream
         let promiseCompleted = StreamPromise<Bool>()
@@ -102,7 +102,7 @@ class StreamCompleteWithTests: XCTestCase {
         }
     }
 
-    func testCompleted() {
+    func testCompletesWith_WhenDependentFutureCompletesBeforeAndAfterCompletion_CompletesSuccessfully() {
         let promise = StreamPromise<Int>()
         let stream = promise.stream
         let promiseCompleted = StreamPromise<Int>()

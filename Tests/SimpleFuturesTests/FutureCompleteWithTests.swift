@@ -82,7 +82,7 @@ class FutureCompleteWithTests: XCTestCase {
         XCTAssert(completedOnSuccessCalled)
     }
 
-    func testCompletesWith_WhenDependentFutureFails_CompletesWithEnclosingFutureError() {
+    func testCompletesWith_WhenDependentFutureFails_CompletesWithDependantFutureError() {
         let future = Future<Bool>()
         let futureCompleted =  Future<Bool>()
 

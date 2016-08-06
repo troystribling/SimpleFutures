@@ -71,7 +71,7 @@ class StreamWithFilter: XCTestCase {
             XCTAssert(false, "filter future onSuccess called")
         }
         filter.onFailure {error in
-            XCTAssertEqualErrors(error, SimpleFuturesErrors.filterFailed)
+            XCTAssertEqualErrors(error, SimpleFuturesErrors.NoSuchElement)
             onFailureFilterExpectation()
         }
         writeSuccesfulFutures(promise, value: false, times: 2)

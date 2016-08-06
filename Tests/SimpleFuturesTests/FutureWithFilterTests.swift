@@ -38,7 +38,7 @@ class FutureWithFilterTests: XCTestCase {
         }
         future.success(false)
         XCTAssertFutureFails(filter, context: TestContext.immediate) { error in
-            XCTAssertEqualErrors(error, SimpleFuturesErrors.filterFailed)
+            XCTAssertEqualErrors(error, SimpleFuturesErrors.NoSuchElement)
         }
     }
     

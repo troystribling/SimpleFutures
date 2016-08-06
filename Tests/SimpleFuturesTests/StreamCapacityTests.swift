@@ -21,102 +21,102 @@ class StreamCapacityTests: XCTestCase {
     }
 
     func testOnSuccess_WithInfiniteCapacityCompletedBeforeCallbacksDefined_CompletesSuccessfully() {
-        let future = FutureStream<Bool>()
+        let stream = FutureStream<Bool>()
         var onSuccessCalled = 0
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.onSuccess(context: TestContext.immediate) {value in
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.onSuccess(context: TestContext.immediate) {value in
             if value {
                 onSuccessCalled += 1
             }
         }
-        future.onFailure(context: TestContext.immediate) { _ in
+        stream.onFailure(context: TestContext.immediate) { _ in
             XCTFail()
         }
-        XCTAssertEqual(future.count, 10)
+        XCTAssertEqual(stream.count, 10)
         XCTAssertEqual(onSuccessCalled, 10)
     }
 
     func testOnSuccess_WithInfiniteCapacityCompletedAfterCallbacksDefined_CompletesSuccessfully() {
-        let future = FutureStream<Bool>()
+        let stream = FutureStream<Bool>()
         var onSuccessCalled = 0
-        future.onSuccess(context: TestContext.immediate) {value in
+        stream.onSuccess(context: TestContext.immediate) {value in
             if value {
                 onSuccessCalled += 1
             }
         }
-        future.onFailure(context: TestContext.immediate) { _ in
+        stream.onFailure(context: TestContext.immediate) { _ in
             XCTFail()
         }
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        XCTAssertEqual(future.count, 10)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        XCTAssertEqual(stream.count, 10)
         XCTAssertEqual(onSuccessCalled, 10)
     }
 
     func testOnSuccess_WithFiniteCapacityCompletedBeforeCallbacksDefined_CompletesSuccessfully() {
-        let future = FutureStream<Bool>(capacity: 2)
+        let stream = FutureStream<Bool>(capacity: 2)
         var onSuccessCalled = 0
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.onSuccess(context: TestContext.immediate) {value in
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.onSuccess(context: TestContext.immediate) {value in
             if value {
                 onSuccessCalled += 1
             }
         }
-        future.onFailure(context: TestContext.immediate) { _ in
+        stream.onFailure(context: TestContext.immediate) { _ in
             XCTFail()
         }
-        XCTAssertEqual(future.count, 2)
+        XCTAssertEqual(stream.count, 2)
         XCTAssertEqual(onSuccessCalled, 2)
     }
 
     func testOnSuccess_WithFiniteCapacityCompletedAfterCallbacksDefined_CompletesSuccessfully() {
-        let future = FutureStream<Bool>(capacity: 2)
+        let stream = FutureStream<Bool>(capacity: 2)
         var onSuccessCalled = 0
-        future.onSuccess(context: TestContext.immediate) {value in
+        stream.onSuccess(context: TestContext.immediate) {value in
             if value {
                 onSuccessCalled += 1
             }
         }
-        future.onFailure(context: TestContext.immediate) { _ in
+        stream.onFailure(context: TestContext.immediate) { _ in
             XCTFail()
         }
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        future.success(true)
-        XCTAssertEqual(future.count, 2)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        stream.success(true)
+        XCTAssertEqual(stream.count, 2)
         XCTAssertEqual(onSuccessCalled, 10)
     }
 

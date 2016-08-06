@@ -12,9 +12,7 @@ import Foundation
 
 enum SimpleFuturesErrors: Int, ErrorType {
 
-    case futureCompleted = 0
-    case futureNotCompleted = 1
-    case filterFailed = 2
+    case NoSuchElement
 
 }
 
@@ -53,6 +51,7 @@ public protocol Tryable {
     init(_ value: T)
     init(_ error: ErrorType)
 
+    func map<M>(@noescape mapping: T throws -> M) -> Try<M>
 }
 
 // MARK: - Try -
@@ -141,6 +140,15 @@ public enum Try<T>: Tryable {
             return Try<M>(error)
         }
     }
+
+    public func mapError(@noescape mapping: ErrorType -> ErrorType) -> Try<T> {
+        switch self {
+        case .Success(let value):
+            return Try(value)
+        case .Failure(let error):
+            return Try(mapping(error))
+        }
+    }
     
     public func recover(@noescape recovery: ErrorType throws -> T) -> Try<T> {
         switch self {
@@ -173,7 +181,7 @@ public enum Try<T>: Tryable {
         case .Success(let value):
             do {
                 if try !predicate(value) {
-                    return Try<T>(SimpleFuturesErrors.filterFailed)
+                    return Try<T>(SimpleFuturesErrors.NoSuchElement)
                 } else {
                     return .Success(value)
                 }
@@ -233,6 +241,22 @@ public func ??<T>(left: Try<T>, right: T) -> T {
     return left.getOrElse(right)
 }
 
+// MARK: - Try SequenceType -
+
+extension SequenceType where Generator.Element: Tryable {
+
+    public func sequence() -> Try<[Generator.Element.T]> {
+        return reduce(Try([])) { accumulater, element  in
+            switch accumulater {
+            case .Success(let value):
+                return element.map { value + [$0] }
+            case .Failure:
+                return accumulater
+            }
+        }
+    }
+}
+
 // MARK: - ExecutionContext -
 
 public protocol ExecutionContext {
@@ -267,7 +291,7 @@ public struct QueueContext : ExecutionContext {
 
 }
 
-public struct MaxStackDepthContest : ExecutionContext {
+public struct MaxStackDepthContext : ExecutionContext {
 
     static let taskDepthKey = "us.gnos.taskDepthKey"
     let maxDepth: Int
@@ -278,11 +302,11 @@ public struct MaxStackDepthContest : ExecutionContext {
 
     public func execute(task: Void -> Void) {
         let localThreadDictionary = NSThread.currentThread().threadDictionary
-        let previousDepth = localThreadDictionary[MaxStackDepthContest.taskDepthKey] as? Int ?? 0
+        let previousDepth = localThreadDictionary[MaxStackDepthContext.taskDepthKey] as? Int ?? 0
         if previousDepth < maxDepth {
-            localThreadDictionary[MaxStackDepthContest.taskDepthKey] = previousDepth + 1
+            localThreadDictionary[MaxStackDepthContext.taskDepthKey] = previousDepth + 1
             task()
-            localThreadDictionary[MaxStackDepthContest.taskDepthKey] = previousDepth
+            localThreadDictionary[MaxStackDepthContext.taskDepthKey] = previousDepth
         } else {
             QueueContext.global.execute(task)
         }
@@ -393,6 +417,29 @@ public extension Futurable {
         return future
     }
 
+    public func withFilter(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), filter: T throws -> Bool) -> Future<T> {
+        let future = Future<T>()
+        onComplete(context: context, cancelToken: cancelToken) { result in
+            future.complete(result.filter(filter))
+        }
+        return future
+    }
+
+    public func forEach(context context:ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: T throws -> Void) {
+        onComplete(context: context, cancelToken: cancelToken) { result in
+            result.forEach(apply)
+        }
+    }
+
+    public func andThen(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: T -> Void) -> Future<T> {
+        let future = Future<T>()
+        future.onSuccess(context: context, cancelToken: cancelToken, success: success)
+        onComplete(context: context, cancelToken: cancelToken) { result in
+            future.complete(result)
+        }
+        return future
+    }
+
     public func recover(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: ErrorType throws -> T) -> Future<T> {
         let future = Future<T>()
         onComplete(context: context, cancelToken: cancelToken) { result in
@@ -418,25 +465,10 @@ public extension Futurable {
         return future
     }
 
-    public func withFilter(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), filter: T throws -> Bool) -> Future<T> {
+    public func mapError(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: ErrorType -> ErrorType) -> Future<T> {
         let future = Future<T>()
         onComplete(context: context, cancelToken: cancelToken) { result in
-            future.complete(result.filter(filter))
-        }
-        return future
-    }
-
-    public func forEach(context context:ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: T throws -> Void) {
-        onComplete(context: context, cancelToken: cancelToken) { result in
-            result.forEach(apply)
-        }
-    }
-
-    public func andThen(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: T -> Void) -> Future<T> {
-        let future = Future<T>()
-        future.onSuccess(context: context, cancelToken: cancelToken, success: success)
-        onComplete(context: context, cancelToken: cancelToken) { result in
-            future.complete(result)
+            future.complete(result.mapError(mapping))
         }
         return future
     }
@@ -499,12 +531,12 @@ public final class Future<T>: Futurable {
         self.result = Try(value)
     }
 
-    public init(error: ErrorType) {
-        self.result = Try(error)
-    }
-
     public init(context context: ExecutionContext = QueueContext.futuresDefault, dependent: Future<T>) {
         completeWith(context: context, future: dependent)
+    }
+
+    public init(error: ErrorType) {
+        self.result = Try(error)
     }
 
     // MARK: Complete
@@ -626,7 +658,7 @@ public final class Future<T>: Futurable {
 }
 
 // MARK: - future -
-func future<T>(context context: ExecutionContext = QueueContext.futuresDefault, task: Void throws -> T) -> Future<T> {
+public func future<T>(context context: ExecutionContext = QueueContext.futuresDefault, @autoclosure(escaping) task: Void throws -> T) -> Future<T> {
     let future = Future<T>()
     context.execute {
         future.complete(Try<T>(task))
@@ -634,19 +666,45 @@ func future<T>(context context: ExecutionContext = QueueContext.futuresDefault, 
     return future
 }
 
+public func ??<T>(lhs: Future<T>, @autoclosure(escaping) rhs: Void throws -> T) -> Future<T> {
+    return lhs.recover { _ in
+        return try rhs()
+    }
+}
+
+public func ??<T>(lhs: Future<T>, @autoclosure(escaping) rhs: Void throws -> Future<T>) -> Future<T> {
+    return lhs.recoverWith { _ in
+        return try rhs()
+    }
+}
+
 // MARK: - Future SequenceType -
 
 extension SequenceType where Generator.Element : Futurable {
 
-    func fold<R>(context: ExecutionContext = QueueContext.futuresDefault, initial: R,  combine: (R, Generator.Element.T) -> R) -> Future<R> {
+    public func fold<R>(context context: ExecutionContext = QueueContext.futuresDefault, initial: R,  combine: (R, Generator.Element.T) throws -> R) -> Future<R> {
         return reduce(Future<R>(value: initial)) { accumulator, element in
-            accumulator.flatMap(context: context) { accumulatorValue in
+            accumulator.flatMap(context: MaxStackDepthContext()) { accumulatorValue in
                 return element.map(context: context) { elementValue in
-                    return combine(accumulatorValue, elementValue)
+                    return try combine(accumulatorValue, elementValue)
                 }
             }
         }
     }
+
+    public func sequence() -> Future<[Generator.Element.T]> {
+        return traverse(context: ImmediateContext()) { $0 }
+    }
+}
+
+extension SequenceType {
+
+    public func traverse<U, F: Futurable where F.T == U>(context context: ExecutionContext = QueueContext.futuresDefault, mapping: Generator.Element -> F) -> Future<[U]> {
+        return map(mapping).fold(context: context, initial: [U]()) { accumulator, element in
+            return accumulator + [element]
+        }
+    }
+
 }
 
 // MARK: - StreamPromise -

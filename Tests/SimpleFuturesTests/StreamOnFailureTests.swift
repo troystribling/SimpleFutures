@@ -20,53 +20,52 @@ class StreamOnFailureTests : XCTestCase {
         super.tearDown()
     }
     
-    func testImmediate() {
-        let promise = StreamPromise<Bool>()
-        let stream = promise.stream
-        let onFailureExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure future")
-        writeFailedFutures(promise, times:2)
-        stream.onSuccess {value in
-            XCTAssert(false, "onSuccess called")
+    func testOnFailure_WhenCompletedBeforeCallbacksDefined_CompletesWithError() {
+        let stream = FutureStream<Bool>()
+        var onFailureCalled = 0
+        stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
+        stream.onSuccess(context: TestContext.immediate) { _ in
+            XCTFail()
         }
-        stream.onFailure {error in
-            onFailureExpectation()
+        stream.onFailure(context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, TestFailure.error)
+            onFailureCalled += 1
         }
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        XCTAssertEqual(onFailureCalled, 3)
     }
     
-    func testDelayed() {
-        let promise = StreamPromise<Bool>()
-        let stream = promise.stream
-        let onFailureExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure future")
-        stream.onSuccess {value in
-            XCTAssert(false, "onSuccess called")
+    func testOnSuccess_WhenCompletedBeforeCallbacksDefined_CompletesWithError() {
+        let stream = FutureStream<Bool>()
+        var onFailureCalled = 0
+        stream.onSuccess(context: TestContext.immediate) { _ in
+            XCTFail()
         }
-        stream.onFailure {error in
-            onFailureExpectation()
+        stream.onFailure(context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, TestFailure.error)
+            onFailureCalled += 1
         }
-        writeFailedFutures(promise, times:2)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
+        XCTAssertEqual(onFailureCalled, 3)
     }
     
-    func testDelayedAndImmediate() {
-        let promise = StreamPromise<Bool>()
-        let stream = promise.stream
-        let onFailureExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure future")
-        writeFailedFutures(promise, times:1)
-        stream.onSuccess {value in
-            XCTAssert(false, "onSuccess called")
+    func testOnSuccess_WhenCompletedBeforeAndAfterCallbacksDefined_CompletesWithError() {
+        let stream = FutureStream<Bool>()
+        var onFailureCalled = 0
+        stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
+        stream.onSuccess(context: TestContext.immediate) { _ in
+            XCTFail()
         }
-        writeFailedFutures(promise, times:1)
-        stream.onFailure {error in
-            onFailureExpectation()
+        stream.onFailure(context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, TestFailure.error)
+            onFailureCalled += 1
         }
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        stream.failure(TestFailure.error)
+        XCTAssertEqual(onFailureCalled, 3)
     }
     
 }
