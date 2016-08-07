@@ -11,9 +11,8 @@ import Foundation
 // MARK: - Errors -
 
 enum SimpleFuturesErrors: Int, ErrorType {
-
     case NoSuchElement
-
+    case InvalidValue
 }
 
 // MARK: - Optional -
@@ -87,7 +86,7 @@ public enum Try<T>: Tryable {
         self = .Failure(error)
     }
 
-    public init(_ task: Void throws -> T) {
+    public init(@noescape _ task: Void throws -> T) {
         do {
             self = try .Success(task())
         } catch {
@@ -539,6 +538,12 @@ public final class Future<T>: Futurable {
         self.result = Try(error)
     }
 
+    public init(resolver: (Try<T> -> Void) -> Void) {
+        resolver { value in
+            self.complete(value)
+        }
+    }
+
     // MARK: Complete
 
     public func complete(result: Try<T>) {
@@ -658,12 +663,51 @@ public final class Future<T>: Futurable {
 }
 
 // MARK: - future -
-public func future<T>(context context: ExecutionContext = QueueContext.futuresDefault, @autoclosure(escaping) task: Void throws -> T) -> Future<T> {
+public func future<T>(@autoclosure(escaping) _ task: Void -> T) -> Future<T> {
+    return future(context: ImmediateContext(), task)
+}
+
+public func future<T>(context context: ExecutionContext = QueueContext.futuresDefault, _ task: Void throws -> T) -> Future<T> {
     let future = Future<T>()
     context.execute {
         future.complete(Try<T>(task))
     }
     return future
+}
+
+public func future<T>(method: ((T?, ErrorType?) -> Void) -> Void) -> Future<T> {
+    return Future(resolver: { completion in
+        method { value, error in
+            if let value = value {
+                completion(Try(value))
+            } else if let error = error {
+                completion(Try(error))
+            } else {
+                completion(Try(SimpleFuturesErrors.InvalidValue))
+            }
+        }
+    })
+}
+
+
+//public func future<Void>(method: (ErrorType? -> Void) -> Void) -> Future<Void> {
+//    return Future(resolver: { completion in
+//        method { error in
+//            if let error = error {
+//                completion(Try(error))
+//            } else {
+//                completion(Try<Void>())
+//            }
+//        }
+//    })
+//}
+
+public func future<T>(method: (T -> Void) -> Void) -> Future<T> {
+    return Future(resolver: { completion in
+        method { value in
+            completion(Try(value))
+        }
+    })
 }
 
 public func ??<T>(lhs: Future<T>, @autoclosure(escaping) rhs: Void throws -> T) -> Future<T> {
@@ -692,8 +736,8 @@ extension SequenceType where Generator.Element : Futurable {
         }
     }
 
-    public func sequence() -> Future<[Generator.Element.T]> {
-        return traverse(context: ImmediateContext()) { $0 }
+    public func sequence(context context: ExecutionContext = QueueContext.futuresDefault) -> Future<[Generator.Element.T]> {
+        return traverse(context: context) { $0 }
     }
 }
 

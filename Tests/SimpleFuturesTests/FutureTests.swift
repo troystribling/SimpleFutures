@@ -89,7 +89,7 @@ class FutureTests: XCTestCase {
         future.onSuccess(context: TestContext.immediate) { _ in
             XCTFail()
         }
-        future.onFailure(context: TestContext.immediate) {error in
+        future.onFailure(context: TestContext.immediate) { error in
             onFailureCalled = true
             XCTAssertEqualErrors(error, TestFailure.error)
         }
@@ -312,7 +312,7 @@ class FutureTests: XCTestCase {
     func testFlatMap_WhenFutureFailsAndFlatMapReturnsSuccessfulFutureStream_FlatMapFutureCompletesWithError() {
         let future = Future<Bool>()
         let stream = FutureStream<Int>()
-        let mapped = future.flatMap(context: TestContext.immediate) {value -> FutureStream<Int> in
+        let mapped = future.flatMap(context: TestContext.immediate) { value -> FutureStream<Int> in
             return stream
         }
         future.failure(TestFailure.error)
@@ -392,7 +392,7 @@ class FutureTests: XCTestCase {
 
     func testRecoverWith_WhenFutureFailsAndRecoverySucceeds_CompletesSuccessfully() {
         let future = Future<Bool>()
-        let recovered = future.recoverWith(context: TestContext.immediate) {error -> Future<Bool> in
+        let recovered = future.recoverWith(context: TestContext.immediate) { error -> Future<Bool> in
             return Future<Bool>(value: true)
         }
         future.failure(TestFailure.error)
@@ -403,7 +403,7 @@ class FutureTests: XCTestCase {
 
     func testRecoverWith_WhenFutureFailsAndRecoveryFails_CompletesWithError() {
         let future = Future<Bool>()
-        let recovered = future.recoverWith(context: TestContext.immediate) {error -> Future<Bool> in
+        let recovered = future.recoverWith(context: TestContext.immediate) { error -> Future<Bool> in
             throw TestFailure.recoveryError
         }
         future.failure(TestFailure.error)
@@ -415,7 +415,7 @@ class FutureTests: XCTestCase {
     func testRecoverWith_WhenFutureSucceedsAndRecoveryReturnsSuccessfulFutureStream_CompletesSuccessfully() {
         let future = Future<Bool>()
         let stream = FutureStream<Bool>()
-        let recovered = future.recoverWith(context: TestContext.immediate) {error -> FutureStream<Bool> in
+        let recovered = future.recoverWith(context: TestContext.immediate) { error -> FutureStream<Bool> in
             XCTFail()
             return stream
         }
@@ -431,7 +431,7 @@ class FutureTests: XCTestCase {
     func testRecoverWith_WhenFutureFailsAndRecoveryReturnsSuccessfulFutureStream_CompletesSuccessfully() {
         let future = Future<Bool>()
         let stream = FutureStream<Bool>()
-        let recovered = future.recoverWith(context: TestContext.immediate) {error -> FutureStream<Bool> in
+        let recovered = future.recoverWith(context: TestContext.immediate) { error -> FutureStream<Bool> in
             return stream
         }
         future.failure(TestFailure.error)
@@ -446,7 +446,7 @@ class FutureTests: XCTestCase {
     func testRecoverWith_WhenFutureFailsAndRecoveryReturnsFailedFutureStream_CompletesWithError() {
         let future = Future<Bool>()
         let stream = FutureStream<Bool>()
-        let recovered = future.recoverWith(context: TestContext.immediate) {error -> FutureStream<Bool> in
+        let recovered = future.recoverWith(context: TestContext.immediate) { error -> FutureStream<Bool> in
             return stream
         }
         future.failure(TestFailure.error)
@@ -617,19 +617,69 @@ class FutureTests: XCTestCase {
 
     // MARK: - future -
 
-    func testFuture_WhenClosureCompletes_CompletesSuccessfully() {
-
+    func testFuture_WhenClosureSucceeds_CompletesSuccessfully() {
+        let result = future(context: TestContext.immediate) {
+            return 1
+        }
+        XCTAssertFutureSucceeds(result, context: TestContext.immediate) { value in
+            XCTAssertEqual(value, 1)
+        }
     }
 
-    func testFuture_WithAutoclosureCompletes_CompletesSuccessfully() {
-
+    func testFuture_WhenClosureFails_CompletesWithError() {
+        let result = future(context: TestContext.immediate) { Void -> Int in
+            throw TestFailure.error
+        }
+        XCTAssertFutureFails(result, context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(TestFailure.error, error)
+        }
     }
 
-    func testFuture_WhenThroes_CompletesWithError() {
-
+    func testFuture_WithAutoclosure_CompletesSuccessfully() {
+        let result = future(1 < 2)
+        XCTAssertFutureSucceeds(result, context: TestContext.immediate) { value in
+            XCTAssertTrue(value)
+        }
     }
+
 
     // MARK: - fold -
+    func testFold_WhenFuturesSucceed_CompletesSuccessfully() {
+        let futures = [future(Int(1)), future(Int(2)), future(Int(3))]
+        let result = futures.fold(context: TestContext.immediate, initial: 0) { $0 + $1 }
+        XCTAssertFutureSucceeds(result, context: TestContext.immediate) { value in
+            XCTAssertEqual(value, 6)
+        }
+    }
+
+    func testFold_WhenFutureFails_CompletesWithError() {
+        let futures = [future(Int(1)),
+                       future(context: TestContext.immediate) { Void -> Int in throw TestFailure.error },
+                       future(Int(2))]
+        let result = futures.fold(context: TestContext.immediate, initial: 0) { $0 + $1 }
+        XCTAssertFutureFails(result, context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, TestFailure.error)
+        }
+    }
+
 
     // MARK: - sequence -
+    func testSequence_WhenFuturesSucceed_CompletesSuccessfully() {
+        let futures = [future(Int(1)), future(Int(2)), future(Int(3))]
+        let result = futures.sequence(context: TestContext.immediate)
+        XCTAssertFutureSucceeds(result, context: TestContext.immediate) { value in
+            XCTAssertEqual(value, [1, 2, 3])
+        }
+    }
+
+    func testSequence_WhenFutureFails_CompletesWithError() {
+        let futures = [future(Int(1)),
+                       future(context: TestContext.immediate) { Void -> Int in throw TestFailure.error },
+                       future(Int(2))]
+        let result = futures.sequence(context: TestContext.immediate)
+        XCTAssertFutureFails(result, context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, TestFailure.error)
+        }
+    }
+
 }
