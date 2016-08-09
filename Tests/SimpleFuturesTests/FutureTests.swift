@@ -215,7 +215,7 @@ class FutureTests: XCTestCase {
 
     // MARK: - map -
 
-    func testMap_WhenFutureAndMapSucceed_MapFutureCompletesSuccessfully() {
+    func testMap_WhenFutureAndMapSucceed_MapCalledCompletesSuccessfully() {
         let future = Future<Bool>()
         let mapped = future.map(context: TestContext.immediate) { value -> Int in
             return 1
@@ -226,7 +226,7 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testMap_WhenFutureSucceedsAndMapFails_MapFutureCompletesWithError() {
+    func testMap_WhenFutureSucceedsAndMapFails_MapCalledCompletesWithError() {
         let future = Future<Bool>()
         let mapped = future.map(context: TestContext.immediate) { _ -> Int in
             throw TestFailure.error
@@ -237,9 +237,10 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testMap_WhenFutureFailsAndMapSucceeds_MapFutureCompletesWithError() {
+    func testMap_WhenFutureFails_MapNotCalledCompletesWithError() {
         let future = Future<Bool>()
         let mapped = future.map(context: TestContext.immediate) { value -> Int in
+            XCTFail()
             return 1
         }
         future.failure(TestFailure.error)
@@ -250,7 +251,7 @@ class FutureTests: XCTestCase {
 
     // MARK: - flatMap -
 
-    func testFlatMap_WhenFutureAndFlatMapSucceed_FlatMapFutureCompletesSuccessfully() {
+    func testFlatMap_WhenFutureAndFlatMapSucceed_FlatMapCalledCompletesSuccessfully() {
         let future = Future<Bool>()
         let mapped = future.flatMap(context: TestContext.immediate) {value -> Future<Int> in
             return Future<Int>(value: 1)
@@ -261,18 +262,7 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testFlatMap_WhenFutureFailsAndFlatMapSucceeds_FlatMapFutureCompletesSuccessfully() {
-        let future = Future<Bool>()
-        let mapped = future.flatMap(context: TestContext.immediate) { value -> Future<Int> in
-            return Future<Int>(value: 1)
-        }
-        future.failure(TestFailure.error)
-        XCTAssertFutureFails(mapped, context: TestContext.immediate) { error in
-            XCTAssertEqualErrors(error, TestFailure.error)
-        }
-    }
-
-    func testFlatMap_WhenFutureSucceedsAndFlatMapFails_FlatMapFutureCompletesWithError() {
+    func testFlatMap_WhenFutureSucceedsAndFlatMapFails_FlatMapCalledCompletesWithError() {
         let future = Future<Bool>()
         let mapped = future.flatMap(context: TestContext.immediate) { value -> Future<Int> in
             throw TestFailure.error
@@ -283,7 +273,19 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testFlatMap_WhenFutureSucceedsAndFlatMapFutureFails_FlatMapFutureCompletesWithError() {
+    func testFlatMap_WhenFutureFailsAndFlatMapReturnsFuture_FlatMapNotCalledCompletesWithError() {
+        let future = Future<Bool>()
+        let mapped = future.flatMap(context: TestContext.immediate) { value -> Future<Int> in
+            XCTFail()
+            return Future<Int>(value: 1)
+        }
+        future.failure(TestFailure.error)
+        XCTAssertFutureFails(mapped, context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, TestFailure.error)
+        }
+    }
+
+    func testFlatMap_WhenFutureSucceedsAndFlatMapFutureFails_FlatMapCalledCompletesWithError() {
         let future = Future<Bool>()
         let mapped = future.flatMap(context: TestContext.immediate) { value -> Future<Int> in
             return Future<Int>(error: TestFailure.error)
@@ -294,7 +296,7 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testFlatMap_WhenFutureSucceedsAndFlatMapReturnsSuccessfulFutureStream_FlatMapFutureCompletesSuccessfully() {
+    func testFlatMap_WhenFutureSucceedsAndFlatMapReturnsSuccessfulFutureStream_FlatCalledCompletesSuccessfully() {
         let future = Future<Bool>()
         let stream = FutureStream<Int>()
         let mapped = future.flatMap(context: TestContext.immediate) { value -> FutureStream<Int> in
@@ -309,10 +311,11 @@ class FutureTests: XCTestCase {
         ])
     }
 
-    func testFlatMap_WhenFutureFailsAndFlatMapReturnsSuccessfulFutureStream_FlatMapFutureCompletesWithError() {
+    func testFlatMap_WhenFutureFailsAndFlatMapReturnsFutureStream_FlatMapNotCalledCompletesWithError() {
         let future = Future<Bool>()
         let stream = FutureStream<Int>()
         let mapped = future.flatMap(context: TestContext.immediate) { value -> FutureStream<Int> in
+            XCTFail()
             return stream
         }
         future.failure(TestFailure.error)
@@ -324,7 +327,7 @@ class FutureTests: XCTestCase {
         ])
     }
 
-    func testFlatMap_WhenFutureSucceedsAndFlatMapReturnsFailedFutureStream_FlatMapFutureCompletesWithError() {
+    func testFlatMap_WhenFutureSucceedsAndFlatMapFutureStreamStream_FlatMapCalledCompletesWithError() {
         let future = Future<Bool>()
         let stream = FutureStream<Int>()
         let mapped = future.flatMap(context: TestContext.immediate) { value -> FutureStream<Int> in
@@ -342,7 +345,7 @@ class FutureTests: XCTestCase {
 
     // MARK: - recover -
 
-    func testRecover_WhenFutureSucceeds_CompletesSuccessfully() {
+    func testRecover_WhenFutureSucceeds_RecoverNotCalledCompletesSuccessfully() {
         let future = Future<Bool>()
         let recovered = future.recover(context: TestContext.immediate) { error -> Bool in
             XCTFail()
@@ -354,7 +357,7 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testRecover_WhenFutureFailsAndRecoverySucceeds_CompletesSuccessfully() {
+    func testRecover_WhenFutureFailsAndRecoverySucceeds_RecoverCalledCompletesSuccessfully() {
         let future = Future<Bool>()
         let recovered = future.recover(context: TestContext.immediate) { _ -> Bool in
             return true
@@ -365,7 +368,7 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testRecover_WhenFutureFailsAndRecoveryFails_CompletesWithFailure() {
+    func testRecover_WhenFutureFailsAndRecoveryFails_RecoverCalledCompletesWithFailure() {
         let future = Future<Bool>()
         let recovered = future.recover(context: TestContext.immediate) { _ -> Bool in
             throw TestFailure.recoveryError
@@ -378,7 +381,7 @@ class FutureTests: XCTestCase {
 
     // MARK: - recoverWith -
 
-    func testRecoverWith_WhenFutureSucceeds_CompletesSuccessfully() {
+    func testRecoverWith_WhenFutureSucceeds_RecoverWithNotCompletesSuccessfully() {
         let future = Future<Bool>()
         let recovered = future.recoverWith(context: TestContext.immediate) { _ -> Future<Bool> in
             XCTFail()
@@ -390,7 +393,7 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testRecoverWith_WhenFutureFailsAndRecoverySucceeds_CompletesSuccessfully() {
+    func testRecoverWith_WhenFutureFailsAndRecoverySucceeds_RecoverWithCalledCompletesSuccessfully() {
         let future = Future<Bool>()
         let recovered = future.recoverWith(context: TestContext.immediate) { error -> Future<Bool> in
             return Future<Bool>(value: true)
@@ -401,7 +404,7 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testRecoverWith_WhenFutureFailsAndRecoveryFails_CompletesWithError() {
+    func testRecoverWith_WhenFutureFailsAndRecoveryFails_RecoverWithCalledCompletesWithError() {
         let future = Future<Bool>()
         let recovered = future.recoverWith(context: TestContext.immediate) { error -> Future<Bool> in
             throw TestFailure.recoveryError
@@ -412,7 +415,7 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testRecoverWith_WhenFutureSucceedsAndRecoveryReturnsSuccessfulFutureStream_CompletesSuccessfully() {
+    func testRecoverWith_WhenFutureSucceedsAndRecoveryReturnsSuccessfulFutureStream_RecoverWithNotCalledCompletesSuccessfully() {
         let future = Future<Bool>()
         let stream = FutureStream<Bool>()
         let recovered = future.recoverWith(context: TestContext.immediate) { error -> FutureStream<Bool> in
@@ -428,7 +431,7 @@ class FutureTests: XCTestCase {
         ])
     }
 
-    func testRecoverWith_WhenFutureFailsAndRecoveryReturnsSuccessfulFutureStream_CompletesSuccessfully() {
+    func testRecoverWith_WhenFutureFailsAndRecoveryReturnsSuccessfulFutureStream_RecoverWithCalledCompletesSuccessfully() {
         let future = Future<Bool>()
         let stream = FutureStream<Bool>()
         let recovered = future.recoverWith(context: TestContext.immediate) { error -> FutureStream<Bool> in
@@ -443,7 +446,7 @@ class FutureTests: XCTestCase {
         ])
     }
 
-    func testRecoverWith_WhenFutureFailsAndRecoveryReturnsFailedFutureStream_CompletesWithError() {
+    func testRecoverWith_WhenFutureFailsAndRecoveryReturnsFailedFutureStream_RecoverWithCalledCompletesWithError() {
         let future = Future<Bool>()
         let stream = FutureStream<Bool>()
         let recovered = future.recoverWith(context: TestContext.immediate) { error -> FutureStream<Bool> in
@@ -460,7 +463,7 @@ class FutureTests: XCTestCase {
 
     // MARK: - withFilter -
 
-    func testWithFilter_WhenFutureAndFilterSucceed_FilterFutureCompletesSuccessfully() {
+    func testWithFilter_WhenFutureAndFilterSucceed_FilterCalledCompletesSuccessfully() {
         let future = Future<Bool>()
         let filter = future.withFilter(context: TestContext.immediate) { value in
             return value
@@ -471,7 +474,7 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testWithFilter_WhenFutureSuccedsAndFilterFails_FilterFutureCompletesWithError() {
+    func testWithFilter_WhenFutureSuccedsAndFilterFails_FilterCalledCompletesWithError() {
         let future = Future<Bool>()
         let filter = future.withFilter(context: TestContext.immediate) { value in
             return value
@@ -482,7 +485,7 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testWithFilter_WhenFutureFails_FilterFutureCompletesWithError() {
+    func testWithFilter_WhenFutureFails_FilterNotCalledCompletesWithError() {
         let future = Future<Bool>()
         let filter = future.withFilter(context: TestContext.immediate) { value in
             XCTFail()
@@ -496,7 +499,7 @@ class FutureTests: XCTestCase {
 
     // MARK: - forEach -
 
-    func testForEach_WhenFutureSucceeds_IsCalled() {
+    func testForEach_WhenFutureSucceeds_ForEachCalled() {
         let future = Future<Bool>()
         var forEachCalled = false
         future.forEach(context: TestContext.immediate) { value in
@@ -507,7 +510,7 @@ class FutureTests: XCTestCase {
         XCTAssertTrue(forEachCalled)
     }
 
-    func testForEach_WhenFutureFails_IsNotCalled() {
+    func testForEach_WhenFutureFails_ForEachNotCalled() {
         let future = Future<Bool>()
         future.forEach(context: TestContext.immediate) { _ in
             XCTFail()

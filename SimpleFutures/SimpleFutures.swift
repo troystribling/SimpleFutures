@@ -663,6 +663,7 @@ public final class Future<T>: Futurable {
 }
 
 // MARK: - future -
+
 public func future<T>(@autoclosure(escaping) _ task: Void -> T) -> Future<T> {
     return future(context: ImmediateContext(), task)
 }
@@ -670,7 +671,7 @@ public func future<T>(@autoclosure(escaping) _ task: Void -> T) -> Future<T> {
 public func future<T>(context context: ExecutionContext = QueueContext.futuresDefault, _ task: Void throws -> T) -> Future<T> {
     let future = Future<T>()
     context.execute {
-        future.complete(Try<T>(task))
+        future.complete(Try(task))
     }
     return future
 }
@@ -679,33 +680,33 @@ public func future<T>(method: ((T?, ErrorType?) -> Void) -> Void) -> Future<T> {
     return Future(resolver: { completion in
         method { value, error in
             if let value = value {
-                completion(Try(value))
+                completion(.Success(value))
             } else if let error = error {
-                completion(Try(error))
+                completion(.Failure(error))
             } else {
-                completion(Try(SimpleFuturesErrors.InvalidValue))
+                completion(.Failure(SimpleFuturesErrors.InvalidValue))
             }
         }
     })
 }
 
 
-//public func future<Void>(method: (ErrorType? -> Void) -> Void) -> Future<Void> {
-//    return Future(resolver: { completion in
-//        method { error in
-//            if let error = error {
-//                completion(Try(error))
-//            } else {
-//                completion(Try<Void>())
-//            }
-//        }
-//    })
-//}
+public func future(method: (ErrorType? -> Void) -> Void) -> Future<Void> {
+    return Future(resolver: { completion in
+        method { error in
+            if let error = error {
+                completion(.Failure(error))
+            } else {
+                completion(.Success(()))
+            }
+        }
+    })
+}
 
 public func future<T>(method: (T -> Void) -> Void) -> Future<T> {
     return Future(resolver: { completion in
         method { value in
-            completion(Try(value))
+            completion(.Success(value))
         }
     })
 }
