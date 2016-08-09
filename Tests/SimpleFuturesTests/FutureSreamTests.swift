@@ -327,7 +327,7 @@ class FutureSreamTests: XCTestCase {
 
     // MARK: - flatMap -
 
-    func testMap_WhenFutureStreamAndFlatMapSucceed_FlatMapCalledCompletesSuccessfully() {
+    func testFlatMap_WhenFutureStreamAndFlatMapSucceed_FlatMapCalledCompletesSuccessfully() {
         let promise = StreamPromise<Bool>()
         let stream = promise.stream
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
@@ -359,7 +359,7 @@ class FutureSreamTests: XCTestCase {
         }
     }
 
-    func testMap_WhenFutureStreamFails_FlatMapNotCalledCompletesWithError() {
+    func testFlatMap_WhenFutureStreamFails_FlatMapNotCalledCompletesWithError() {
         let promise = StreamPromise<Bool>()
         let stream = promise.stream
         let onFailureExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure future")
@@ -388,7 +388,7 @@ class FutureSreamTests: XCTestCase {
         }
     }
 
-    func testMap_WhenFutureStreamSuccedsAndFlatMapFails_FlatMapCalledCompletesWithError() {
+    func testFlatMap_WhenFutureStreamSuccedsAndFlatMapFails_FlatMapCalledCompletesWithError() {
         let promise = StreamPromise<Bool>()
         let stream = promise.stream
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
@@ -419,7 +419,10 @@ class FutureSreamTests: XCTestCase {
         }
     }
 
-    func testSuccessfulMappingToFutureStream() {
+    func testFlatMap_WhenFutureStreamSuccedsAndFlatMapToFailedFutureStream_CompletesWithError() {
+    }
+
+    func testFlatMap_WhenFutureStreamSuccedsAndFlatMapFutureStreamCompletesMultipleTimes_CompletesSuccessfully() {
         let promise = StreamPromise<Bool>()
         let stream = promise.stream
         let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
@@ -454,63 +457,13 @@ class FutureSreamTests: XCTestCase {
         }
     }
 
-    func testFailedMappingToFutureStream() {
-        let promise = StreamPromise<Bool>()
-        let stream = promise.stream
-        let onFailureExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure future")
-        let onFailureMappedExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure mapped future")
-        stream.onSuccess {value in
-            XCTAssert(false, "future onSuccess called")
-        }
-        stream.onFailure {error in
-            onFailureExpectation()
-        }
-        let mapped = stream.flatMap {value -> FutureStream<Int> in
-            XCTAssert(false, "flatMap called")
-            return  StreamPromise<Int>().stream
-        }
-        mapped.onSuccess {value in
-            XCTAssert(false, "mapped future onSuccess called")
-        }
-        mapped.onFailure {error in
-            onFailureMappedExpectation()
-        }
-        writeFailedFutures(promise, times:2)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+    func testFlatMap_WhenFutureStreamSuccedsAndFlatMapToFutureSucceeds_CompletesSuccessfully() {
+
     }
 
-    func testSuccessfulMappingToFailedFutureStream() {
-        let promise = StreamPromise<Bool>()
-        let stream = promise.stream
-        let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
-        let flatmapExpectation = XCTExpectFullfilledCountTimes(2, message:"flatMap")
-        let onFailureMappedExpectation = XCTExpectFullfilledCountTimes(4, message:"onFailure mapped future")
-        stream.onSuccess {value in
-            onSuccessExpectation()
-        }
-        stream.onFailure {error in
-            XCTAssert(false, "future onFailure called")
-        }
-        let mapped = stream.flatMap {value -> FutureStream<Int> in
-            flatmapExpectation()
-            let promise = StreamPromise<Int>()
-            writeFailedFutures(promise, times:2)
-            return promise.stream
-        }
-        mapped.onSuccess {value in
-            XCTAssert(false, "mapped future onSucces called")
-        }
-        mapped.onFailure {error in
-            onFailureMappedExpectation()
-        }
-        writeSuccesfulFutures(promise, values:[true, false])
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
-    }
+    func testFlatMap_WhenFutureStreamSuccedsAndFlatMapToFailedFuture_CompletesWithError() {
 
+    }
 
     // MARK: - andThen -
 
