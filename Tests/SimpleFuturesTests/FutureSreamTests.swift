@@ -328,142 +328,177 @@ class FutureSreamTests: XCTestCase {
     // MARK: - flatMap -
 
     func testFlatMap_WhenFutureStreamAndFlatMapSucceed_FlatMapCalledCompletesSuccessfully() {
-        let promise = StreamPromise<Bool>()
-        let stream = promise.stream
-        let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
-        let flatmapExpectation = XCTExpectFullfilledCountTimes(2, message:"flatMap")
-        let onSuccessMappedExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess mapped future")
-        stream.onSuccess {value in
-            XCTAssertTrue(value, "Invalid value")
-            onSuccessExpectation()
+        let stream = FutureStream<Int>()
+        let mapped = stream.flatMap(context: TestContext.immediate) { value -> FutureStream<Bool> in
+            let result = FutureStream<Bool>()
+            result.success(value > 1)
+            return result
         }
-        stream.onFailure {error in
-            XCTAssert(false, "future onFailure called")
-        }
-        let mapped = stream.flatMap {value -> Future<Int> in
-            flatmapExpectation()
-            let promise = Promise<Int>()
-            promise.success(1)
-            return promise.future
-        }
-        mapped.onSuccess {value in
-            XCTAssertEqual(value, 1, "mapped onSuccess value invalid")
-            onSuccessMappedExpectation()
-        }
-        mapped.onFailure {error in
-            XCTAssert(false, "mapped future onFailure called")
-        }
-        writeSuccesfulFutures(promise, value:true, times:2)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        stream.success(1)
+        stream.success(2)
+        XCTAssertFutureStreamSucceeds(mapped, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertFalse(value)
+            },
+            { value in
+                XCTAssertTrue(value)
+            }
+        ])
     }
 
     func testFlatMap_WhenFutureStreamFails_FlatMapNotCalledCompletesWithError() {
-        let promise = StreamPromise<Bool>()
-        let stream = promise.stream
-        let onFailureExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure future")
-        let onFailureMappedExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure mapped future")
-        stream.onSuccess {value in
-            XCTAssert(false, "future onSuccess called")
+        let stream = FutureStream<Int>()
+        let mapped = stream.flatMap(context: TestContext.immediate) { value -> FutureStream<Bool> in
+            let result = FutureStream<Bool>()
+            result.success(value > 1)
+            return result
         }
-        stream.onFailure {error in
-            onFailureExpectation()
-        }
-        let mapped = stream.flatMap {value -> Future<Int> in
-            XCTAssert(false, "flatMap called")
-            let promise = Promise<Int>()
-            promise.failure(TestFailure.error)
-            return promise.future
-        }
-        mapped.onSuccess {value in
-            XCTAssert(false, "mapped future onSuccess called")
-        }
-        mapped.onFailure {error in
-            onFailureMappedExpectation()
-        }
-        writeFailedFutures(promise, times:2)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
-    }
-
-    func testFlatMap_WhenFutureStreamSuccedsAndFlatMapFails_FlatMapCalledCompletesWithError() {
-        let promise = StreamPromise<Bool>()
-        let stream = promise.stream
-        let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
-        let flatmapExpectation = XCTExpectFullfilledCountTimes(2, message:"flatMap")
-        let onFailureMappedExpectation = XCTExpectFullfilledCountTimes(2, message:"onFailure mapped future")
-        stream.onSuccess {value in
-            XCTAssertTrue(value, "Invalid value")
-            onSuccessExpectation()
-        }
-        stream.onFailure {error in
-            XCTAssert(false, "future onFailure called")
-        }
-        let mapped = stream.flatMap {value -> Future<Int> in
-            flatmapExpectation()
-            let promise = Promise<Int>()
-            promise.failure(TestFailure.error)
-            return promise.future
-        }
-        mapped.onSuccess {value in
-            XCTAssert(false, "mapped future onSuccess called")
-        }
-        mapped.onFailure {error in
-            onFailureMappedExpectation()
-        }
-        writeSuccesfulFutures(promise, value:true, times:2)
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
-    }
-
-    func testFlatMap_WhenFutureStreamSuccedsAndFlatMapToFailedFutureStream_CompletesWithError() {
-    }
-
-    func testFlatMap_WhenFutureStreamSuccedsAndFlatMapFutureStreamCompletesMultipleTimes_CompletesSuccessfully() {
-        let promise = StreamPromise<Bool>()
-        let stream = promise.stream
-        let onSuccessExpectation = XCTExpectFullfilledCountTimes(2, message:"onSuccess future")
-        let flatmapExpectation = XCTExpectFullfilledCountTimes(2, message:"flatMap")
-        let onSuccessMappedExpectation = XCTExpectFullfilledCountTimes(4, message:"onSuccess mapped future")
-        stream.onSuccess {value in
-            onSuccessExpectation()
-        }
-        stream.onFailure {error in
-            XCTAssert(false, "future onFailure called")
-        }
-        let mapped = stream.flatMap {value -> FutureStream<Int> in
-            flatmapExpectation()
-            let promise = StreamPromise<Int>()
-            if value {
-                writeSuccesfulFutures(promise, values:[1, 2])
-            } else {
-                writeSuccesfulFutures(promise, values:[3, 4])
+        stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
+        XCTAssertFutureStreamFails(mapped, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
             }
-            return promise.stream
-        }
-        mapped.onSuccess {value in
-            XCTAssert(value == 1 || value == 2 || value == 3 || value == 4, "mapped onSuccess value invalid")
-            onSuccessMappedExpectation()
-        }
-        mapped.onFailure {error in
-            XCTAssert(false, "mapped future onFailure called")
-        }
-        writeSuccesfulFutures(promise, values:[true, false])
-        waitForExpectationsWithTimeout(2) {error in
-            XCTAssertNil(error, "\(error)")
-        }
+        ])
     }
 
-    func testFlatMap_WhenFutureStreamSuccedsAndFlatMapToFutureSucceeds_CompletesSuccessfully() {
-
+    func testFlatMap_WhenFutureStreamSucceedsAndFlatMapFails_FlatMapCalledCompletesWithError() {
+        let stream = FutureStream<Int>()
+        let mapped = stream.flatMap(context: TestContext.immediate) { value -> FutureStream<Bool> in
+            throw TestFailure.error
+        }
+        stream.success(1)
+        stream.success(2)
+        XCTAssertFutureStreamFails(mapped, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
     }
 
-    func testFlatMap_WhenFutureStreamSuccedsAndFlatMapToFailedFuture_CompletesWithError() {
-
+    func testFlatMap_WhenFutureStreamSucceedsAndFlatMapToFailedFutureStream_FlatMapCalledCompletesWithError() {
+        let stream = FutureStream<Int>()
+        let mapped = stream.flatMap(context: TestContext.immediate) { value -> FutureStream<Bool> in
+            let result = FutureStream<Bool>()
+            result.failure(TestFailure.error)
+            return result
+        }
+        stream.success(1)
+        stream.success(2)
+        XCTAssertFutureStreamFails(mapped, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
     }
+
+    func testFlatMap_WhenFutureStreamSuccedsAndFlatMapFutureStreamCompletesMultipleTimes_FlatMapCalledCompletesSuccessfully() {
+        let stream = FutureStream<Int>()
+        let result = FutureStream<Bool>()
+        let mapped = stream.flatMap(context: TestContext.immediate) { value -> FutureStream<Bool> in
+            return result
+        }
+        stream.success(1)
+        stream.success(2)
+        result.success(true)
+        result.success(false)
+        XCTAssertFutureStreamSucceeds(mapped, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertTrue(value)
+            },
+            { value in
+                XCTAssertTrue(value)
+            },
+            { value in
+                XCTAssertFalse(value)
+            },
+            { value in
+                XCTAssertFalse(value)
+            }
+       ])
+    }
+
+    func testFlatMap_WhenFutureStreamSuccedsAndFlatMapReturnsSuccessfulFuture_FlatMapCalledCompletesSuccessfully() {
+        let stream = FutureStream<Int>()
+        let mapped = stream.flatMap(context: TestContext.immediate) { value -> Future<Bool> in
+            return Future(value: value > 1)
+        }
+        stream.success(1)
+        stream.success(2)
+        XCTAssertFutureStreamSucceeds(mapped, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertFalse(value)
+            },
+            { value in
+                XCTAssertTrue(value)
+            }
+        ])
+    }
+
+    func testFlatMap_WhenFutureStreamSuccedsAndFlatMapReturnsFailedFuture_FlatMapCalledCompletesWithError() {
+        let stream = FutureStream<Int>()
+        let mapped = stream.flatMap(context: TestContext.immediate) { value -> Future<Bool> in
+            return Future(error: TestFailure.error)
+        }
+        stream.success(1)
+        stream.success(2)
+        XCTAssertFutureStreamFails(mapped, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
+    }
+
+    func testFlatMap_WhenFutureStreamFailsAndFlatMapReturnsFuture_FlatMapNotCalledCompletesWithError() {
+        let stream = FutureStream<Int>()
+        let mapped = stream.flatMap(context: TestContext.immediate) { value -> Future<Bool> in
+            XCTFail()
+            return Future(value: value > 1)
+        }
+        stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
+        XCTAssertFutureStreamFails(mapped, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
+    }
+
+    func testFlatMap_WhenFlatMapFailsReturningFuture_FlatMapCalledCompletesWithError() {
+        let stream = FutureStream<Int>()
+        let mapped = stream.flatMap(context: TestContext.immediate) { value -> Future<Bool> in
+            throw TestFailure.error
+        }
+        stream.success(1)
+        stream.success(2)
+        XCTAssertFutureStreamFails(mapped, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
+    }
+
+    // MARK: - recover -
+
+    
 
     // MARK: - andThen -
 
@@ -505,7 +540,7 @@ class FutureSreamTests: XCTestCase {
 
     // MARK: - cancel -
 
-    func testOnSuccess_WhenCancled_DoesNotComplete() {
+    func testCancel_ForOnSuccess_DoesNotComplete() {
 
     }
 
