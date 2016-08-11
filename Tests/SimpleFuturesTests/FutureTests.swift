@@ -383,7 +383,7 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testRecover_WhenFutureFailsAndRecoveryFails_RecoverCalledCompletesWithFailure() {
+    func testRecover_WhenFutureFailsAndRecoveryFails_RecoverCalledCompletesWithError() {
         let future = Future<Bool>()
         let recovered = future.recover(context: TestContext.immediate) { _ -> Bool in
             throw TestFailure.recoveryError
@@ -396,7 +396,7 @@ class FutureTests: XCTestCase {
 
     // MARK: - recoverWith -
 
-    func testRecoverWith_WhenFutureSucceeds_RecoverWithNotCompletesSuccessfully() {
+    func testRecoverWith_WhenFutureSucceeds_RecoverWithNotCalledCompletesSuccessfully() {
         let future = Future<Bool>()
         let recovered = future.recoverWith(context: TestContext.immediate) { _ -> Future<Bool> in
             XCTFail()
@@ -430,7 +430,7 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testRecoverWith_WhenFutureSucceedsAndRecoveryReturnsSuccessfulFutureStream_RecoverWithNotCalledCompletesSuccessfully() {
+    func testRecoverWith_WhenFutureSucceedsAndRecoveryReturnsFutureStream_RecoverWithNotCalledCompletesSuccessfully() {
         let future = Future<Bool>()
         let stream = FutureStream<Bool>()
         let recovered = future.recoverWith(context: TestContext.immediate) { error -> FutureStream<Bool> in
@@ -438,7 +438,6 @@ class FutureTests: XCTestCase {
             return stream
         }
         future.success(true)
-        stream.success(false)
         XCTAssertFutureStreamSucceeds(recovered, context: TestContext.immediate, validations: [
             { value in
                 XCTAssert(value)
@@ -469,6 +468,19 @@ class FutureTests: XCTestCase {
         }
         future.failure(TestFailure.error)
         stream.failure(TestFailure.recoveryError)
+        XCTAssertFutureStreamFails(recovered, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.recoveryError)
+            }
+        ])
+    }
+
+    func testRecoverWith_WhenFutureFailsAndFutureStreamRecoveryFails_RecoverWithCalledCompletesWithError() {
+        let future = Future<Bool>()
+        let recovered = future.recoverWith(context: TestContext.immediate) { error -> FutureStream<Bool> in
+            throw TestFailure.error
+        }
+        future.failure(TestFailure.error)
         XCTAssertFutureStreamFails(recovered, context: TestContext.immediate, validations: [
             { error in
                 XCTAssertEqualErrors(error, TestFailure.recoveryError)
