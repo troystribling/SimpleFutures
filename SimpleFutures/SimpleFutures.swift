@@ -382,7 +382,7 @@ public struct CancelToken {
 // MARK: - Futurable -
 
 public protocol Futurable {
-    typealias T
+    associatedtype T
 
     var result: Try<T>? { get }
 

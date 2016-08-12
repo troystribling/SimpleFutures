@@ -560,9 +560,13 @@ class FutureSreamTests: XCTestCase {
             return recoveredResult
         }
         stream.success(true)
+        stream.success(false)
         XCTAssertFutureStreamSucceeds(recovered, context: TestContext.immediate, validations: [
             { value in
                 XCTAssert(value)
+            },
+            { value in
+                XCTAssertFalse(value)
             }
         ])
     }
@@ -574,8 +578,12 @@ class FutureSreamTests: XCTestCase {
             return recoveredResult
         }
         stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
         recoveredResult.success(true)
         XCTAssertFutureStreamSucceeds(recovered, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssert(value)
+            },
             { value in
                 XCTAssert(value)
             }
@@ -589,8 +597,12 @@ class FutureSreamTests: XCTestCase {
             return recoveredResult
         }
         stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
         recoveredResult.failure(TestFailure.error)
         XCTAssertFutureStreamFails(recovered, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
             { error in
                 XCTAssertEqualErrors(error, TestFailure.error)
             }
@@ -603,7 +615,11 @@ class FutureSreamTests: XCTestCase {
             throw TestFailure.error
         }
         stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
         XCTAssertFutureStreamFails(recovered, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
             { error in
                 XCTAssertEqualErrors(error, TestFailure.error)
             }
@@ -618,7 +634,11 @@ class FutureSreamTests: XCTestCase {
             return recoveredResult
         }
         stream.success(true)
+        stream.success(true)
         XCTAssertFutureStreamSucceeds(recovered, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssert(value)
+            },
             { value in
                 XCTAssert(value)
             }
@@ -632,8 +652,12 @@ class FutureSreamTests: XCTestCase {
             return recoveredResult
         }
         stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
         recoveredResult.success(true)
         XCTAssertFutureStreamSucceeds(recovered, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssert(value)
+            },
             { value in
                 XCTAssert(value)
             }
@@ -647,8 +671,12 @@ class FutureSreamTests: XCTestCase {
             return recoveredResult
         }
         stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
         recoveredResult.failure(TestFailure.error)
         XCTAssertFutureStreamFails(recovered, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
             { error in
                 XCTAssertEqualErrors(error, TestFailure.error)
             }
@@ -658,10 +686,85 @@ class FutureSreamTests: XCTestCase {
     func testRecoverWith_WhenFutureStreamFailsAndFutureRecoveryFails_RecoverWithCalledCompletesWithError() {
         let stream = FutureStream<Bool>()
         let recovered = stream.recoverWith(context: TestContext.immediate) {error -> Future<Bool> in
-            throw TestFailure.error
+            throw TestFailure.recoveryError
         }
         stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
         XCTAssertFutureStreamFails(recovered, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.recoveryError)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.recoveryError)
+            }
+        ])
+    }
+
+    // MARK: - withFilter -
+
+    func testWithFilter_WhenFututreStreamSucceedsAndFilterSucceds_WithFilterCalledCompletesSuccessfully() {
+        let stream = FutureStream<Int>()
+        let filtered = stream.withFilter(context: TestContext.immediate) { value -> Bool in
+            return value < 1
+        }
+        stream.success(0)
+        stream.success(-1)
+        XCTAssertFutureStreamSucceeds(filtered, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertEqual(0, value)
+            },
+            { value in
+                XCTAssertEqual(-1, value)
+            }
+        ])
+    }
+
+    func testWithFilter_WhenFututreStreamSucceedsAndFilterFails_WithFilterCalledCompletesWithError() {
+        let stream = FutureStream<Int>()
+        let filtered = stream.withFilter(context: TestContext.immediate) { value -> Bool in
+            return value < 1
+        }
+        stream.success(1)
+        stream.success(2)
+        XCTAssertFutureStreamFails(filtered, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, SimpleFuturesErrors.NoSuchElement)
+            },
+            { error in
+                XCTAssertEqualErrors(error, SimpleFuturesErrors.NoSuchElement)
+            }
+        ])
+    }
+
+    func testWithFilter_WhenFututreStreamFails_WithFilterNotCalledCompletesWithError() {
+        let stream = FutureStream<Int>()
+        let filtered = stream.withFilter(context: TestContext.immediate) { value -> Bool in
+            XCTFail()
+            return value < 1
+        }
+        stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
+        XCTAssertFutureStreamFails(filtered, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
+    }
+
+    func testWithFilter_WhenFututreStreamSucceedsAndFilterThrows_WithFilterCalledCompletesWithError() {
+        let stream = FutureStream<Int>()
+        let filtered = stream.withFilter(context: TestContext.immediate) { value -> Bool in
+            throw TestFailure.error
+        }
+        stream.success(0)
+        stream.success(1)
+        XCTAssertFutureStreamFails(filtered, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
             { error in
                 XCTAssertEqualErrors(error, TestFailure.error)
             }

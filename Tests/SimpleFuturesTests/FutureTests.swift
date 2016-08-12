@@ -478,7 +478,7 @@ class FutureTests: XCTestCase {
     func testRecoverWith_WhenFutureFailsAndFutureStreamRecoveryFails_RecoverWithCalledCompletesWithError() {
         let future = Future<Bool>()
         let recovered = future.recoverWith(context: TestContext.immediate) { error -> FutureStream<Bool> in
-            throw TestFailure.error
+            throw TestFailure.recoveryError
         }
         future.failure(TestFailure.error)
         XCTAssertFutureStreamFails(recovered, context: TestContext.immediate, validations: [
@@ -490,36 +490,47 @@ class FutureTests: XCTestCase {
 
     // MARK: - withFilter -
 
-    func testWithFilter_WhenFutureAndFilterSucceed_FilterCalledCompletesSuccessfully() {
-        let future = Future<Bool>()
-        let filter = future.withFilter(context: TestContext.immediate) { value in
-            return value
+    func testWithFilter_WhenFutureAndFilterSucceed_WithFilterCalledCompletesSuccessfully() {
+        let future = Future<Int>()
+        let filtered = future.withFilter(context: TestContext.immediate) { value -> Bool in
+            return value < 1
         }
-        future.success(true)
-        XCTAssertFutureSucceeds(filter, context: TestContext.immediate) { value in
-            XCTAssertTrue(value)
+        future.success(0)
+        XCTAssertFutureSucceeds(filtered, context: TestContext.immediate) { value in
+            XCTAssertEqual(0, value)
         }
     }
 
-    func testWithFilter_WhenFutureSuccedsAndFilterFails_FilterCalledCompletesWithError() {
-        let future = Future<Bool>()
-        let filter = future.withFilter(context: TestContext.immediate) { value in
-            return value
+    func testWithFilter_WhenFutureSuccedsAndFilterFails_WithFilterCalledCompletesWithError() {
+        let future = Future<Int>()
+        let filtered = future.withFilter(context: TestContext.immediate) { value -> Bool in
+            return value < 1
         }
-        future.success(false)
-        XCTAssertFutureFails(filter, context: TestContext.immediate) { error in
+        future.success(1)
+        XCTAssertFutureFails(filtered, context: TestContext.immediate) { error in
             XCTAssertEqualErrors(error, SimpleFuturesErrors.NoSuchElement)
         }
     }
 
-    func testWithFilter_WhenFutureFails_FilterNotCalledCompletesWithError() {
-        let future = Future<Bool>()
-        let filter = future.withFilter(context: TestContext.immediate) { value in
+    func testWithFilter_WhenFutureFails_WithFilterNotCalledCompletesWithError() {
+        let future = Future<Int>()
+        let filtered = future.withFilter(context: TestContext.immediate) { value -> Bool in
             XCTFail()
-            return value
+            return value < 1
         }
         future.failure(TestFailure.error)
-        XCTAssertFutureFails(filter, context: TestContext.immediate) { error in
+        XCTAssertFutureFails(filtered, context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, TestFailure.error)
+        }
+    }
+
+    func testWithFilter_WhenFutureSucceedsAndFilterThrows_WithFilterCalledCompletesWithError() {
+        let future = Future<Int>()
+        let filtered = future.withFilter(context: TestContext.immediate) { value -> Bool in
+            throw TestFailure.error
+        }
+        future.failure(TestFailure.error)
+        XCTAssertFutureFails(filtered, context: TestContext.immediate) { error in
             XCTAssertEqualErrors(error, TestFailure.error)
         }
     }
