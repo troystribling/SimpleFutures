@@ -122,95 +122,65 @@ class FutureTests: XCTestCase {
 
     // MARK: - completeWith -
 
-    func testCompletesWith_WhenDependentFutureCompletedFirst_CompletesSuccessfully() {
+    func testCompletesWith_WhenDependentFutureCompletedFirst_CompletesSuccessfullyWithDependentValue() {
         let future = Future<Bool>()
-        let futureCompleted = Future<Bool>()
+        let dependentFuture = Future<Bool>()
 
-        var onSuccessCalled = false
-        var completedOnSuccessCalled = false
+        dependentFuture.success(true)
+        future.completeWith(context: TestContext.immediate, future: dependentFuture)
 
-        future.onSuccess(context: TestContext.immediate) { value in
-            onSuccessCalled = true
-            XCTAssert(value)
+        XCTAssertFutureSucceeds(future, context: TestContext.immediate) { value in
+            XCTAssertTrue(value)
         }
-        future.onFailure(context: TestContext.immediate) { error in
-            XCTFail()
-        }
-
-        futureCompleted.onSuccess(context: TestContext.immediate) { value in
-            completedOnSuccessCalled = true
-            XCTAssert(value)
-        }
-        futureCompleted.onFailure(context: TestContext.immediate) { error in
-            XCTFail()
-        }
-
-        futureCompleted.success(true)
-        future.completeWith(context: TestContext.immediate, future: futureCompleted)
-
-        XCTAssert(onSuccessCalled)
-        XCTAssert(completedOnSuccessCalled)
     }
 
-    func testCompletesWith_WhenDependentFutureCompletedLast_CompletesSuccessfully() {
+    func testCompletesWith_WhenDependentFutureCompletedLast_CompletesSuccessfullyWithDependentValue() {
         let future = Future<Bool>()
-        let futureCompleted = Future<Bool>()
+        let dependentFuture = Future<Bool>()
 
-        var onSuccessCalled = false
-        var completedOnSuccessCalled = false
+        future.completeWith(context: TestContext.immediate, future: dependentFuture)
+        dependentFuture.success(true)
 
-        future.onSuccess(context: TestContext.immediate) { value in
-            onSuccessCalled = true
-            XCTAssert(value)
+        XCTAssertFutureSucceeds(future, context: TestContext.immediate) { value in
+            XCTAssertTrue(value)
         }
-        future.onFailure(context: TestContext.immediate) { error in
-            XCTFail()
-        }
-
-        futureCompleted.onSuccess(context: TestContext.immediate) { value in
-            completedOnSuccessCalled = true
-            XCTAssert(value)
-        }
-        futureCompleted.onFailure(context: TestContext.immediate) { error in
-            XCTFail()
-        }
-
-        future.completeWith(context: TestContext.immediate, future: futureCompleted)
-        futureCompleted.success(true)
-
-        XCTAssert(onSuccessCalled)
-        XCTAssert(completedOnSuccessCalled)
     }
 
-    func testCompletesWith_WhenDependentFutureFails_CompletesWithDependantFutureError() {
-        let future = Future<Bool>()
-        let futureCompleted =  Future<Bool>()
+    func testCompletesWith_WhenDependentFutureFails_CompletesWithDependantError() {
+        let future =  Future<Bool>()
+        let dependentFuture = Future<Bool>()
 
-        var onFailureCalled = false
-        var completedOnFailureCalled = false
-
-        future.onSuccess(context: TestContext.immediate) { value in
-            XCTFail()
-        }
-        future.onFailure(context: TestContext.immediate) { error in
-            onFailureCalled = true
-            XCTAssertEqualErrors(error, TestFailure.error)
-
-        }
-        futureCompleted.onSuccess(context: TestContext.immediate) {  value in
-            XCTFail()
-        }
-        futureCompleted.onFailure(context: TestContext.immediate) { error in
-            completedOnFailureCalled = true
+        future.completeWith(context: TestContext.immediate, future: dependentFuture)
+        dependentFuture.failure(TestFailure.error)
+        
+        XCTAssertFutureFails(future, context: TestContext.immediate) { error in
             XCTAssertEqualErrors(error, TestFailure.error)
         }
 
-        future.completeWith(context: TestContext.immediate, future: futureCompleted)
-        futureCompleted.failure(TestFailure.error)
-        
-        XCTAssert(onFailureCalled)
-        XCTAssert(completedOnFailureCalled)
-        
+    }
+
+    func testCompletesWith_WhenDependentFutureStreamSucceeds_CompletesWithDependantValue() {
+        let future = Future<Int>()
+        let dependentStream = FutureStream<Int>()
+
+        future.completeWith(context: TestContext.immediate, stream: dependentStream)
+        dependentStream.success(1)
+
+        XCTAssertFutureSucceeds(future, context: TestContext.immediate) { value in
+            XCTAssertEqual(value, 1)
+        }
+    }
+
+    func testCompletesWith_WhenDependentFutureStreamFails_CompletesWithDependantError() {
+        let future = Future<Int>()
+        let dependentStream = FutureStream<Int>()
+
+        future.completeWith(context: TestContext.immediate, stream: dependentStream)
+        dependentStream.failure(TestFailure.error)
+
+        XCTAssertFutureFails(future, context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, TestFailure.error)
+        }
     }
 
     // MARK: - map -
@@ -546,6 +516,9 @@ class FutureTests: XCTestCase {
         }
         future.success(true)
         XCTAssertTrue(forEachCalled)
+        XCTAssertFutureSucceeds(future, context: TestContext.immediate) { value in
+            XCTAssertTrue(value)
+        }
     }
 
     func testForEach_WhenFutureFails_ForEachNotCalled() {
@@ -554,6 +527,9 @@ class FutureTests: XCTestCase {
             XCTFail()
         }
         future.failure(TestFailure.error)
+        XCTAssertFutureFails(future, context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, TestFailure.error)
+        }
     }
 
     // MARK: - andThen -
@@ -722,5 +698,7 @@ class FutureTests: XCTestCase {
             XCTAssertEqualErrors(error, TestFailure.error)
         }
     }
+
+    // MARK: - Promise -
 
 }

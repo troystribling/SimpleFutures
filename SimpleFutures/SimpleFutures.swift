@@ -424,7 +424,7 @@ public extension Futurable {
         return future
     }
 
-    public func forEach(context context:ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: T throws -> Void) {
+    public func forEach(context context:ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: T -> Void) {
         onComplete(context: context, cancelToken: cancelToken) { result in
             result.forEach(apply)
         }
@@ -961,7 +961,7 @@ public final class FutureStream<T> {
         return stream
     }
     
-    public func forEach(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: T throws -> Void) {
+    public func forEach(context context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: T -> Void) {
         onComplete(context: context, cancelToken: cancelToken) { result in
             result.forEach(apply)
         }

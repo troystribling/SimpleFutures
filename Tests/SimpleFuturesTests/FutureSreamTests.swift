@@ -271,6 +271,91 @@ class FutureSreamTests: XCTestCase {
         XCTAssertEqual(onSuccessCalled, 10)
     }
 
+    // MARK: - completeWith -
+
+    func testCompletesWith_WhenDependentFutureStreamCompletedFirst_CompletesSuccessfullyWithDependentValue() {
+        let stream = FutureStream<Int>()
+        let dependentStream = FutureStream<Int>()
+
+        dependentStream.success(1)
+        dependentStream.success(2)
+        stream.completeWith(context: TestContext.immediate, stream: dependentStream)
+
+        XCTAssertFutureStreamSucceeds(stream, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertEqual(value, 1)
+            },
+            { value in
+                XCTAssertEqual(value, 2)
+            }
+        ])
+    }
+
+    func testCompletesWith_WhenDependentFutureStreamCompletedLast_CompletesSuccessfullyWithDependentValue() {
+        let stream = FutureStream<Int>()
+        let dependentStream = FutureStream<Int>()
+
+        stream.completeWith(context: TestContext.immediate, stream: dependentStream)
+        dependentStream.success(1)
+        dependentStream.success(2)
+
+        XCTAssertFutureStreamSucceeds(stream, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertEqual(value, 1)
+            },
+            { value in
+                XCTAssertEqual(value, 2)
+            }
+        ])
+    }
+
+    func testCompletesWith_WhenDependentFutureStreamFails_CompletesWithDependantError() {
+        let stream = FutureStream<Int>()
+        let dependentStream = FutureStream<Int>()
+
+        stream.completeWith(context: TestContext.immediate, stream: dependentStream)
+        dependentStream.failure(TestFailure.error)
+        dependentStream.failure(TestFailure.error)
+
+        XCTAssertFutureStreamFails(stream, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
+    }
+
+    func testCompletesWith_WhenDependentFutureSucceeds_CompletesWithDependantValue() {
+        let stream = FutureStream<Int>()
+        let dependentFuture = Future<Int>()
+
+        stream.completeWith(context: TestContext.immediate, future: dependentFuture)
+        dependentFuture.success(1)
+
+        XCTAssertFutureStreamSucceeds(stream, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertEqual(value, 1)
+            }
+        ])
+    }
+
+    func testCompletesWith_WhenDependentFutureFails_CompletesWithDependantError() {
+        let stream = FutureStream<Int>()
+        let dependentFuture = Future<Int>()
+
+        stream.completeWith(context: TestContext.immediate, future: dependentFuture)
+        dependentFuture.failure(TestFailure.error)
+
+        XCTAssertFutureStreamFails(stream, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
+    }
+
+
     // MARK: - map -
 
     func testMap_WhenFutureStreamAndMapSucceed_MapCalledCompletesSuccessfully() {
@@ -771,6 +856,45 @@ class FutureSreamTests: XCTestCase {
         ])
     }
 
+    // MARK: - forEach -
+
+    func testForEach_WhenFutureStreamSucceeds_ForEachCalledCompletesSuccessfully() {
+        let stream = FutureStream<Int>()
+        var forEachCount = 0
+        stream.forEach(context: TestContext.immediate) { value in
+            forEachCount += value
+        }
+        stream.success(1)
+        stream.success(2)
+        XCTAssertEqual(forEachCount, 3)
+        XCTAssertFutureStreamSucceeds(stream, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertEqual(1, value)
+            },
+            { value in
+                XCTAssertEqual(2, value)
+            }
+        ])
+    }
+
+    func testForEach_WhenFutureStreamfailes_ForNotEachCalledCompletesWithError() {
+        let stream = FutureStream<Int>()
+        stream.forEach(context: TestContext.immediate) { value in
+            XCTFail()
+        }
+        stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
+        XCTAssertFutureStreamFails(stream, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
+    }
+
+
     // MARK: - andThen -
 
     func testAndThen_WhenFutureStreamSucceeds_AndThenCalledCompletesSuccessfully() {
@@ -858,5 +982,7 @@ class FutureSreamTests: XCTestCase {
     func testRecoverWith_ReturningFutureWhenCancelled_DoesNotComplete() {
         
     }
+
+    // MARK: - StreamPromise -
 
 }
