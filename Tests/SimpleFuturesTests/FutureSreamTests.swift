@@ -813,10 +813,10 @@ class FutureSreamTests: XCTestCase {
         stream.success(2)
         XCTAssertFutureStreamFails(filtered, context: TestContext.immediate, validations: [
             { error in
-                XCTAssertEqualErrors(error, SimpleFuturesErrors.NoSuchElement)
+                XCTAssertEqualErrors(error, SimpleFutures.Error.noSuchElement)
             },
             { error in
-                XCTAssertEqualErrors(error, SimpleFuturesErrors.NoSuchElement)
+                XCTAssertEqualErrors(error, SimpleFutures.Error.noSuchElement)
             }
         ])
     }

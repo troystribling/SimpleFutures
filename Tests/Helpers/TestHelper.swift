@@ -10,27 +10,9 @@ import UIKit
 import XCTest
 import SimpleFutures
 
-enum TestFailure : ErrorType {
+public enum TestFailure: Int, Swift.Error {
     case error
     case recoveryError
-}
-
-func writeSuccesfulFutures<T>(promise:StreamPromise<T>, value:T, times:Int) {
-    for _ in (1...times) {
-        promise.success(value)
-    }
-}
-
-func writeSuccesfulFutures<T>(promise:StreamPromise<T>, values:[T]) {
-    for value in values {
-        promise.success(value)
-    }
-}
-
-func writeFailedFutures<T>(promise:StreamPromise<T>, times:Int) {
-    for _ in (1...times) {
-        promise.failure(TestFailure.error)
-    }
 }
 
 struct TestContext {

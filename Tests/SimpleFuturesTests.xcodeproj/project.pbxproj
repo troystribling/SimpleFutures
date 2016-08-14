@@ -11,7 +11,7 @@
 		05B1568D1D58D6840024AC9A /* FutureSreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B1568C1D58D6840024AC9A /* FutureSreamTests.swift */; };
 		05BF91F91CFCA79A00B78B12 /* TestHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BF91F71CFCA79A00B78B12 /* TestHelper.swift */; };
 		05BF91FA1CFCA79A00B78B12 /* XCTTestCase+SimpleFuturesAssertions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BF91F81CFCA79A00B78B12 /* XCTTestCase+SimpleFuturesAssertions.swift */; };
-		76A2B190CA4DDAA4E835E8DA /* Pods_SimpleFuturesTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DAE7FC762C409C8F47D70C5 /* Pods_SimpleFuturesTests.framework */; };
+		5075C727F5A5F56B33A3A554 /* Pods_SimpleFuturesTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E97F5E12C1F84007DDE7E768 /* Pods_SimpleFuturesTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,9 +22,9 @@
 		05BF91F81CFCA79A00B78B12 /* XCTTestCase+SimpleFuturesAssertions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "XCTTestCase+SimpleFuturesAssertions.swift"; path = "Helpers/XCTTestCase+SimpleFuturesAssertions.swift"; sourceTree = "<group>"; };
 		05F415A81CFAA4FD00A72FAA /* SimpleFuturesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimpleFuturesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		05F415ED1CFAAB3A00A72FAA /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
-		4DAE7FC762C409C8F47D70C5 /* Pods_SimpleFuturesTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimpleFuturesTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		74E67CA3351B0FA6E62348B2 /* Pods-SimpleFuturesTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleFuturesTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests.debug.xcconfig"; sourceTree = "<group>"; };
-		DE4C1BD80C2C2BBF8BD0F746 /* Pods-SimpleFuturesTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleFuturesTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests.release.xcconfig"; sourceTree = "<group>"; };
+		9FB4DEC1CFB9E376F7CAA0D5 /* Pods-SimpleFuturesTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleFuturesTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests.release.xcconfig"; sourceTree = "<group>"; };
+		E97F5E12C1F84007DDE7E768 /* Pods_SimpleFuturesTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimpleFuturesTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FF9206F86A1692C33B5E305F /* Pods-SimpleFuturesTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleFuturesTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,7 +32,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				76A2B190CA4DDAA4E835E8DA /* Pods_SimpleFuturesTests.framework in Frameworks */,
+				5075C727F5A5F56B33A3A554 /* Pods_SimpleFuturesTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -56,8 +56,8 @@
 				05BF91F61CFCA78B00B78B12 /* Helpers */,
 				05F4159F1CFAA4FC00A72FAA /* Products */,
 				05F415A01CFAA4FC00A72FAA /* SimpleFuturesTests */,
-				AFCBC7C1BCD1FAA32BFB2FF5 /* Pods */,
-				E3136CB9751DC1C82C38E67C /* Frameworks */,
+				BF4211D0AAD56E27E60456E5 /* Pods */,
+				647297B446E1D72F38DAD5B5 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -78,21 +78,21 @@
 			path = SimpleFuturesTests;
 			sourceTree = "<group>";
 		};
-		AFCBC7C1BCD1FAA32BFB2FF5 /* Pods */ = {
+		647297B446E1D72F38DAD5B5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				74E67CA3351B0FA6E62348B2 /* Pods-SimpleFuturesTests.debug.xcconfig */,
-				DE4C1BD80C2C2BBF8BD0F746 /* Pods-SimpleFuturesTests.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
-		E3136CB9751DC1C82C38E67C /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				4DAE7FC762C409C8F47D70C5 /* Pods_SimpleFuturesTests.framework */,
+				E97F5E12C1F84007DDE7E768 /* Pods_SimpleFuturesTests.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		BF4211D0AAD56E27E60456E5 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				FF9206F86A1692C33B5E305F /* Pods-SimpleFuturesTests.debug.xcconfig */,
+				9FB4DEC1CFB9E376F7CAA0D5 /* Pods-SimpleFuturesTests.release.xcconfig */,
+			);
+			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,12 +102,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 05F415B51CFAA4FD00A72FAA /* Build configuration list for PBXNativeTarget "SimpleFuturesTests" */;
 			buildPhases = (
-				F15CC505C3F85C33691C9162 /* 📦 Check Pods Manifest.lock */,
+				CDDDCD4B1991F5B6CE1BF5C7 /* 📦 Check Pods Manifest.lock */,
 				05F415A41CFAA4FD00A72FAA /* Sources */,
 				05F415A51CFAA4FD00A72FAA /* Frameworks */,
 				05F415A61CFAA4FD00A72FAA /* Resources */,
-				FF0F1E73618465D0AE636605 /* 📦 Embed Pods Frameworks */,
-				5A9B8F163CBDEACF6E896068 /* 📦 Copy Pods Resources */,
+				B2D9727E836726D52D93C808 /* 📦 Embed Pods Frameworks */,
+				C246BE1F4398189A4CEC4421 /* 📦 Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -125,11 +125,12 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = "Troy Stribling";
 				TargetAttributes = {
 					05F415A71CFAA4FD00A72FAA = {
 						CreatedOnToolsVersion = 7.3.1;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -161,7 +162,22 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		5A9B8F163CBDEACF6E896068 /* 📦 Copy Pods Resources */ = {
+		B2D9727E836726D52D93C808 /* 📦 Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C246BE1F4398189A4CEC4421 /* 📦 Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -176,7 +192,7 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		F15CC505C3F85C33691C9162 /* 📦 Check Pods Manifest.lock */ = {
+		CDDDCD4B1991F5B6CE1BF5C7 /* 📦 Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -189,21 +205,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		FF0F1E73618465D0AE636605 /* 📦 Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "📦 Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -237,8 +238,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -287,8 +290,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -318,26 +323,31 @@
 		};
 		05F415B61CFAA4FD00A72FAA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 74E67CA3351B0FA6E62348B2 /* Pods-SimpleFuturesTests.debug.xcconfig */;
+			baseConfigurationReference = FF9206F86A1692C33B5E305F /* Pods-SimpleFuturesTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = gnos.us.SimpleFuturesTestsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
 		05F415B71CFAA4FD00A72FAA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DE4C1BD80C2C2BBF8BD0F746 /* Pods-SimpleFuturesTests.release.xcconfig */;
+			baseConfigurationReference = 9FB4DEC1CFB9E376F7CAA0D5 /* Pods-SimpleFuturesTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = gnos.us.SimpleFuturesTestsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

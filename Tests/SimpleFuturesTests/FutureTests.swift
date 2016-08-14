@@ -478,7 +478,7 @@ class FutureTests: XCTestCase {
         }
         future.success(1)
         XCTAssertFutureFails(filtered, context: TestContext.immediate) { error in
-            XCTAssertEqualErrors(error, SimpleFuturesErrors.NoSuchElement)
+            XCTAssertEqualErrors(error, Error.noSuchElement)
         }
     }
 
