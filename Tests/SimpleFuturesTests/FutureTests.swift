@@ -632,6 +632,8 @@ class FutureTests: XCTestCase {
         
     }
 
+    // MARK: - mapError -
+
     // MARK: - future -
 
     func testFuture_WhenClosureSucceeds_CompletesSuccessfully() {
@@ -661,6 +663,7 @@ class FutureTests: XCTestCase {
 
 
     // MARK: - fold -
+
     func testFold_WhenFuturesSucceed_CompletesSuccessfully() {
         let futures = [future(Int(1)), future(Int(2)), future(Int(3))]
         let result = futures.fold(context: TestContext.immediate, initial: 0) { $0 + $1 }
@@ -681,6 +684,7 @@ class FutureTests: XCTestCase {
 
 
     // MARK: - sequence -
+
     func testSequence_WhenFuturesSucceed_CompletesSuccessfully() {
         let futures = [future(Int(1)), future(Int(2)), future(Int(3))]
         let result = futures.sequence(context: TestContext.immediate)
