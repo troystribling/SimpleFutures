@@ -13,6 +13,7 @@ import Foundation
 public enum Error : Int, Swift.Error {
     case noSuchElement
     case invalidValue
+    case invalidCancelToken
 }
 
 // MARK: - Optional -

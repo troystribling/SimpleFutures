@@ -559,7 +559,7 @@ class FutureTests: XCTestCase {
 
     // MARK: - cancel -
 
-    func testCancel_ForOnSuccess_DoesNotComplete() {
+    func testCancel_ForOnSuccess_CancelSucceeedsAndDoesNotComplete() {
         let future = Future<Int>()
         let cancelToken = CancelToken()
         future.onSuccess(context: TestContext.immediate, cancelToken: cancelToken) { _ in
@@ -592,12 +592,31 @@ class FutureTests: XCTestCase {
         XCTAssertTrue(onSuccessCalled)
     }
 
-    func testCancel_ForOnFailure_DoesNotComplete() {
-
+    func testCancel_ForOnFailure_CancelSucceeedsAndDoesNotComplete() {
+        let future = Future<Int>()
+        let cancelToken = CancelToken()
+        var onFailureCalled = false
+        future.onFailure(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            onFailureCalled = true
+        }
+        let status = future.cancel(cancelToken)
+        future.failure(TestFailure.error)
+        XCTAssertTrue(status)
+        XCTAssertFalse(onFailureCalled)
     }
 
     func testCancel_ForMap_DoesNotComplete() {
-
+        let future = Future<Int>()
+        let cancelToken = CancelToken()
+        var mapCalled = false
+        let _ = future.map(context: TestContext.immediate, cancelToken: cancelToken) { value -> Bool in
+            mapCalled = true
+            return true
+        }
+        let status = future.cancel(cancelToken)
+        future.success(1)
+        XCTAssertTrue(status)
+        XCTAssertFalse(mapCalled)
     }
 
     func testCancel_ForFlatMap_DoesNotComplete() {
@@ -633,6 +652,13 @@ class FutureTests: XCTestCase {
     }
 
     // MARK: - mapError -
+    func testMapError_WhenFutureSucceeds_MapErrorNotCalledCompletesSuccessfully() {
+
+    }
+
+    func testMapError_WhenFutureFails_MapErrorCalledCompletesWithMappedError() {
+
+    }
 
     // MARK: - future -
 

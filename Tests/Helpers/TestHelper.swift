@@ -13,6 +13,7 @@ import SimpleFutures
 public enum TestFailure: Int, Swift.Error {
     case error
     case recoveryError
+    case mappedError
 }
 
 struct TestContext {
