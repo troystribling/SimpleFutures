@@ -13,7 +13,6 @@ import Foundation
 public enum Error : Int, Swift.Error {
     case noSuchElement
     case invalidValue
-    case invalidCancelToken
 }
 
 // MARK: - Optional -
@@ -508,7 +507,7 @@ public final class Promise<T> {
 public final class Future<T> : Futurable {
 
     typealias OnComplete = (Try<T>) -> Void
-    private var savedCompletions = [CompletionId : OnComplete]()
+    private var savedCompletions = [CompletionId : [OnComplete]]()
     private let queue = Queue("us.gnos.simpleFutures.main")
 
     public private(set) var result: Try<T>? {
@@ -546,7 +545,9 @@ public final class Future<T> : Futurable {
     public func complete(_ result: Try<T>) {
         self.result = result
         queue.sync {
-            self.savedCompletions.values.forEach { $0(result) }
+            self.savedCompletions.values.forEach { completions in
+                completions.forEach { $0(result) }
+            }
             self.savedCompletions.removeAll()
         }
     }
@@ -585,16 +586,20 @@ public final class Future<T> : Futurable {
     // MARK: Callbacks
 
     public func onComplete(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), complete: (Try<T>) -> Void) -> Void {
-        let savedCompletion : OnComplete = { result in
+        let completion : OnComplete = { result in
             context.execute {
                 complete(result)
             }
         }
         if let result = result {
-            savedCompletion(result)
+            completion(result)
         } else {
             queue.sync {
-                self.savedCompletions[cancelToken.completionId] = savedCompletion
+                if let completions = self.savedCompletions[cancelToken.completionId] {
+                    self.savedCompletions[cancelToken.completionId] = completions + [completion]
+                } else {
+                    self.savedCompletions[cancelToken.completionId] = [completion]
+                }
             }
         }
     }
@@ -788,7 +793,7 @@ public final class FutureStream<T> {
     public private(set) var futures = [Future<T>]()
 
     private typealias InFuture = (Future<T>) -> Void
-    private var savedCompletions = [CompletionId : InFuture]()
+    private var savedCompletions = [CompletionId : [InFuture]]()
     let queue = Queue("us.gnos.simpleFuturesStreams.main")
 
     private let capacity: Int
@@ -816,8 +821,8 @@ public final class FutureStream<T> {
                 self.futures.remove(at: 0)
             }
             self.futures.append(future)
-            for complete in self.savedCompletions.values {
-                complete(future)
+            self.savedCompletions.values.forEach { completions in
+                completions.forEach { $0(future) }
             }
         }
     }
@@ -871,7 +876,11 @@ public final class FutureStream<T> {
             future.onComplete(context: context, complete: complete)
         }
         queue.sync {
-            self.savedCompletions[cancelToken.completionId] = futureComplete
+            if let completions = self.savedCompletions[cancelToken.completionId] {
+                self.savedCompletions[cancelToken.completionId] = completions + [futureComplete]
+            } else {
+                self.savedCompletions[cancelToken.completionId] = [futureComplete]
+            }
             self.futures.forEach { futureComplete($0) }
         }
     }

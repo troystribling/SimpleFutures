@@ -550,6 +550,7 @@ class FutureTests: XCTestCase {
     func testAndThen_WhenFutureFails_AndThenNotCalledCompletesWithError() {
         let future = Future<Bool>()
         let andThen = future.andThen(context: TestContext.immediate) { _ in
+            XCTFail()
         }
         future.failure(TestFailure.error)
         XCTAssertFutureFails(andThen, context: TestContext.immediate) { error in
@@ -605,18 +606,30 @@ class FutureTests: XCTestCase {
         XCTAssertFalse(onFailureCalled)
     }
 
+    func testCancel_ForOnSuccessForMultipleCancelations_CancelSucceeedsAndDoesNotComplete() {
+        let future = Future<Int>()
+        let cancelToken = CancelToken()
+        future.onFailure(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+        }
+        future.onSuccess(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+        }
+        let status = future.cancel(cancelToken)
+        future.success(1)
+        XCTAssertTrue(status)
+    }
+
     func testCancel_ForMap_DoesNotComplete() {
         let future = Future<Int>()
         let cancelToken = CancelToken()
-        var mapCalled = false
         let _ = future.map(context: TestContext.immediate, cancelToken: cancelToken) { value -> Bool in
-            mapCalled = true
+            XCTFail()
             return true
         }
         let status = future.cancel(cancelToken)
         future.success(1)
         XCTAssertTrue(status)
-        XCTAssertFalse(mapCalled)
     }
 
     func testCancel_ForFlatMap_DoesNotComplete() {
