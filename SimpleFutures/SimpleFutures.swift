@@ -50,7 +50,7 @@ public protocol Tryable {
     init(_ value: T)
     init(_ error: Swift.Error)
 
-    func map<M>(_ mapping: @noescape (T) throws -> M) -> Try<M>
+    func map<M>(_ mapping: (T) throws -> M) -> Try<M>
 }
 
 // MARK: - Try -
@@ -86,7 +86,7 @@ public enum Try<T> : Tryable {
         self = .failure(error)
     }
 
-    public init(_ task: @noescape (Void) throws -> T) {
+    public init(_ task: (Void) throws -> T) {
         do {
             self = try .success(task())
         } catch {
@@ -114,7 +114,7 @@ public enum Try<T> : Tryable {
 
     // MARK: Combinators
 
-    public func map<M>(_ mapping: @noescape (T) throws -> M) -> Try<M> {
+    public func map<M>(_ mapping: (T) throws -> M) -> Try<M> {
         switch self {
         case .success(let value):
             do {
@@ -127,7 +127,7 @@ public enum Try<T> : Tryable {
         }
     }
     
-    public func flatMap<M>(_ mapping: @noescape (T) throws -> Try<M>) -> Try<M> {
+    public func flatMap<M>(_ mapping: (T) throws -> Try<M>) -> Try<M> {
         switch self {
         case .success(let value):
             do {
@@ -140,7 +140,7 @@ public enum Try<T> : Tryable {
         }
     }
 
-    public func mapError(_ mapping: @noescape (Swift.Error) -> Swift.Error) -> Try<T> {
+    public func mapError(_ mapping: (Swift.Error) -> Swift.Error) -> Try<T> {
         switch self {
         case .success(let value):
             return Try(value)
@@ -149,7 +149,7 @@ public enum Try<T> : Tryable {
         }
     }
     
-    public func recover(_ recovery: @noescape (Swift.Error) throws -> T) -> Try<T> {
+    public func recover(_ recovery: (Swift.Error) throws -> T) -> Try<T> {
         switch self {
         case .success(let value):
             return Try(value)
@@ -162,7 +162,7 @@ public enum Try<T> : Tryable {
         }
     }
 
-    public func recoverWith(_ recovery: @noescape (Swift.Error) throws -> Try<T>) -> Try<T> {
+    public func recoverWith(_ recovery: (Swift.Error) throws -> Try<T>) -> Try<T> {
         switch self {
         case .success(let value):
             return Try(value)
@@ -175,7 +175,7 @@ public enum Try<T> : Tryable {
         }
     }
     
-    public func filter(_ predicate: @noescape (T) throws -> Bool) -> Try<T> {
+    public func filter(_ predicate: (T) throws -> Bool) -> Try<T> {
         switch self {
         case .success(let value):
             do {
@@ -192,7 +192,7 @@ public enum Try<T> : Tryable {
         }
     }
     
-    public func forEach(_ apply: @noescape (T) throws -> Void) {
+    public func forEach(_ apply: (T) throws -> Void) {
         switch self {
         case .success(let value):
             do {
@@ -260,14 +260,14 @@ extension Sequence where Iterator.Element: Tryable {
 
 public protocol ExecutionContext {
 
-    func execute(_ task: (Void) -> Void)
+    func execute(_ task: @escaping (Void) -> Void)
 
 }
 
 public class ImmediateContext : ExecutionContext {
 
     public init() {}
-    public func execute(_ task: (Void) -> Void) {
+    public func execute(_ task: @escaping (Void) -> Void) {
         task()
     }
 
@@ -284,7 +284,7 @@ public struct QueueContext : ExecutionContext {
         self.queue = queue
     }
 
-    public func execute(_ task: (Void) -> Void) {
+    public func execute(_ task: @escaping (Void) -> Void) {
         queue.async(task)
     }
 
@@ -299,7 +299,7 @@ public struct MaxStackDepthContext : ExecutionContext {
         self.maxDepth = maxDepth
     }
 
-    public func execute(_ task: (Void) -> Void) {
+    public func execute(_ task: @escaping (Void) -> Void) {
         let localThreadDictionary = Thread.current.threadDictionary
         let previousDepth = localThreadDictionary[MaxStackDepthContext.taskDepthKey] as? Int ?? 0
         if previousDepth < maxDepth {
@@ -330,19 +330,19 @@ public struct Queue {
         self.queue = queue
     }
     
-    public func sync(_ block: (Void) -> Void) {
+    public func sync(_ block: @escaping (Void) -> Void) {
         queue.sync(execute: block)
     }
     
-    public func sync<T>(_ block: (Void) -> T) -> T {
+    public func sync<T>(_ block: @escaping (Void) -> T) -> T {
         return queue.sync(execute: block);
     }
     
-    public func async(_ block: (Void) -> Void) {
+    public func async(_ block:  @escaping (Void) -> Void) {
         queue.async(execute: block);
     }
     
-    public func delay(_ delay: TimeInterval, request: (Void) -> Void) {
+    public func delay(_ delay: TimeInterval, request: @escaping (Void) -> Void) {
         let popTime = DispatchTime.now() + Double(Int64(Float(delay)*Float(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
         queue.asyncAfter(deadline: popTime, execute: request)
     }
@@ -388,7 +388,7 @@ public protocol Futurable {
     init(context: ExecutionContext, dependent: Self)
 
     func complete(_ result: Try<T>)
-    func onComplete(context: ExecutionContext, cancelToken: CancelToken, complete: (Try<T>) -> Void) -> Void
+    func onComplete(context: ExecutionContext, cancelToken: CancelToken, complete: @escaping (Try<T>) -> Void) -> Void
 
 }
 
@@ -396,7 +396,7 @@ public extension Futurable {
 
     //MARK: - Combinators -
 
-    public func map<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: (T) throws -> M) -> Future<M> {
+    public func map<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> M) -> Future<M> {
         let future = Future<M>()
         onComplete(context: context, cancelToken: cancelToken) { result in
             future.complete(result.map(mapping))
@@ -404,7 +404,7 @@ public extension Futurable {
         return future
     }
 
-    public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: (T) throws -> Future<M>) -> Future<M> {
+    public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> Future<M>) -> Future<M> {
         let future = Future<M>()
         onComplete(context: context, cancelToken: cancelToken) { result in
             future.completeWith(context: context, future: result.map(mapping))
@@ -412,7 +412,7 @@ public extension Futurable {
         return future
     }
 
-    public func withFilter(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), filter: (T) throws -> Bool) -> Future<T> {
+    public func withFilter(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), filter: @escaping (T) throws -> Bool) -> Future<T> {
         let future = Future<T>()
         onComplete(context: context, cancelToken: cancelToken) { result in
             future.complete(result.filter(filter))
@@ -420,13 +420,13 @@ public extension Futurable {
         return future
     }
 
-    public func forEach(context:ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: (T) -> Void) {
+    public func forEach(context:ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: @escaping (T) -> Void) {
         onComplete(context: context, cancelToken: cancelToken) { result in
             result.forEach(apply)
         }
     }
 
-    public func andThen(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: (T) -> Void) -> Future<T> {
+    public func andThen(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: @escaping (T) -> Void) -> Future<T> {
         let future = Future<T>()
         future.onSuccess(context: context, cancelToken: cancelToken, success: success)
         onComplete(context: context, cancelToken: cancelToken) { result in
@@ -435,7 +435,7 @@ public extension Futurable {
         return future
     }
 
-    public func recover(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: (Swift.Error) throws -> T) -> Future<T> {
+    public func recover(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> T) -> Future<T> {
         let future = Future<T>()
         onComplete(context: context, cancelToken: cancelToken) { result in
             future.complete(result.recover(recovery))
@@ -443,7 +443,7 @@ public extension Futurable {
         return future
     }
 
-    public func recoverWith(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: (Swift.Error) throws -> Future<T>) -> Future<T> {
+    public func recoverWith(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> Future<T>) -> Future<T> {
         let future = Future<T>()
         self.onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
@@ -460,7 +460,7 @@ public extension Futurable {
         return future
     }
 
-    public func mapError(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: (Swift.Error) -> Swift.Error) -> Future<T> {
+    public func mapError(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (Swift.Error) -> Swift.Error) -> Future<T> {
         let future = Future<T>()
         onComplete(context: context, cancelToken: cancelToken) { result in
             future.complete(result.mapError(mapping))
@@ -585,7 +585,7 @@ public final class Future<T> : Futurable {
 
     // MARK: Callbacks
 
-    public func onComplete(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), complete: (Try<T>) -> Void) -> Void {
+    public func onComplete(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), complete: @escaping (Try<T>) -> Void) -> Void {
         let completion : OnComplete = { result in
             context.execute {
                 complete(result)
@@ -604,7 +604,7 @@ public final class Future<T> : Futurable {
         }
     }
     
-    public func onSuccess(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: (T) -> Void){
+    public func onSuccess(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: @escaping (T) -> Void){
         onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
             case .success(let value):
@@ -615,7 +615,7 @@ public final class Future<T> : Futurable {
         }
     }
     
-    public func onFailure(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), failure: (Swift.Error) -> Void) {
+    public func onFailure(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), failure: @escaping (Swift.Error) -> Void) {
         onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
             case .failure(let error):
@@ -637,7 +637,7 @@ public final class Future<T> : Futurable {
 
     // MARK: FutureStream Combinators
 
-    public func flatMap<M>(_ capacity: Int = Int.max, context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: (T) throws -> FutureStream<M>) -> FutureStream<M> {
+    public func flatMap<M>(_ capacity: Int = Int.max, context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> FutureStream<M>) -> FutureStream<M> {
         let stream = FutureStream<M>(capacity: capacity)
         onComplete(context: context, cancelToken: cancelToken) { result in
             stream.completeWith(context: context, stream: result.map(mapping))
@@ -645,7 +645,7 @@ public final class Future<T> : Futurable {
         return stream
     }
     
-    public func recoverWith(_ capacity: Int = Int.max, context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: (Swift.Error) throws -> FutureStream<T>) -> FutureStream<T> {
+    public func recoverWith(_ capacity: Int = Int.max, context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> FutureStream<T>) -> FutureStream<T> {
         let stream = FutureStream<T>(capacity: capacity)
         onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
@@ -666,11 +666,11 @@ public final class Future<T> : Futurable {
 
 // MARK: - future -
 
-public func future<T>( _ task: @autoclosure(escaping) (Void) -> T) -> Future<T> {
+public func future<T>( _ task: @autoclosure @escaping  (Void) -> T) -> Future<T> {
     return future(context: ImmediateContext(), task)
 }
 
-public func future<T>(context: ExecutionContext = QueueContext.futuresDefault, _ task: (Void) throws -> T) -> Future<T> {
+public func future<T>(context: ExecutionContext = QueueContext.futuresDefault, _ task: @escaping (Void) throws -> T) -> Future<T> {
     let future = Future<T>()
     context.execute {
         future.complete(Try(task))
@@ -713,13 +713,13 @@ public func future<T>(_ method: ((T) -> Void) -> Void) -> Future<T> {
     })
 }
 
-public func ??<T>(lhs: Future<T>, rhs: @autoclosure(escaping) (Void) throws -> T) -> Future<T> {
+public func ??<T>(lhs: Future<T>, rhs: @autoclosure @escaping  (Void) throws -> T) -> Future<T> {
     return lhs.recover { _ in
         return try rhs()
     }
 }
 
-public func ??<T>(lhs: Future<T>, rhs: @autoclosure(escaping) (Void) throws -> Future<T>) -> Future<T> {
+public func ??<T>(lhs: Future<T>, rhs: @autoclosure @escaping (Void) throws -> Future<T>) -> Future<T> {
     return lhs.recoverWith { _ in
         return try rhs()
     }
@@ -729,7 +729,7 @@ public func ??<T>(lhs: Future<T>, rhs: @autoclosure(escaping) (Void) throws -> F
 
 extension Sequence where Iterator.Element : Futurable {
 
-    public func fold<R>(context: ExecutionContext = QueueContext.futuresDefault, initial: R,  combine: (R, Iterator.Element.T) throws -> R) -> Future<R> {
+    public func fold<R>(context: ExecutionContext = QueueContext.futuresDefault, initial: R,  combine: @escaping (R, Iterator.Element.T) throws -> R) -> Future<R> {
         return reduce(Future<R>(value: initial)) { accumulator, element in
             accumulator.flatMap(context: MaxStackDepthContext()) { accumulatorValue in
                 return element.map(context: context) { elementValue in
@@ -746,7 +746,7 @@ extension Sequence where Iterator.Element : Futurable {
 
 extension Sequence {
 
-    public func traverse<U, F: Futurable where F.T == U>(context: ExecutionContext = QueueContext.futuresDefault, mapping: (Iterator.Element) -> F) -> Future<[U]> {
+    public func traverse<U, F: Futurable>(context: ExecutionContext = QueueContext.futuresDefault, mapping: (Iterator.Element) -> F) -> Future<[U]> where F.T == U {
         return map(mapping).fold(context: context, initial: [U]()) { accumulator, element in
             return accumulator + [element]
         }
@@ -871,7 +871,7 @@ public final class FutureStream<T> {
 
     // MARK: Callbacks
 
-    public func onComplete(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), complete: (Try<T>) -> Void) {
+    public func onComplete(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), complete: @escaping (Try<T>) -> Void) {
         let futureComplete : InFuture = { future in
             future.onComplete(context: context, complete: complete)
         }
@@ -885,7 +885,7 @@ public final class FutureStream<T> {
         }
     }
 
-    public func onSuccess(context:ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: (T) -> Void) {
+    public func onSuccess(context:ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: @escaping (T) -> Void) {
         onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
             case .success(let value):
@@ -896,7 +896,7 @@ public final class FutureStream<T> {
         }
     }
     
-    public func onFailure(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), failure: (Swift.Error) -> Void) {
+    public func onFailure(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), failure: @escaping (Swift.Error) -> Void) {
         onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
             case .failure(let error):
@@ -918,7 +918,7 @@ public final class FutureStream<T> {
 
     // MARK: Combinators
 
-    public func map<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: (T) throws -> M) -> FutureStream<M> {
+    public func map<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> M) -> FutureStream<M> {
         let stream = FutureStream<M>(capacity: capacity)
         onComplete(context: context, cancelToken: cancelToken) { result in
             stream.complete(result.map(mapping))
@@ -926,7 +926,7 @@ public final class FutureStream<T> {
         return stream
     }
     
-    public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: (T) throws -> FutureStream<M>) -> FutureStream<M> {
+    public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> FutureStream<M>) -> FutureStream<M> {
         let stream = FutureStream<M>(capacity: capacity)
         onComplete(context: context, cancelToken: cancelToken) { result in
             stream.completeWith(context: context, stream: result.map(mapping))
@@ -934,7 +934,7 @@ public final class FutureStream<T> {
         return stream
     }
     
-    public func recover(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: (Swift.Error) throws -> T) -> FutureStream<T> {
+    public func recover(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> T) -> FutureStream<T> {
         let stream = FutureStream<T>(capacity: capacity)
         onComplete(context: context, cancelToken: cancelToken) { result in
             stream.complete(result.recover(recovery))
@@ -942,7 +942,7 @@ public final class FutureStream<T> {
         return stream
     }
     
-    public func recoverWith(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: (Swift.Error) throws -> FutureStream<T>) -> FutureStream<T> {
+    public func recoverWith(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> FutureStream<T>) -> FutureStream<T> {
         let stream = FutureStream<T>(capacity: capacity)
         onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
@@ -959,7 +959,7 @@ public final class FutureStream<T> {
         return stream
     }
     
-    public func withFilter(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), filter: (T) throws  -> Bool) -> FutureStream<T> {
+    public func withFilter(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), filter: @escaping (T) throws  -> Bool) -> FutureStream<T> {
         let stream = FutureStream<T>(capacity: capacity)
         onComplete(context: context, cancelToken: cancelToken) { result in
             stream.complete(result.filter(filter))
@@ -967,13 +967,13 @@ public final class FutureStream<T> {
         return stream
     }
     
-    public func forEach(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: (T) -> Void) {
+    public func forEach(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: @escaping (T) -> Void) {
         onComplete(context: context, cancelToken: cancelToken) { result in
             result.forEach(apply)
         }
     }
 
-    public func andThen(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: (T) -> Void) -> FutureStream<T> {
+    public func andThen(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: @escaping (T) -> Void) -> FutureStream<T> {
         let stream = FutureStream<T>(capacity: capacity)
         stream.onSuccess(context: context, cancelToken: cancelToken, success: success)
         onComplete(context: context, cancelToken: cancelToken) { result in
@@ -982,7 +982,7 @@ public final class FutureStream<T> {
         return stream
     }
 
-    public func mapError(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: (Swift.Error) -> Swift.Error) -> FutureStream<T> {
+    public func mapError(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (Swift.Error) -> Swift.Error) -> FutureStream<T> {
         let stream = FutureStream<T>(capacity: capacity)
         onComplete(context: context, cancelToken: cancelToken) { result in
             stream.complete(result.mapError(mapping))
@@ -992,7 +992,7 @@ public final class FutureStream<T> {
 
     // MARK: Future Combinators
 
-    public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: (T) throws  -> Future<M>) -> FutureStream<M> {
+    public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws  -> Future<M>) -> FutureStream<M> {
         let stream = FutureStream<M>(capacity: capacity)
         onComplete(context: context, cancelToken: cancelToken) { result in
             stream.completeWith(context: context, future: result.map(mapping))
@@ -1000,7 +1000,7 @@ public final class FutureStream<T> {
         return stream
     }
     
-    public func recoverWith(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: (Swift.Error) throws  -> Future<T>) -> FutureStream<T> {
+    public func recoverWith(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws  -> Future<T>) -> FutureStream<T> {
         let stream = FutureStream<T>(capacity: capacity)
         onComplete(context: context, cancelToken: cancelToken) { result in
             switch result {
