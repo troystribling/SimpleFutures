@@ -974,12 +974,20 @@ public final class FutureStream<T> {
     }
 
     public func andThen(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), success: (T) -> Void) -> FutureStream<T> {
-        let future = FutureStream<T>(capacity: capacity)
-        future.onSuccess(context: context, cancelToken: cancelToken, success: success)
+        let stream = FutureStream<T>(capacity: capacity)
+        stream.onSuccess(context: context, cancelToken: cancelToken, success: success)
         onComplete(context: context, cancelToken: cancelToken) { result in
-            future.complete(result)
+            stream.complete(result)
         }
-        return future
+        return stream
+    }
+
+    public func mapError(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: (Swift.Error) -> Swift.Error) -> FutureStream<T> {
+        let stream = FutureStream<T>(capacity: capacity)
+        onComplete(context: context, cancelToken: cancelToken) { result in
+            stream.complete(result.mapError(mapping))
+        }
+        return stream
     }
 
     // MARK: Future Combinators

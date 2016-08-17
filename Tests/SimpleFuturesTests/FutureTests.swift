@@ -558,6 +558,29 @@ class FutureTests: XCTestCase {
         }
     }
 
+    // MARK: - mapError -
+
+    func testMapError_WhenFutureSucceeds_MapErrorNotCalledCompletesSuccessfully() {
+        let future = Future(value: 1)
+        let mapErrorFuture = future.mapError(context: TestContext.immediate) { _ in
+            XCTFail()
+            return TestFailure.mappedError
+        }
+        XCTAssertFutureSucceeds(mapErrorFuture, context: TestContext.immediate) { value in
+            XCTAssertEqual(value, 1)
+        }
+    }
+
+    func testMapError_WhenFutureFails_MapErrorCalledCompletesWithMappedError() {
+        let future = Future<Int>(error: TestFailure.error)
+        let mapErrorFuture = future.mapError(context: TestContext.immediate) { _ in
+            return TestFailure.mappedError
+        }
+        XCTAssertFutureFails(mapErrorFuture, context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, TestFailure.mappedError)
+        }
+    }
+
     // MARK: - cancel -
 
     func testCancel_ForOnSuccess_CancelSucceeedsAndDoesNotComplete() {
@@ -606,13 +629,14 @@ class FutureTests: XCTestCase {
         XCTAssertFalse(onFailureCalled)
     }
 
-    func testCancel_ForOnSuccessForMultipleCancelations_CancelSucceeedsAndDoesNotComplete() {
+    func testCancel_ForMap_DoesNotComplete() {
         let future = Future<Int>()
         let cancelToken = CancelToken()
-        future.onFailure(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+        let mapFuture = future.map(context: TestContext.immediate, cancelToken: cancelToken) { value -> Bool in
             XCTFail()
+            return true
         }
-        future.onSuccess(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+        mapFuture.onSuccess { _ in
             XCTFail()
         }
         let status = future.cancel(cancelToken)
@@ -620,9 +644,12 @@ class FutureTests: XCTestCase {
         XCTAssertTrue(status)
     }
 
-    func testCancel_ForMap_DoesNotComplete() {
+    func testCancel_MultipleCancelations_CancelSucceeedsAndDoesNotComplete() {
         let future = Future<Int>()
         let cancelToken = CancelToken()
+        future.onSuccess(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+        }
         let _ = future.map(context: TestContext.immediate, cancelToken: cancelToken) { value -> Bool in
             XCTFail()
             return true
@@ -633,44 +660,135 @@ class FutureTests: XCTestCase {
     }
 
     func testCancel_ForFlatMap_DoesNotComplete() {
-
+        let future = Future<Int>()
+        let cancelToken = CancelToken()
+        let flatMapFuture = future.flatMap(context: TestContext.immediate, cancelToken: cancelToken) { value -> Future<Bool> in
+            XCTFail()
+            return Future(value: true)
+        }
+        flatMapFuture.onSuccess { _ in
+            XCTFail()
+        }
+        let status = future.cancel(cancelToken)
+        future.success(1)
+        XCTAssertTrue(status)
     }
 
     func testCancel_ForAndThen_DoesNotComplete() {
-
+        let future = Future<Int>()
+        let cancelToken = CancelToken()
+        let andThenFuture = future.andThen(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+        }
+        andThenFuture.onSuccess { _ in
+            XCTFail()
+        }
+        let status = future.cancel(cancelToken)
+        future.success(1)
+        XCTAssertTrue(status)
     }
 
     func testCancel_ForRecover_DoesNotComplete() {
-
+        let future = Future<Int>()
+        let cancelToken = CancelToken()
+        let recoverFuture = future.recover(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+            return 2
+        }
+        recoverFuture.onSuccess { _ in
+            XCTFail()
+        }
+        let status = future.cancel(cancelToken)
+        future.success(1)
+        XCTAssertTrue(status)
     }
 
     func testCancel_ForRecoverWith_DoesNotComplete() {
-
+        let future = Future<Int>()
+        let cancelToken = CancelToken()
+        let recoverWithFuture = future.recoverWith(context: TestContext.immediate, cancelToken: cancelToken) { _ -> Future<Int> in
+            XCTFail()
+            return Future(value: 2)
+        }
+        recoverWithFuture.onSuccess { _ in
+            XCTFail()
+        }
+        let status = future.cancel(cancelToken)
+        future.success(1)
+        XCTAssertTrue(status)
     }
 
     func testCancel_ForWithFilter_DoesNotComplete() {
-
+        let future = Future<Int>()
+        let cancelToken = CancelToken()
+        let withFilterFuture = future.withFilter(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+            return true
+        }
+        withFilterFuture.onSuccess { _ in
+            XCTFail()
+        }
+        let status = future.cancel(cancelToken)
+        future.success(1)
+        XCTAssertTrue(status)
     }
 
     func testCancel_ForForEach_DoesNotComplete() {
+        let future = Future<Int>()
+        let cancelToken = CancelToken()
+        future.forEach(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+        }
+        let status = future.cancel(cancelToken)
+        future.success(1)
+        XCTAssertTrue(status)
+    }
 
+    func testCancel_ForMapError_DoesNotComplete() {
+        let future = Future<Int>()
+        let cancelToken = CancelToken()
+        let mapErrorFuture = future.mapError(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+            return TestFailure.mappedError
+        }
+        mapErrorFuture.onFailure { _ in
+            XCTFail()
+        }
+        let status = future.cancel(cancelToken)
+        future.failure(TestFailure.error)
+        XCTAssertTrue(status)
     }
 
     func testCancel_ForFlatMapReturningFutureStreamWhenCancelled_DoesNotComplete() {
-
+        let future = Future<Int>()
+        let stream = FutureStream<Bool>()
+        let cancelToken = CancelToken()
+        let flatMapFuture = future.flatMap(context: TestContext.immediate, cancelToken: cancelToken) { value -> FutureStream<Bool> in
+            XCTFail()
+            return stream
+        }
+        flatMapFuture.onSuccess { _ in
+            XCTFail()
+        }
+        let status = future.cancel(cancelToken)
+        future.success(1)
+        XCTAssertTrue(status)
     }
     
     func testCancel_ForRecoverWithReturningFutureStreamWhenCancelled_DoesNotComplete() {
-        
-    }
-
-    // MARK: - mapError -
-    func testMapError_WhenFutureSucceeds_MapErrorNotCalledCompletesSuccessfully() {
-
-    }
-
-    func testMapError_WhenFutureFails_MapErrorCalledCompletesWithMappedError() {
-
+        let future = Future<Int>()
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        let recoverWithFuture = future.recoverWith(context: TestContext.immediate, cancelToken: cancelToken) { _ -> FutureStream<Int> in
+            XCTFail()
+            return stream
+        }
+        recoverWithFuture.onSuccess { _ in
+            XCTFail()
+        }
+        let status = future.cancel(cancelToken)
+        future.success(1)
+        XCTAssertTrue(status)
     }
 
     // MARK: - future -
@@ -699,7 +817,6 @@ class FutureTests: XCTestCase {
             XCTAssertTrue(value)
         }
     }
-
 
     // MARK: - fold -
 
