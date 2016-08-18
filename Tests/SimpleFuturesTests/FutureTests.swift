@@ -562,21 +562,21 @@ class FutureTests: XCTestCase {
 
     func testMapError_WhenFutureSucceeds_MapErrorNotCalledCompletesSuccessfully() {
         let future = Future(value: 1)
-        let mapErrorFuture = future.mapError(context: TestContext.immediate) { _ in
+        let mapError = future.mapError(context: TestContext.immediate) { _ in
             XCTFail()
             return TestFailure.mappedError
         }
-        XCTAssertFutureSucceeds(mapErrorFuture, context: TestContext.immediate) { value in
+        XCTAssertFutureSucceeds(mapError, context: TestContext.immediate) { value in
             XCTAssertEqual(value, 1)
         }
     }
 
     func testMapError_WhenFutureFails_MapErrorCalledCompletesWithMappedError() {
         let future = Future<Int>(error: TestFailure.error)
-        let mapErrorFuture = future.mapError(context: TestContext.immediate) { _ in
+        let mapError = future.mapError(context: TestContext.immediate) { _ in
             return TestFailure.mappedError
         }
-        XCTAssertFutureFails(mapErrorFuture, context: TestContext.immediate) { error in
+        XCTAssertFutureFails(mapError, context: TestContext.immediate) { error in
             XCTAssertEqualErrors(error, TestFailure.mappedError)
         }
     }
@@ -616,17 +616,15 @@ class FutureTests: XCTestCase {
         XCTAssertTrue(onSuccessCalled)
     }
 
-    func testCancel_ForOnFailure_CancelSucceeedsAndDoesNotComplete() {
+    func testCancel_ForOnFailure_DoesNotComplete() {
         let future = Future<Int>()
         let cancelToken = CancelToken()
-        var onFailureCalled = false
         future.onFailure(context: TestContext.immediate, cancelToken: cancelToken) { _ in
-            onFailureCalled = true
+            XCTFail()
         }
         let status = future.cancel(cancelToken)
         future.failure(TestFailure.error)
         XCTAssertTrue(status)
-        XCTAssertFalse(onFailureCalled)
     }
 
     func testCancel_ForMap_DoesNotComplete() {

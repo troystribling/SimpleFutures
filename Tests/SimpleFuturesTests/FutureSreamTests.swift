@@ -933,53 +933,118 @@ class FutureSreamTests: XCTestCase {
         ])
     }
 
+    // MARK: - mapError -
+
+    func testMapError_WhenFutureStreamSucceeds_MapErrorNotCalledCompletesSuccessfully() {
+        let stream = FutureStream<Int>()
+        let mapError = stream.mapError(context: TestContext.immediate) { _ in
+            XCTFail()
+            return TestFailure.mappedError
+        }
+        stream.success(1)
+        stream.success(2)
+        XCTAssertFutureStreamSucceeds(mapError, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertEqual(value, 1)
+            },
+            { value in
+                XCTAssertEqual(value, 2)
+            }
+        ])
+    }
+
+    func testMapError_WhenFutureStreamFails_MapErrorCalledCompletesWithMappedError() {
+        let stream = FutureStream<Int>()
+        let mapError = stream.mapError(context: TestContext.immediate) { _ in
+            return TestFailure.mappedError
+        }
+        stream.failure(TestFailure.error)
+        stream.failure(TestFailure.error)
+        XCTAssertFutureStreamFails(mapError, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.mappedError)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.mappedError)
+            }
+        ])
+    }
+
     // MARK: - cancel -
 
     func testCancel_ForOnSuccess_DoesNotComplete() {
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        stream.onSuccess(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+        }
+        let status = stream.cancel(cancelToken)
+        stream.success(1)
+        XCTAssertTrue(status)
+    }
+
+    func testCancel_ForOnSuccessWhenFutureCompleted_CancelFails() {
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        stream.success(1)
+        let status = stream.cancel(cancelToken)
+        XCTAssertFutureStreamSucceeds(stream, context: TestContext.immediate, validations: [
+            {value in
+                XCTAssertEqual(value, 1)
+            }
+        ])
+        XCTAssertFalse(status)
+    }
+
+    func testCancel_ForOnSuccessWithInvalidCancelToken_CancelFails() {
 
     }
 
-    func testOnSuccess_WithInvalidCancelToken_CancelFails() {
+    func testCancel_ForOnFailure_DoesNotComplete() {
 
     }
 
-    func testOnFailure_WhenCancled_DoesNotComplete() {
+    func testCancel_ForMap_DoesNotComplete() {
 
     }
 
-    func testMap_WhenCancled_DoesNotComplete() {
+    func testCancel_MultipleCancelations_CancelSucceeedsAndDoesNotComplete() {
 
     }
 
-    func testFlatMap_WhenCancled_DoesNotComplete() {
+    func testCancel_ForFlatMap_DoesNotComplete() {
 
     }
 
-    func testAndThen_WhenCancled_DoesNotComplete() {
+    func testCancel_ForAndThen_DoesNotComplete() {
 
     }
 
-    func testRecover_WhenCancled_DoesNotComplete() {
+    func testCancel_ForRecover_DoesNotComplete() {
 
     }
 
-    func testRecoverWith_WhenCancled_DoesNotComplete() {
+    func testCancel_ForRecoverWith_DoesNotComplete() {
 
     }
 
-    func testWithFilter_WhenCancled_DoesNotComplete() {
+    func testCancel_ForWithFilter_DoesNotComplete() {
 
     }
 
-    func testForEach_WhenCancled_DoesNotComplete() {
+    func testCancel_ForForEach_DoesNotComplete() {
 
     }
 
-    func testFlatMap_ReturningFutureWhenCancelled_DoesNotComplete() {
+    func testCancel_ForMapError_DoesNotComplete() {
+    }
+
+
+    func testCanel_ForFlatMapReturningFutureWhenCancelled_DoesNotComplete() {
 
     }
     
-    func testRecoverWith_ReturningFutureWhenCancelled_DoesNotComplete() {
+    func testCanel_ForRecoverWithReturningFutureWhenCancelled_DoesNotComplete() {
         
     }
 
