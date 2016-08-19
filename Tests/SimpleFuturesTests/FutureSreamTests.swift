@@ -983,69 +983,207 @@ class FutureSreamTests: XCTestCase {
         XCTAssertTrue(status)
     }
 
-    func testCancel_ForOnSuccessWhenFutureCompleted_CancelFails() {
+    func testCancel_ForOnSuccessWhenFutureStreamCompletedBeforeAndAfterCancel_DoesNotCompleteAfterCancel() {
         let stream = FutureStream<Int>()
         let cancelToken = CancelToken()
+        var onSuccessCalled = 0
+        stream.onSuccess(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            onSuccessCalled += 1
+        }
         stream.success(1)
         let status = stream.cancel(cancelToken)
-        XCTAssertFutureStreamSucceeds(stream, context: TestContext.immediate, validations: [
-            {value in
-                XCTAssertEqual(value, 1)
-            }
-        ])
-        XCTAssertFalse(status)
+        stream.success(1)
+        XCTAssertTrue(status)
+        XCTAssertEqual(onSuccessCalled, 1)
     }
 
     func testCancel_ForOnSuccessWithInvalidCancelToken_CancelFails() {
-
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        var onSuccessCalled = 0
+        stream.onSuccess(context: TestContext.immediate) { _ in
+            onSuccessCalled += 1
+        }
+        stream.success(1)
+        let status = stream.cancel(cancelToken)
+        XCTAssertFalse(status)
+        XCTAssertEqual(onSuccessCalled, 1)
     }
 
     func testCancel_ForOnFailure_DoesNotComplete() {
-
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        stream.onFailure(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+        }
+        let status = stream.cancel(cancelToken)
+        stream.success(1)
+        XCTAssertTrue(status)
     }
 
     func testCancel_ForMap_DoesNotComplete() {
-
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        let mapped = stream.map(context: TestContext.immediate, cancelToken: cancelToken) { _ -> Bool in
+            XCTFail()
+            return false
+        }
+        mapped.onSuccess(context: TestContext.immediate) { _ in
+            XCTFail()
+        }
+        let status = stream.cancel(cancelToken)
+        stream.success(1)
+        XCTAssertTrue(status)
     }
 
     func testCancel_MultipleCancelations_CancelSucceeedsAndDoesNotComplete() {
-
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        stream.onSuccess(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+        }
+        let mapped = stream.map(context: TestContext.immediate, cancelToken: cancelToken) { _ -> Bool in
+            XCTFail()
+            return false
+        }
+        mapped.onSuccess(context: TestContext.immediate) { _ in
+            XCTFail()
+        }
+        let status = stream.cancel(cancelToken)
+        stream.success(1)
+        XCTAssertTrue(status)
     }
 
-    func testCancel_ForFlatMap_DoesNotComplete() {
+    func testCancel_ForFlatMapReturningFutureStream_DoesNotComplete() {
+        let stream = FutureStream<Int>()
+        let result = FutureStream<Bool>()
+        let cancelToken = CancelToken()
+        let flatMapped = stream.flatMap(context: TestContext.immediate, cancelToken: cancelToken) { _ -> FutureStream<Bool> in
+            XCTFail()
+            return result
+        }
+        flatMapped.onSuccess(context: TestContext.immediate) { _ in
+            XCTFail()
+        }
+        let status = stream.cancel(cancelToken)
+        stream.success(1)
+        XCTAssertTrue(status)
+    }
 
+    func testCanel_ForFlatMapReturningFuture_DoesNotComplete() {
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        let flatMapped = stream.flatMap(context: TestContext.immediate, cancelToken: cancelToken) { _ -> Future<Bool> in
+            XCTFail()
+            return Future(value: true)
+        }
+        flatMapped.onSuccess(context: TestContext.immediate) { _ in
+            XCTFail()
+        }
+        let status = stream.cancel(cancelToken)
+        stream.success(1)
+        XCTAssertTrue(status)
     }
 
     func testCancel_ForAndThen_DoesNotComplete() {
-
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        let andThen = stream.andThen(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+        }
+        andThen.onSuccess(context: TestContext.immediate) { _ in
+            XCTFail()
+        }
+        let status = stream.cancel(cancelToken)
+        stream.success(1)
+        XCTAssertTrue(status)
     }
 
     func testCancel_ForRecover_DoesNotComplete() {
-
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        let recovered = stream.recover(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+            return 2
+        }
+        recovered.onSuccess(context: TestContext.immediate) { _ in
+            XCTFail()
+        }
+        let status = stream.cancel(cancelToken)
+        stream.success(1)
+        XCTAssertTrue(status)
     }
 
     func testCancel_ForRecoverWith_DoesNotComplete() {
+        let stream = FutureStream<Int>()
+        let result = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        let recovered = stream.recoverWith(context: TestContext.immediate, cancelToken: cancelToken) { _ -> FutureStream<Int> in
+            XCTFail()
+            return result
+        }
+        recovered.onSuccess(context: TestContext.immediate) { _ in
+            XCTFail()
+        }
+        let status = stream.cancel(cancelToken)
+        stream.success(1)
+        XCTAssertTrue(status)
+    }
 
+    func testCanel_ForRecoverWithReturningFuture_DoesNotComplete() {
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        let recovered = stream.recoverWith(context: TestContext.immediate, cancelToken: cancelToken) { _ -> Future<Int> in
+            XCTFail()
+            return Future(value: 1)
+        }
+        recovered.onSuccess(context: TestContext.immediate) { _ in
+            XCTFail()
+        }
+        let status = stream.cancel(cancelToken)
+        stream.success(1)
+        XCTAssertTrue(status)
     }
 
     func testCancel_ForWithFilter_DoesNotComplete() {
-
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        let filtered = stream.withFilter(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+            return true
+        }
+        filtered.onSuccess(context: TestContext.immediate) { _ in
+            XCTFail()
+        }
+        let status = stream.cancel(cancelToken)
+        stream.success(1)
+        XCTAssertTrue(status)
     }
 
     func testCancel_ForForEach_DoesNotComplete() {
-
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        stream.forEach(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+        }
+        let status = stream.cancel(cancelToken)
+        stream.success(1)
+        XCTAssertTrue(status)
     }
 
     func testCancel_ForMapError_DoesNotComplete() {
-    }
-
-
-    func testCanel_ForFlatMapReturningFutureWhenCancelled_DoesNotComplete() {
-
-    }
-    
-    func testCanel_ForRecoverWithReturningFutureWhenCancelled_DoesNotComplete() {
-        
+        let stream = FutureStream<Int>()
+        let cancelToken = CancelToken()
+        let mappedError = stream.mapError(context: TestContext.immediate, cancelToken: cancelToken) { _ in
+            XCTFail()
+            return TestFailure.mappedError
+        }
+        mappedError.onFailure(context: TestContext.immediate) { _ in
+            XCTFail()
+        }
+        let status = stream.cancel(cancelToken)
+        stream.failure(TestFailure.error)
+        XCTAssertTrue(status)
     }
 
     // MARK: - StreamPromise -
