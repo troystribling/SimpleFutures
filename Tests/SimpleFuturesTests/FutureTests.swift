@@ -3,7 +3,7 @@
 //  SimpleFuturesTests
 //
 //  Created by Troy Stribling on 8/7/16.
-//  Copyright © 2016 Troy Stribling. All rights reserved.
+//  Copyright (c) 2014 Troy Stribling. The MIT License (MIT).
 //
 
 import XCTest
@@ -471,7 +471,7 @@ class FutureTests: XCTestCase {
         }
     }
 
-    func testWithFilter_WhenFutureSuccedsAndFilterFails_WithFilterCalledCompletesWithError() {
+    func testWithFilter_WhenFutureSuccedsAndFilterFails_WithFilterCalledCompletesWithNoSuchElementError() {
         let future = Future<Int>()
         let filtered = future.withFilter(context: TestContext.immediate) { value -> Bool in
             return value < 1
@@ -823,6 +823,64 @@ class FutureTests: XCTestCase {
         }
     }
 
+    func testFuture_WithValueErrorCallbackCompletedWithValidValue_CompletesSuccessfully() {
+        func testMethod(completion: (Int?, Swift.Error?) -> Void) {
+            completion(1, nil)
+        }
+        let result = future(method: testMethod)
+        XCTAssertFutureSucceeds(result, context: TestContext.immediate) { value in
+            XCTAssertEqual(value, 1)
+        }
+    }
+
+    func testFuture_WithValueErrorCallbackCompletedWithInvalidValue_CompletesWithInvalidValueError() {
+        func testMethod(completion: (Int?, Swift.Error?) -> Void) {
+            completion(nil, nil)
+        }
+        let result = future(method: testMethod)
+        XCTAssertFutureFails(result, context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, Error.invalidValue)
+        }
+    }
+
+    func testFuture_WithValueErrorCallbackCompletedWithWrror_CompletesWithError() {
+        func testMethod(completion: (Int?, Swift.Error?) -> Void) {
+            completion(nil, TestFailure.error)
+        }
+        let result = future(method: testMethod)
+        XCTAssertFutureFails(result, context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, TestFailure.error)
+        }
+    }
+
+    func testFuture_WithErrorCallbackCompletedWithNoError_CompletesSuccessfully() {
+        func testMethod(completion: (Swift.Error?) -> Void) {
+            completion(nil)
+        }
+        let result = future(method: testMethod)
+        XCTAssertFutureSucceeds(result, context: TestContext.immediate)
+    }
+
+    func testFuture_WithErrorCallbackCompletedWithWrror_CompletesWithError() {
+        func testMethod(completion: (Swift.Error?) -> Void) {
+            completion(TestFailure.error)
+        }
+        let result = future(method: testMethod)
+        XCTAssertFutureFails(result, context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, TestFailure.error)
+        }
+    }
+
+    func testFuture_WithValueCallbackCompletedWithValidValue_CompletesSuccessfully() {
+        func testMethod(completion: (Int) -> Void) {
+            completion(1)
+        }
+        let result = future(method: testMethod)
+        XCTAssertFutureSucceeds(result, context: TestContext.immediate) { value in
+            XCTAssertEqual(value, 1)
+        }
+    }
+
     // MARK: - fold -
 
     func testFold_WhenFuturesSucceed_CompletesSuccessfully() {
@@ -865,5 +923,21 @@ class FutureTests: XCTestCase {
     }
 
     // MARK: - Promise -
+
+    func testPromiseSuccess_WhenCompleted_CompeletesSuccessfully() {
+        let promise = Promise<Bool>()
+        promise.success(false)
+        XCTAssertFutureSucceeds(promise.future, context: TestContext.immediate) { value in
+            XCTAssertFalse(value)
+        }
+    }
+
+    func testPromiseFailure_WhenCompleted_CompeletesWithError() {
+        let promise = Promise<Bool>()
+        promise.failure(TestFailure.error)
+        XCTAssertFutureFails(promise.future, context: TestContext.immediate) { error in
+            XCTAssertEqualErrors(error, TestFailure.error)
+        }
+    }
 
 }

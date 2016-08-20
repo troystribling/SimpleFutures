@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		05864BE91D68BFF5002A398F /* TryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05864BE81D68BFF5002A398F /* TryTests.swift */; };
 		05B1568B1D57B7B40024AC9A /* FutureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B1568A1D57B7B40024AC9A /* FutureTests.swift */; };
-		05B1568D1D58D6840024AC9A /* FutureSreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B1568C1D58D6840024AC9A /* FutureSreamTests.swift */; };
+		05B1568D1D58D6840024AC9A /* FutureStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B1568C1D58D6840024AC9A /* FutureStreamTests.swift */; };
 		05BF91F91CFCA79A00B78B12 /* TestHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BF91F71CFCA79A00B78B12 /* TestHelper.swift */; };
 		05BF91FA1CFCA79A00B78B12 /* XCTTestCase+SimpleFuturesAssertions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BF91F81CFCA79A00B78B12 /* XCTTestCase+SimpleFuturesAssertions.swift */; };
 		4AE9C5E342081D187AC8A644 /* Pods_SimpleFuturesTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B93AA1E6D385EBE7352DB59 /* Pods_SimpleFuturesTests.framework */; };
@@ -16,8 +17,9 @@
 
 /* Begin PBXFileReference section */
 		050D3B3A1D411DE800334636 /* SimpleFuturesTests-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SimpleFuturesTests-Bridging-Header.h"; sourceTree = "<group>"; };
+		05864BE81D68BFF5002A398F /* TryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TryTests.swift; sourceTree = "<group>"; };
 		05B1568A1D57B7B40024AC9A /* FutureTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureTests.swift; sourceTree = "<group>"; };
-		05B1568C1D58D6840024AC9A /* FutureSreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureSreamTests.swift; sourceTree = "<group>"; };
+		05B1568C1D58D6840024AC9A /* FutureStreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureStreamTests.swift; sourceTree = "<group>"; };
 		05BF91F71CFCA79A00B78B12 /* TestHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TestHelper.swift; path = Helpers/TestHelper.swift; sourceTree = "<group>"; };
 		05BF91F81CFCA79A00B78B12 /* XCTTestCase+SimpleFuturesAssertions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "XCTTestCase+SimpleFuturesAssertions.swift"; path = "Helpers/XCTTestCase+SimpleFuturesAssertions.swift"; sourceTree = "<group>"; };
 		05F415A81CFAA4FD00A72FAA /* SimpleFuturesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimpleFuturesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -73,7 +75,8 @@
 			isa = PBXGroup;
 			children = (
 				05B1568A1D57B7B40024AC9A /* FutureTests.swift */,
-				05B1568C1D58D6840024AC9A /* FutureSreamTests.swift */,
+				05B1568C1D58D6840024AC9A /* FutureStreamTests.swift */,
+				05864BE81D68BFF5002A398F /* TryTests.swift */,
 			);
 			path = SimpleFuturesTests;
 			sourceTree = "<group>";
@@ -216,7 +219,8 @@
 			files = (
 				05BF91F91CFCA79A00B78B12 /* TestHelper.swift in Sources */,
 				05B1568B1D57B7B40024AC9A /* FutureTests.swift in Sources */,
-				05B1568D1D58D6840024AC9A /* FutureSreamTests.swift in Sources */,
+				05B1568D1D58D6840024AC9A /* FutureStreamTests.swift in Sources */,
+				05864BE91D68BFF5002A398F /* TryTests.swift in Sources */,
 				05BF91FA1CFCA79A00B78B12 /* XCTTestCase+SimpleFuturesAssertions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

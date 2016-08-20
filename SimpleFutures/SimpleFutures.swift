@@ -678,7 +678,7 @@ public func future<T>(context: ExecutionContext = QueueContext.futuresDefault, _
     return future
 }
 
-public func future<T>(_ method: ((T?, Swift.Error?) -> Void) -> Void) -> Future<T> {
+public func future<T>(method: ((T?, Swift.Error?) -> Void) -> Void) -> Future<T> {
     return Future(resolver: { completion in
         method { value, error in
             if let value = value {
@@ -693,7 +693,7 @@ public func future<T>(_ method: ((T?, Swift.Error?) -> Void) -> Void) -> Future<
 }
 
 
-public func future(_ method: ((Swift.Error?) -> Void) -> Void) -> Future<Void> {
+public func future(method: ((Swift.Error?) -> Void) -> Void) -> Future<Void> {
     return Future(resolver: { completion in
         method { error in
             if let error = error {
@@ -705,7 +705,7 @@ public func future(_ method: ((Swift.Error?) -> Void) -> Void) -> Future<Void> {
     })
 }
 
-public func future<T>(_ method: ((T) -> Void) -> Void) -> Future<T> {
+public func future<T>(method: ((T) -> Void) -> Void) -> Future<T> {
     return Future(resolver: { completion in
         method { value in
             completion(.success(value))

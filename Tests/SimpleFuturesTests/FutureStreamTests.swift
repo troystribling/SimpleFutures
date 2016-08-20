@@ -1,15 +1,15 @@
 //
-//  FutureSreamTests.swift
+//  FutureStreamTests.swift
 //  SimpleFuturesTests
 //
 //  Created by Troy Stribling on 8/8/16.
-//  Copyright © 2016 Troy Stribling. All rights reserved.
+//  Copyright (c) 2014 Troy Stribling. The MIT License (MIT).
 //
 
 import XCTest
 @testable import SimpleFutures
 
-class FutureSreamTests: XCTestCase {
+class FutureStreamTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
@@ -1187,5 +1187,33 @@ class FutureSreamTests: XCTestCase {
     }
 
     // MARK: - StreamPromise -
+
+    func testStreamPromiseSuccess_WhenCompleted_CompeletesSuccessfully() {
+        let promise = StreamPromise<Bool>()
+        promise.success(true)
+        promise.success(false)
+        XCTAssertFutureStreamSucceeds(promise.stream, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertTrue(value)
+            },
+            { value in
+                XCTAssertFalse(value)
+            }
+        ])
+    }
+
+    func testStreamPromiseFailure_WhenCompleted_CompeletesWithError() {
+        let promise = StreamPromise<Bool>()
+        promise.failure(TestFailure.error)
+        promise.failure(TestFailure.error)
+        XCTAssertFutureStreamFails(promise.stream, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
+    }
 
 }
