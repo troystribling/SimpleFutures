@@ -478,7 +478,7 @@ class FutureTests: XCTestCase {
         }
         future.success(1)
         XCTAssertFutureFails(filtered, context: TestContext.immediate) { error in
-            XCTAssertEqualErrors(error, Error.noSuchElement)
+            XCTAssertEqualErrors(error, FuturesError.noSuchElement)
         }
     }
 
@@ -839,7 +839,7 @@ class FutureTests: XCTestCase {
         }
         let result = future(method: testMethod)
         XCTAssertFutureFails(result, context: TestContext.immediate) { error in
-            XCTAssertEqualErrors(error, Error.invalidValue)
+            XCTAssertEqualErrors(error, FuturesError.invalidValue)
         }
     }
 
