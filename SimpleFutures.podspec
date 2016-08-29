@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
 
   spec.name               = "SimpleFutures"
-  spec.version            = "0.2
+  spec.version            = "0.2"
   spec.summary            = "A Swift implementation of Scala Futures with a few extras."
 
   spec.homepage           = "https://github.com/troystribling/SimpleFutures"

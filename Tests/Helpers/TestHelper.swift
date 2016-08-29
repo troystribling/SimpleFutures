@@ -8,7 +8,7 @@
 
 import UIKit
 import XCTest
-import SimpleFutures
+@testable import SimpleFutures
 
 public enum TestFailure: Int, Swift.Error {
     case error

@@ -206,22 +206,6 @@ func XCTAssertFutureStreamFails<T>(_ stream: FutureStream<T>, context: Execution
     }
 }
 
-func XCTExpectFullfilledCountTimes(_ maxCount:Int, message:String) -> (Void) -> Void {
-
-    guard let currentTest = _XCTCurrentTestCase() else { fatalError("XCTGuardAssert attempted without a running test.") }
-
-    let expectation = currentTest.expectation(description: "\(message) fulfilled")
-    var count = 0
-    return {
-        count += 1
-        if count == maxCount {
-            expectation.fulfill()
-        } else if count > maxCount {
-            XCTAssert(false, "\(message) called more than \(maxCount) times")
-        }
-    }
-}
-
 func XCTAssertEqualErrors(_ error1: Swift.Error, _ error2: Swift.Error, line: UInt = #line, file: StaticString = #file) {
     XCTAssertEqual(error1._domain, error2._domain, "invalid error code")
     XCTAssertEqual(error1._code, error2._code, "invalid error code")

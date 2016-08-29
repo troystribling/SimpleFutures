@@ -7,6 +7,7 @@
 //
 
 import XCTest
+@testable import SimpleFutures
 
 class TryTests: XCTestCase {
         
