@@ -2,4 +2,6 @@
 *.xcworkspace
 Pods/
 build/
+Checkouts/
+Podfile.lock
 .DS_Store
