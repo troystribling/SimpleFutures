@@ -11,9 +11,9 @@ Pod::Spec.new do |spec|
   spec.author             = { "Troy Stribling" => "me@troystribling.com" }
   spec.social_media_url   = "http://twitter.com/troystribling"
 
-  spec.cocoapods_version  = '>= 1.0'
+  spec.cocoapods_version  = '>= 1.1'
 
-  spec.platform           = :ios, "8.0"
+  spec.platform           = :ios, "9.0"
 
   spec.source             = { :git => "https://github.com/troystribling/SimpleFutures.git", :tag => "#{spec.version}" }
   spec.source_files       = "SimpleFutures/**/*.swift"

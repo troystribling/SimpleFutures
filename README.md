@@ -1,3 +1,9 @@
+[![Build Status](https://travis-ci.org/troystribling/BlueCap.svg?branch=remove_prefix)](https://travis-ci.org/troystribling/BlueCap)
+[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/BlueCapKit.svg)](https://img.shields.io/cocoapods/v/BlueCapKit.svg)
+[![Platform](https://img.shields.io/cocoapods/p/BlueCapKit.svg?style=flat)](http://cocoadocs.org/docsets/BlueCapKit)
+[![License](https://img.shields.io/cocoapods/l/BlueCapKit.svg?style=flat)](http://cocoadocs.org/docsets/BlueCapKit)
+[![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+
 ![SimpleFutures: Scala Futures for Swift](https://cdn.rawgit.com/troystribling/SimpleFutures/67f65a62ac294a6e1068387c7d1ebaabf4883b49/Assets/banner.png)
 
 A Swift implementation of [Scala Futures](http://docs.scala-lang.org/overviews/core/futures.html) with a few extras.
@@ -8,14 +14,77 @@ A Swift implementation of [Scala Futures](http://docs.scala-lang.org/overviews/c
 
 SimpleFutures is an implementation of [Scala Futures](http://docs.scala-lang.org/overviews/core/futures.html) in Swift and was influenced by [BrightFutures](https://github.com/Thomvis/BrightFutures).
 
-# <a name="requirements">Requirements</a>
+# Requirements
 
 - iOS 9.0+
-- Xcode 8.1+
+- Xcode 8.1
 
-# <a name="installation">Installation</a>
+# Installation
 
-All code is contained in the single file `SimpleFutures.swift`. Add it to your project.
+## CocoaPods
+
+[CocoaPods](https://cocoapods.org) is an Xcode dependency manager. It is installed with the following command,
+
+```bash
+gem install cocoapods
+```
+
+> Requires CocoaPods 1.1+
+
+Add `BluCapKit` to your to your project `Podfile`,
+
+```ruby
+platform :ios, '9.0'
+use_frameworks!
+
+target 'Your Target Name' do
+  pod 'BlueCapKit', '~> 0.2'
+end
+```
+
+To enable `DBUG` output add this [`post_install` hook](https://gist.github.com/troystribling/2d4630200d3dd4e3fc8b6d5e14e4732a) to your `Podfile`
+
+## Carthage
+
+[Carthage](https://github.com/Carthage/Carthage) is a decentralized dependency manager for Xcode projects.
+It can be installed using [Homebrew](http://brew.sh/),
+
+```bash
+brew update
+brew install carthage
+```
+
+To add `BlueCapKit` to your `Cartfile`
+
+```ogdl
+github "troystribling/BlueCap" ~> 0.2
+```
+
+To download and build `BlueCapKit.framework` run the command,
+
+```bash
+carthage update
+```
+
+then add `BlueCapKit.framework` to your project.
+
+If desired use the `--no-build` option,
+
+```bash
+carthage update --no-build
+```
+
+This will only download `BlueCapKit`. Then follow the steps in [Manual](#manual) to add it to a project.
+
+## <a name="manual">Manual</a>
+
+1. Place the SimpleFutures somewhere in your project directory. You can either copy it or add it as a `git submodule`.
+2. Open the SimpleFutures project folder and drag SimpleFutures.xcodeproj into the project navigator of your applications Xcode project.
+3. Under your Projects *Info* tab set the *iOS Deployment Target* to 9.0 and verify that the SimpleFutures.xcodeproj *iOS Deployment Target* is also 9.0.
+4. Under the *General* tab for your project target add the top SimpleFutures.framework as an *Embedded Binary*.
+5. Under the *Build Phases* tab add SimpleFutures.framework as a *Target Dependency* and under *Link Binary With Libraries*.
+
+Another option is to add `SimpleFutures.swift` directly to your project, since the entire library is contained in a single file.
 
 # <a name="models">Models</a>
 
@@ -1111,3 +1180,14 @@ andThen.onFailure {error in
 promise.success(true)
 promise.success(false)
 ```
+
+## Test Cases
+
+[Test Cases](/Tests) are available. To run type,
+
+```bash
+pod install
+```
+
+and run from test tab in generated `workspace`.
+
