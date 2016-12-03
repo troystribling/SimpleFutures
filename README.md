@@ -4,18 +4,18 @@ A Swift implementation of [Scala Futures](http://docs.scala-lang.org/overviews/c
 
 # <a name="motivation">Motivation</a>
 
-Futures provide the construction of code that processes asynchronous requests by default in a non-blocking and concise manner. They support combinator interfaces for serializing the processing of requests, error recovery and filtering. In most Apple libraries asynchronous interfaces are supported through the delegate-protocol pattern or in some cases with a callback. Even simple implementations of these interfaces can lead to business logic distributed over many files or deeply nested callbacks that can be hard to follow. It will be seen that Futures very nicely solve this problem. 
+`Futures` provide an interface for performing nonblocking asynchronous requests and combinator interfaces for serializing the processing of requests, error recovery and filtering. In most iOS libraries asynchronous interfaces are supported through the delegate-protocol pattern or in some cases with a callback. Even simple implementations of these interfaces can lead to business logic distributed over many files or deeply nested callbacks that can be hard to follow. It will be seen that `Futures` very nicely solve this problem. 
 
 SimpleFutures is an implementation of [Scala Futures](http://docs.scala-lang.org/overviews/core/futures.html) in Swift and was influenced by [BrightFutures](https://github.com/Thomvis/BrightFutures).
 
 # <a name="requirements">Requirements</a>
 
-- iOS 8.0+
-- Xcode 7.0+
+- iOS 9.0+
+- Xcode 8.1+
 
 # <a name="installation">Installation</a>
 
-All code is contained in the single file SimpleFutures.swift. Add it to your project.
+All code is contained in the single file `SimpleFutures.swift`. Add it to your project.
 
 # <a name="models">Models</a>
 

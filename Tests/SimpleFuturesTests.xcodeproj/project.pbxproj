@@ -12,7 +12,7 @@
 		05B1568D1D58D6840024AC9A /* FutureStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B1568C1D58D6840024AC9A /* FutureStreamTests.swift */; };
 		05BF91F91CFCA79A00B78B12 /* TestHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BF91F71CFCA79A00B78B12 /* TestHelper.swift */; };
 		05BF91FA1CFCA79A00B78B12 /* XCTTestCase+SimpleFuturesAssertions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BF91F81CFCA79A00B78B12 /* XCTTestCase+SimpleFuturesAssertions.swift */; };
-		D74160850EB7A36BCAA94DB8 /* Pods_SimpleFuturesTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C18526788D98351203B8EBC /* Pods_SimpleFuturesTests.framework */; };
+		DB49E572511C4E2644A2716A /* Pods_SimpleFuturesTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6B78230435BCB56848E3CE9 /* Pods_SimpleFuturesTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,9 +24,9 @@
 		05BF91F81CFCA79A00B78B12 /* XCTTestCase+SimpleFuturesAssertions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "XCTTestCase+SimpleFuturesAssertions.swift"; path = "Helpers/XCTTestCase+SimpleFuturesAssertions.swift"; sourceTree = "<group>"; };
 		05F415A81CFAA4FD00A72FAA /* SimpleFuturesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimpleFuturesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		05F415ED1CFAAB3A00A72FAA /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
-		9C18526788D98351203B8EBC /* Pods_SimpleFuturesTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimpleFuturesTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A0E65768F3D45EB9995C4B86 /* Pods-SimpleFuturesTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleFuturesTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests.release.xcconfig"; sourceTree = "<group>"; };
-		E690D7975BB77089B34EB465 /* Pods-SimpleFuturesTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleFuturesTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests.debug.xcconfig"; sourceTree = "<group>"; };
+		124B6750CC0938B158494D01 /* Pods-SimpleFuturesTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleFuturesTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests.debug.xcconfig"; sourceTree = "<group>"; };
+		5D529B28064806BC9AE5F35F /* Pods-SimpleFuturesTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleFuturesTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests.release.xcconfig"; sourceTree = "<group>"; };
+		D6B78230435BCB56848E3CE9 /* Pods_SimpleFuturesTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimpleFuturesTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,7 +34,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D74160850EB7A36BCAA94DB8 /* Pods_SimpleFuturesTests.framework in Frameworks */,
+				DB49E572511C4E2644A2716A /* Pods_SimpleFuturesTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,8 +58,8 @@
 				05BF91F61CFCA78B00B78B12 /* Helpers */,
 				05F4159F1CFAA4FC00A72FAA /* Products */,
 				05F415A01CFAA4FC00A72FAA /* SimpleFuturesTests */,
-				463888033A3D0040C4593671 /* Pods */,
-				E1D7DE8CE25856FC51104B81 /* Frameworks */,
+				DAF5E236D6FBA5F21C43A628 /* Pods */,
+				B336E1B76BACFB5D1E30FD60 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -81,21 +81,21 @@
 			path = SimpleFuturesTests;
 			sourceTree = "<group>";
 		};
-		463888033A3D0040C4593671 /* Pods */ = {
+		B336E1B76BACFB5D1E30FD60 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				E690D7975BB77089B34EB465 /* Pods-SimpleFuturesTests.debug.xcconfig */,
-				A0E65768F3D45EB9995C4B86 /* Pods-SimpleFuturesTests.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
-		E1D7DE8CE25856FC51104B81 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				9C18526788D98351203B8EBC /* Pods_SimpleFuturesTests.framework */,
+				D6B78230435BCB56848E3CE9 /* Pods_SimpleFuturesTests.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DAF5E236D6FBA5F21C43A628 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				124B6750CC0938B158494D01 /* Pods-SimpleFuturesTests.debug.xcconfig */,
+				5D529B28064806BC9AE5F35F /* Pods-SimpleFuturesTests.release.xcconfig */,
+			);
+			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -105,12 +105,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 05F415B51CFAA4FD00A72FAA /* Build configuration list for PBXNativeTarget "SimpleFuturesTests" */;
 			buildPhases = (
-				2EC08FBD1AFE36CEC8BB04B9 /* [CP] Check Pods Manifest.lock */,
+				0FD5319DBCDE0549F05A93EE /* [CP] Check Pods Manifest.lock */,
 				05F415A41CFAA4FD00A72FAA /* Sources */,
 				05F415A51CFAA4FD00A72FAA /* Frameworks */,
 				05F415A61CFAA4FD00A72FAA /* Resources */,
-				CC67064BAC7C2959CA01A35C /* [CP] Embed Pods Frameworks */,
-				B073E830DF666F7300C2FDA4 /* [CP] Copy Pods Resources */,
+				699002E7203364BA0272C38D /* [CP] Embed Pods Frameworks */,
+				BE619737275C7F67B77C161D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -165,7 +165,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2EC08FBD1AFE36CEC8BB04B9 /* [CP] Check Pods Manifest.lock */ = {
+		0FD5319DBCDE0549F05A93EE /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -180,22 +180,7 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		B073E830DF666F7300C2FDA4 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		CC67064BAC7C2959CA01A35C /* [CP] Embed Pods Frameworks */ = {
+		699002E7203364BA0272C38D /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -208,6 +193,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BE619737275C7F67B77C161D /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SimpleFuturesTests/Pods-SimpleFuturesTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -327,7 +327,7 @@
 		};
 		05F415B61CFAA4FD00A72FAA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E690D7975BB77089B34EB465 /* Pods-SimpleFuturesTests.debug.xcconfig */;
+			baseConfigurationReference = 124B6750CC0938B158494D01 /* Pods-SimpleFuturesTests.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = Info.plist;
@@ -341,7 +341,7 @@
 		};
 		05F415B71CFAA4FD00A72FAA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A0E65768F3D45EB9995C4B86 /* Pods-SimpleFuturesTests.release.xcconfig */;
+			baseConfigurationReference = 5D529B28064806BC9AE5F35F /* Pods-SimpleFuturesTests.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = Info.plist;
