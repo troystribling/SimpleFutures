@@ -32,6 +32,7 @@
 		05C03DAA1DF14A4600D47B2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		05C03DB01DF14B1500D47B2B /* SimpleFutures.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SimpleFutures.xcodeproj; path = ../SimpleFutures.xcodeproj; sourceTree = "<group>"; };
 		05C03DB81DF1D3DB00D47B2B /* Future.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = Future.playground; sourceTree = "<group>"; };
+		05C03DC21DF37AE300D47B2B /* NSURLSession.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = NSURLSession.playground; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +69,7 @@
 			children = (
 				05C03DAA1DF14A4600D47B2B /* Info.plist */,
 				05C03DB81DF1D3DB00D47B2B /* Future.playground */,
+				05C03DC21DF37AE300D47B2B /* NSURLSession.playground */,
 			);
 			path = Playgrounds;
 			sourceTree = "<group>";
