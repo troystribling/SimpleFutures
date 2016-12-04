@@ -90,9 +90,94 @@ Another option is to add `SimpleFutures.swift` directly to your project, since t
 
 A `Future` instance is a `read-only` encapsulation of an immutable result that can be computed anytime in the future. When the result is computed the `Future` is said to be completed. A `Future` may be completed successfully with a value or failed with an error. 
 
-## Wrapping Asynchronous Interfaces
+A `Future` also has combinator methods that allow multiple instances to be chained together and executed serially and container methods are provided that can evaluate multiple `Futures` simultaneously.
+
+Each of these topics are discussed in this section.
+
+## Creation
+
+A `Future` can be created using either the `future` method, a `Promise` or initializer. 
+
+### `init`
+
+`init` methods are provided that create a future with a specified result.
+
+```swift
+// create a future with an Int result
+Future(value: 1)
+
+// create a Future with an error result
+Future<Int>(error: MyError.failed)
+```
+
+### `future`
+
+Several versions of `future` are provided to facilitate integration with existing code.
+
+The simplest takes an `@autoclosure` or closure that returns a result.
+
+```swift
+let result1 = future(1 < 2)
+
+let result2 = future {
+    return 1
+}
+```
+
+Versions that take common completion block forms are also provided.
+
+```swift
+
+```
+
+### `Promises`
+
+A `Promise` instance is `one-time` writable and contains a `Future`. When completing its `Future` successfully a `Promise` will write a value to the `Future` result and when completing with failure will write an error to its `Future` result. 
+
+`Future` interface implementations will use a `Promise` to create a 'Future`.
+
+Here a simple `URLSession` `extension` is shown that adds a method performing `HTTP` `GET` request.
+
+```swift
+extension URLSession {
+
+    class func get(with url: URL) -> Future<(Data?, URLResponse?)> {
+        let promise = Promise<(Data?, URLResponse?)>()
+        let session = URLSession.shared
+        let task = session.dataTask(with: url) { (data, response, error) in
+            if let error = error {
+                promise.failure(error)
+            } else {
+                promise.success((data, response))
+            }
+        }
+        task.resume()
+        return promise.future
+    }
+
+}
+```
+
+To use in an application,
+
+```swift
+let requestFuture = URLSession.get(with: URL(string: "http://troystribling.com")!)
+```
 
 ## Handle Completion
+
+```swift
+requestFuture.onSuccess { (data, response) in
+    guard let response = response, let data = data else {
+        return
+    }
+    // process data
+}
+
+requestFuture.onFailure { error in
+    // handle error
+}
+```
 
 ## completeWith
 
@@ -120,46 +205,7 @@ A `Future` instance is a `read-only` encapsulation of an immutable result that c
 
 ### sequence
 
-# <a name="promises">Promises</a>
-
-A `Promise` instance is `one-time` writable and contains a `Future`. When completing its Future successfully a `Promise` will write a value to the `Future` result and when completing with failure will write an error to its `Future` result. 
-
-```swift
-extension URLSession {
-
-    class func get(with url: URL) -> Future<(Data?, URLResponse?)> {
-        let promise = Promise<(Data?, URLResponse?)>()
-        let session = URLSession.shared
-        let task = session.dataTask(with: url) { (data, response, error) in
-            if let error = error {
-                promise.failure(error)
-            } else {
-                promise.success((data, response))
-            }
-        }
-        task.resume()
-        return promise.future
-    }
-
-}
-```
-
-```swift
-let requestFuture = URLSession.get(with: URL(string: "http://troystribling.com")!)
-
-requestFuture.onSuccess { (data, response) in
-    guard let response = response, let data = data else {
-        return
-    }
-    // process data
-}
-
-requestFuture.onFailure { error in
-    // handle error
-}
-```
-
-# <a name="future_streams">FutureStreamss</a>
+# FutureStreams
 
 In frameworks such as `CoreLocation` the `CLLocationManagerDelegate` method,
 
@@ -170,45 +216,32 @@ func locationManager(_ manager: CLLocationManager!,
 
 can be called repeatedly for a single instantiation of `CLLocationManager`. Since `Futures` are immutable a new instance must be created for each call. `FutureStreams` are read-only completed `Future` containers that can be used to persist all past calls in situations such as this. `FutureStreams` support an interface similar to `Futures` and can be combined with them using combinators. 
 
-## Wrapping Asynchronous Interfaces
+## Creation
 
-## handle Completion
+A `FutureStream` can be created using either the `futureStream` method, a `StreamPromise` or initializer. 
 
-## completeWith
+### `init`
 
-## Cancel
+`init` methods are provided that create a future with a specified result.
 
-## Combinators
-
-### map 
-
-### flatMap
-
-### withFilter
-
-### forEach
-
-### andThen
-
-### recover
-
-### recoverWith
-
-### mapError
-
-## <a name="stream_promises">StreamPromises</a>
-
-The `StreamPromise` like a `Promise` is `write-only` and additionally places completed futures in the `FutureStream` and provides the interface to add completed futures to a `FutureStream`;.
- 
 ```swift
-// number of futures in stream
-public var count : Int {get}
+// create a future with an Int result and capacity of 10
+FutureStream(value: 1, capacity: 10)
 
-// create a stream with capacity
-public init(capacity:Int?=nil)
+// create a Future with an error result and capacity of 10
+FutureStream<Int>(error: MyError.failed, capacity: 10)
 ```
 
+### `futureStream`
 
+## `StreamPromises`
+
+The `StreamPromise` like a `Promise` is `write-only` and additionally places completed futures in the `FutureStream` and provides the interface to add completed futures to a `FutureStream`.
+
+`FutureStream` interface implementations will use a `StreamPromise` to create a 'FutureStream`.
+
+Here a simple `Accelerometer` service is shown. `Accelerometer` data updates are provided through a `FutureStream`.
+ 
 ```swift
 import UIKit
 import CoreMotion
@@ -260,11 +293,17 @@ class Accelerometer {
 }
 ```
 
+To use in an application,
+
 ```swift
 let accelerometer = Accelerometer()
 
 let accelrometerDataFuture = accelerometer.startAcceleromterUpdates()
-           
+```
+
+## Handle Completion
+
+```swift
 accelrometerDataFuture.onSuccess { data in
    // process data
 }
@@ -273,33 +312,85 @@ accelrometerDataFuture.onFailure { error in
 }
 ```
 
+## completeWith
+
+## Cancel
+
+## Combinators
+
+### map 
+
+### flatMap
+
+### withFilter
+
+### forEach
+
+### andThen
+
+### recover
+
+### recoverWith
+
+### mapError
+
 # Queue
+
+A simple wrapper around `GCD` is provided. 
+
+```swift
+// create a queue with .background pos
+let queue = Queue("us.gnos.myqueue")
+
+// run block synchronously on queue
+queue.sync {
+  // do something
+}
+
+// return a value from a synchronous task
+let result = queue.sync {
+  // do something
+  return value
+}
+
+// run block asynchronously on queue
+queue.async {
+  // do something
+}
+
+// run block asynchronously at specified number of seconds from now
+queue.delay(10.0) {
+  // do something
+}
+```
 
 # Execution Context
 
-An `ExecutionContext` executes tasks and is defined by and implementation of the protocol,
+An `ExecutionContext` executes tasks and is defined by an implementation of the protocol,
 
 ```swift
 public protocol ExecutionContext {
-    func execute(task:Void->Void)
+    func execute(task: Void -> Void)
 }
 ```
 
 `SimpleFutures` provides the `QueueContext` which runs tasks asynchronously on the specified `Queue` and `ImmediateContext` which executes task synchronously on the calling thread.
 
 ```swift
-// define main and global contetexts
-public static let main =  QueueContext(queue: Queue.main)
-public static let global = QueueContext(queue: Queue.global)
+// main and global queue contexts
+QueueContext.main
+QueueContext.global
+
+// immediate context runs tasks synchronously on the calling thread
+ImmediateContext()
 
 // create a QueueContext using queue
-public init(queue:Queue)
-
-// execute a task
-public func execute(task:Void -> Void)
+public init(queue: Queue)
 ```
 
-By default `Futures` execute on, QueueContext.main.
+Completion handlers and combinators for both `Futures` and `FutureStreams` run within a specified context. The default context is `QueueContext.main`
+
+`ImmediateContext()` can be useful for testing.
 
 # Try
 
