@@ -1186,6 +1186,116 @@ class FutureStreamTests: XCTestCase {
         XCTAssertTrue(status)
     }
 
+    // MARK: - futureStream -
+
+    func testFutureStream_WhenClosureSucceeds_CompletesSuccessfully() {
+        let result = futureStream(context: TestContext.immediate) {
+            return 1
+        }
+        XCTAssertFutureStreamSucceeds(result, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertEqual(value, 1)
+            }
+        ])
+    }
+
+    func testFutureStream_WhenClosureFails_CompletesWithError() {
+        let result = futureStream(context: TestContext.immediate) { Void -> Int in
+            throw TestFailure.error
+        }
+        XCTAssertFutureStreamFails(result, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
+    }
+
+    func testFutureStream_WithValueErrorCallbackCompletedWithValidValue_CompletesSuccessfully() {
+        var savedCompletion: ((Int?, Swift.Error?) -> Void)?
+        func testMethod(_ completion: @escaping (Int?, Swift.Error?) -> Void) {
+            savedCompletion = completion
+        }
+        let result = futureStream(method: testMethod)
+        savedCompletion!(1, nil)
+        savedCompletion!(nil, nil)
+        XCTAssertFutureStreamSucceeds(result, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertEqual(value, 1)
+            },
+            { value in
+                XCTAssertNil(value)
+            }
+        ])
+    }
+
+    func testFutureStream_WithValueErrorCallbackCompletedWithWrror_CompletesWithError() {
+        var savedCompletion: ((Int?, Swift.Error?) -> Void)?
+        func testMethod(_ completion: @escaping (Int?, Swift.Error?) -> Void) {
+            savedCompletion = completion
+        }
+        let result = futureStream(method: testMethod)
+        savedCompletion!(nil, TestFailure.error)
+        savedCompletion!(nil, TestFailure.error)
+        XCTAssertFutureStreamFails(result, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
+    }
+
+    func testFutureStream_WithErrorCallbackCompletedWithNoError_CompletesSuccessfully() {
+        var savedCompletion: ((Swift.Error?) -> Void)?
+        func testMethod(_ completion: @escaping (Swift.Error?) -> Void) {
+            savedCompletion = completion
+        }
+        let result = futureStream(method: testMethod)
+        savedCompletion!(nil)
+        savedCompletion!(nil)
+        XCTAssertFutureStreamSucceeds(result, context: TestContext.immediate, validations: [
+            {},
+            {}
+        ])
+    }
+
+    func testFutureStream_WithErrorCallbackCompletedWithWrror_CompletesWithError() {
+        var savedCompletion: ((Swift.Error?) -> Void)?
+        func testMethod(_ completion: @escaping (Swift.Error?) -> Void) {
+            savedCompletion = completion
+        }
+        let result = futureStream(method: testMethod)
+        savedCompletion!(TestFailure.error)
+        savedCompletion!(TestFailure.error)
+        XCTAssertFutureStreamFails(result, context: TestContext.immediate, validations: [
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            },
+            { error in
+                XCTAssertEqualErrors(error, TestFailure.error)
+            }
+        ])
+    }
+
+    func testFutureStream_WithValueCallbackCompletedWithValidValue_CompletesSuccessfully() {
+        var savedCompletion: ((Int) -> Void)?
+        func testMethod(_ completion: @escaping (Int) -> Void) {
+            savedCompletion = completion
+        }
+        let result = futureStream(method: testMethod)
+        savedCompletion!(1)
+        savedCompletion!(2)
+        XCTAssertFutureStreamSucceeds(result, context: TestContext.immediate, validations: [
+            { value in
+                XCTAssertEqual(value, 1)
+            },
+            { value in
+                XCTAssertEqual(value, 2)
+            }
+        ])
+    }
+
     // MARK: - StreamPromise -
 
     func testStreamPromiseSuccess_WhenCompleted_CompeletesSuccessfully() {

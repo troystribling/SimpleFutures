@@ -824,58 +824,70 @@ class FutureTests: XCTestCase {
     }
 
     func testFuture_WithValueErrorCallbackCompletedWithValidValue_CompletesSuccessfully() {
-        func testMethod(_ completion: (Int?, Swift.Error?) -> Void) {
-            completion(1, nil)
+        var savedCompletion: ((Int?, Swift.Error?) -> Void)?
+        func testMethod(_ completion: @escaping (Int?, Swift.Error?) -> Void) {
+            savedCompletion = completion
         }
         let result = future(method: testMethod)
+        savedCompletion!(1, nil)
         XCTAssertFutureSucceeds(result, context: TestContext.immediate) { value in
             XCTAssertEqual(value, 1)
         }
     }
 
-    func testFuture_WithValueErrorCallbackCompletedWithInvalidValue_CompletesWithInvalidValueError() {
-        func testMethod(_ completion: (Int?, Swift.Error?) -> Void) {
-            completion(nil, nil)
+    func testFuture_WithValueErrorCallbackCompletedWithNil_CompletesSuccessfully() {
+        var savedCompletion: ((Int?, Swift.Error?) -> Void)?
+        func testMethod(_ completion: @escaping (Int?, Swift.Error?) -> Void) {
+            savedCompletion = completion
         }
         let result = future(method: testMethod)
-        XCTAssertFutureFails(result, context: TestContext.immediate) { error in
-            XCTAssertEqualErrors(error, FuturesError.invalidValue)
+        savedCompletion!(nil, nil)
+        XCTAssertFutureSucceeds(result, context: TestContext.immediate) { value in
+            XCTAssertNil(value)
         }
     }
 
     func testFuture_WithValueErrorCallbackCompletedWithWrror_CompletesWithError() {
-        func testMethod(_ completion: (Int?, Swift.Error?) -> Void) {
-            completion(nil, TestFailure.error)
+        var savedCompletion: ((Int?, Swift.Error?) -> Void)?
+        func testMethod(_ completion: @escaping (Int?, Swift.Error?) -> Void) {
+            savedCompletion = completion
         }
         let result = future(method: testMethod)
+        savedCompletion!(nil, TestFailure.error)
         XCTAssertFutureFails(result, context: TestContext.immediate) { error in
             XCTAssertEqualErrors(error, TestFailure.error)
         }
     }
 
     func testFuture_WithErrorCallbackCompletedWithNoError_CompletesSuccessfully() {
-        func testMethod(_ completion: (Swift.Error?) -> Void) {
-            completion(nil)
+        var savedCompletion: ((Swift.Error?) -> Void)?
+        func testMethod(_ completion: @escaping (Swift.Error?) -> Void) {
+            savedCompletion = completion
         }
         let result = future(method: testMethod)
+        savedCompletion!(nil)
         XCTAssertFutureSucceeds(result, context: TestContext.immediate)
     }
 
     func testFuture_WithErrorCallbackCompletedWithWrror_CompletesWithError() {
-        func testMethod(_ completion: (Swift.Error?) -> Void) {
-            completion(TestFailure.error)
+        var savedCompletion: ((Swift.Error?) -> Void)?
+        func testMethod(_ completion: @escaping (Swift.Error?) -> Void) {
+            savedCompletion = completion
         }
         let result = future(method: testMethod)
+        savedCompletion!(TestFailure.error)
         XCTAssertFutureFails(result, context: TestContext.immediate) { error in
             XCTAssertEqualErrors(error, TestFailure.error)
         }
     }
 
     func testFuture_WithValueCallbackCompletedWithValidValue_CompletesSuccessfully() {
-        func testMethod(_ completion: (Int) -> Void) {
-            completion(1)
+        var savedCompletion: ((Int) -> Void)?
+        func testMethod(_ completion: @escaping (Int) -> Void) {
+            savedCompletion = completion
         }
         let result = future(method: testMethod)
+        savedCompletion!(1)
         XCTAssertFutureSucceeds(result, context: TestContext.immediate) { value in
             XCTAssertEqual(value, 1)
         }

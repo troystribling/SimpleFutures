@@ -536,7 +536,7 @@ public final class Future<T> : Futurable {
         self.result = Try(error)
     }
 
-    public init(resolver: ((Try<T>) -> Void) -> Void) {
+    public init(resolver: (@escaping (Try<T>) -> Void) -> Void) {
         resolver { value in
             self.complete(value)
         }
@@ -554,11 +554,11 @@ public final class Future<T> : Futurable {
         }
     }
 
-    public func success(_ value: T) {
+    func success(_ value: T) {
         complete(Try(value))
     }
 
-    public func failure(_ error: Swift.Error) {
+    func failure(_ error: Swift.Error) {
         complete(Try<T>(error))
     }
 
@@ -668,7 +668,7 @@ public final class Future<T> : Futurable {
 
 // MARK: - future -
 
-public func future<T>( _ task: @autoclosure @escaping  (Void) -> T) -> Future<T> {
+public func future<T>( _ task: @autoclosure @escaping (Void) -> T) -> Future<T> {
     return future(context: ImmediateContext(), task)
 }
 
@@ -680,22 +680,20 @@ public func future<T>(context: ExecutionContext = QueueContext.futuresDefault, _
     return future
 }
 
-public func future<T>(method: ((T?, Swift.Error?) -> Void) -> Void) -> Future<T> {
+public func future<T>(method: (@escaping (T, Swift.Error?) -> Void) -> Void) -> Future<T> {
     return Future(resolver: { completion in
         method { value, error in
-            if let value = value {
-                completion(.success(value))
-            } else if let error = error {
+            if let error = error {
                 completion(.failure(error))
-            } else {
-                completion(.failure(FuturesError.invalidValue))
+            } else  {
+                completion(.success(value))
             }
         }
     })
 }
 
 
-public func future(method: ((Swift.Error?) -> Void) -> Void) -> Future<Void> {
+public func future(method: (@escaping (Swift.Error?) -> Void) -> Void) -> Future<Void> {
     return Future(resolver: { completion in
         method { error in
             if let error = error {
@@ -707,7 +705,7 @@ public func future(method: ((Swift.Error?) -> Void) -> Void) -> Future<Void> {
     })
 }
 
-public func future<T>(method: ((T) -> Void) -> Void) -> Future<T> {
+public func future<T>(method: (@escaping (T) -> Void) -> Void) -> Future<T> {
     return Future(resolver: { completion in
         method { value in
             completion(.success(value))
@@ -806,6 +804,13 @@ public final class FutureStream<T> {
     
     public init(capacity: Int = Int.max) {
         self.capacity = capacity
+    }
+
+    public convenience init(capacity: Int = Int.max, resolver: (@escaping (Try<T>) -> Void) -> Void) {
+        self.init(capacity: capacity)
+        resolver { value in
+            self.complete(value)
+        }
     }
 
     public convenience init(capacity: Int = Int.max, context: ExecutionContext = QueueContext.futuresDefault, dependent: FutureStream<T>) {
@@ -1030,5 +1035,47 @@ public final class FutureStream<T> {
         return stream
     }
 
+}
+
+// MARK: - futureStream -
+
+public func futureStream<T>(context: ExecutionContext = QueueContext.futuresDefault, _ task: @escaping (Void) throws -> T) -> FutureStream<T> {
+    let stream = FutureStream<T>()
+    context.execute {
+        stream.complete(Try(task))
+    }
+    return stream
+}
+
+public func futureStream<T>(method: (@escaping (T, Swift.Error?) -> Void) -> Void) -> FutureStream<T> {
+    return FutureStream(resolver: { completion in
+        method { value, error in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                completion(.success(value))
+            }
+        }
+    })
+}
+
+public func futureStream(method: (@escaping (Swift.Error?) -> Void) -> Void) -> FutureStream<Void> {
+    return FutureStream(resolver: { completion in
+        method { error in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                completion(.success(()))
+            }
+        }
+    })
+}
+
+public func futureStream<T>(method: (@escaping (T) -> Void) -> Void) -> FutureStream<T> {
+    return FutureStream(resolver: { completion in
+        method { value in
+            completion(.success(value))
+        }
+    })
 }
 
