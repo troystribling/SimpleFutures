@@ -7,8 +7,7 @@
 //
 
 import UIKit
-import XCTest
-@testable import SimpleFutures
+import SimpleFutures
 
 public enum TestFailure: Int, Swift.Error {
     case error
@@ -18,5 +17,23 @@ public enum TestFailure: Int, Swift.Error {
 
 struct TestContext {
     static let immediate = ImmediateContext()
+}
+
+class TestAsyncRequester {
+
+    var completion: ((Int, Swift.Error?) -> Void)?
+
+    func asyncRequest(completion: @escaping (Int, Swift.Error?) -> Void) {
+        self.completion = completion
+    }
+
+}
+
+extension TestAsyncRequester {
+
+    func futureRequest() -> Future<Int> {
+        return future(method: asyncRequest)
+    }
+
 }
 

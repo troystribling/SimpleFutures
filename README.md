@@ -86,6 +86,64 @@ This will only download `SimpleFutures`. Then follow the steps in [Manual](#manu
 
 Another option is to add `SimpleFutures.swift` directly to your project, since the entire library is contained in a single file.
 
+# Queue
+
+A simple wrapper around `GCD` is provided. 
+
+```swift
+// create a queue with .background pos
+let queue = Queue("us.gnos.myqueue")
+
+// run block synchronously on queue
+queue.sync {
+  // do something
+}
+
+// return a value from a synchronous task
+let result = queue.sync {
+  // do something
+  return value
+}
+
+// run block asynchronously on queue
+queue.async {
+  // do something
+}
+
+// run block asynchronously at specified number of seconds from now
+queue.delay(10.0) {
+  // do something
+}
+```
+
+# Execution Context
+
+An `ExecutionContext` executes tasks and is defined by an implementation of the protocol,
+
+```swift
+public protocol ExecutionContext {
+    func execute(task: Void -> Void)
+}
+```
+
+`SimpleFutures` provides a `QueueContext` which runs tasks asynchronously on a specified `Queue` and `ImmediateContext` which executes task synchronously on the calling thread.
+
+```swift
+// main and global queue contexts
+QueueContext.main
+QueueContext.global
+
+// immediate context runs tasks synchronously on the calling thread
+ImmediateContext()
+
+// create a QueueContext using queue
+public init(queue: Queue)
+```
+
+Completion handlers and combinators for both `Futures` and `FutureStreams` run within a specified context. The default context is `QueueContext.main`
+
+`ImmediateContext()` can be useful for testing.
+
 # Futures
 
 A `Future` instance is a `read-only` encapsulation of an immutable result that can be computed anytime in the future. When the result is computed the `Future` is said to be completed. A `Future` may be completed successfully with a value or failed with an error. 
@@ -103,11 +161,11 @@ A `Future` can be created using either the `future` method, a `Promise` or initi
 `init` methods are provided that create a future with a specified result.
 
 ```swift
-// create a future with an Int result
-Future(value: 1)
+// create a future with result of type T
+public init(value: T)
 
 // create a Future with an error result
-Future<Int>(error: MyError.failed)
+public init(error: Swift.Error)
 ```
 
 ### `future`
@@ -117,17 +175,40 @@ Several versions of `future` are provided to facilitate integration with existin
 The simplest takes an `@autoclosure` or closure that returns a result.
 
 ```swift
-let result1 = future(1 < 2)
+public func future<T>( _ task: @autoclosure @escaping (Void) -> T) -> Future<T>
 
-let result2 = future {
-    return 1
-}
+public func future<T>(context: ExecutionContext = QueueContext.futuresDefault, _ task: @escaping (Void) throws -> T) -> Future<T>
 ```
 
 Versions that take common completion block forms are also provided.
 
 ```swift
+public func future<T>(method: (@escaping (T, Swift.Error?) -> Void) -> Void) -> Future<T>
 
+public func future<T>(method: (@escaping (T, Swift.Error?) -> Void) -> Void) -> Future<T>
+
+public func future<T>(method: (@escaping (T) -> Void) -> Void) -> Future<T>
+```
+
+Adding a `Future` interface is simple. Consider the following class with an asynchronous request taking a completion block,
+
+```swift
+class AsyncRequester {
+
+    func asyncRequest(completion: @escaping (Int, Swift.Error?) -> Void)
+}
+```
+
+An extension adding a `Future` interface would look like,
+
+```swift
+extension AsyncRequester {
+
+    func asyncRequest() -> Future<Int> {
+        return future(method: asyncRequest)
+    }
+
+}
 ```
 
 ### `Promises`
@@ -333,64 +414,6 @@ accelrometerDataFuture.onFailure { error in
 ### recoverWith
 
 ### mapError
-
-# Queue
-
-A simple wrapper around `GCD` is provided. 
-
-```swift
-// create a queue with .background pos
-let queue = Queue("us.gnos.myqueue")
-
-// run block synchronously on queue
-queue.sync {
-  // do something
-}
-
-// return a value from a synchronous task
-let result = queue.sync {
-  // do something
-  return value
-}
-
-// run block asynchronously on queue
-queue.async {
-  // do something
-}
-
-// run block asynchronously at specified number of seconds from now
-queue.delay(10.0) {
-  // do something
-}
-```
-
-# Execution Context
-
-An `ExecutionContext` executes tasks and is defined by an implementation of the protocol,
-
-```swift
-public protocol ExecutionContext {
-    func execute(task: Void -> Void)
-}
-```
-
-`SimpleFutures` provides the `QueueContext` which runs tasks asynchronously on the specified `Queue` and `ImmediateContext` which executes task synchronously on the calling thread.
-
-```swift
-// main and global queue contexts
-QueueContext.main
-QueueContext.global
-
-// immediate context runs tasks synchronously on the calling thread
-ImmediateContext()
-
-// create a QueueContext using queue
-public init(queue: Queue)
-```
-
-Completion handlers and combinators for both `Futures` and `FutureStreams` run within a specified context. The default context is `QueueContext.main`
-
-`ImmediateContext()` can be useful for testing.
 
 # Try
 

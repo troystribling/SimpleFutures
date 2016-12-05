@@ -824,12 +824,9 @@ class FutureTests: XCTestCase {
     }
 
     func testFuture_WithValueErrorCallbackCompletedWithValidValue_CompletesSuccessfully() {
-        var savedCompletion: ((Int?, Swift.Error?) -> Void)?
-        func testMethod(_ completion: @escaping (Int?, Swift.Error?) -> Void) {
-            savedCompletion = completion
-        }
-        let result = future(method: testMethod)
-        savedCompletion!(1, nil)
+        let requester = TestAsyncRequester()
+        let result = requester.futureRequest()
+        requester.completion!(1, nil)
         XCTAssertFutureSucceeds(result, context: TestContext.immediate) { value in
             XCTAssertEqual(value, 1)
         }

@@ -37,5 +37,8 @@ func testMethod1(_ completion: @escaping (Int?, Swift.Error?) -> Void) {
     savedCompletion1 = completion
 }
 let result = future(method: testMethod1)
-savedCompletion1!(1, nil)
+savedCompletion1!(2, nil)
 
+result.onSuccess { value in
+    print(value ?? 0)
+}
