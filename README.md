@@ -133,18 +133,18 @@ public protocol ExecutionContext {
 QueueContext.main
 QueueContext.global
 
-// immediate context runs tasks synchronously on the calling thread
-ImmediateContext()
-
 // create a QueueContext using queue
 public init(queue: Queue)
+
+// immediate context runs tasks synchronously on the calling thread
+ImmediateContext()
 ```
 
 Completion handlers and combinators for both `Futures` and `FutureStreams` run within a specified context. The default context is `QueueContext.main`
 
 `ImmediateContext()` can be useful for testing.
 
-# Futures
+# Future
 
 A `Future` instance is a `read-only` encapsulation of an immutable result that can be computed anytime in the future. When the result is computed the `Future` is said to be completed. A `Future` may be completed successfully with a value or failed with an error. 
 
@@ -195,7 +195,7 @@ Adding a `Future` interface is simple. Consider the following class with an asyn
 ```swift
 class AsyncRequester {
 
-    func asyncRequest(completion: @escaping (Int, Swift.Error?) -> Void)
+    func request(completion: @escaping (Int?, Swift.Error?) -> Void)
 }
 ```
 
@@ -204,14 +204,14 @@ An extension adding a `Future` interface would look like,
 ```swift
 extension AsyncRequester {
 
-    func asyncRequest() -> Future<Int> {
-        return future(method: asyncRequest)
+    func futureRequest() -> Future<Int?> {
+        return future(method: request)
     }
 
 }
 ```
 
-### `Promises`
+### `Promise`
 
 A `Promise` instance is `one-time` writable and contains a `Future`. When completing its `Future` successfully a `Promise` will write a value to the `Future` result and when completing with failure will write an error to its `Future` result. 
 
@@ -247,6 +247,8 @@ let requestFuture = URLSession.get(with: URL(string: "http://troystribling.com")
 
 ## Handle Completion
 
+Setting the value of a `Future` `result` completes it. The holder of a `Future` reference is notified of completion by the methods `onSuccess` and `onFailure`. The `requestFuture` of the previous section would handle completion events using,
+
 ```swift
 requestFuture.onSuccess { (data, response) in
     guard let response = response, let data = data else {
@@ -262,7 +264,13 @@ requestFuture.onFailure { error in
 
 ## completeWith
 
-## Cancel
+A `Future` can be completed with `result` of another `Future` using `completeWith`.
+
+```swift
+
+```
+
+## cancel
 
 ## Combinators
 
@@ -286,7 +294,7 @@ requestFuture.onFailure { error in
 
 ### sequence
 
-# FutureStreams
+# FutureStream
 
 In frameworks such as `CoreLocation` the `CLLocationManagerDelegate` method,
 
@@ -315,7 +323,23 @@ FutureStream<Int>(error: MyError.failed, capacity: 10)
 
 ### `futureStream`
 
-## `StreamPromises`
+```swift
+class TestStreamRequester {
+
+    func request(completion: @escaping (Int?, Swift.Error?) -> Void)}
+
+}
+
+extension TestStreamRequester {
+
+    func streamRequest() -> FutureStream<Int?> {
+        return futureStream(method: request)
+    }
+    
+}
+```
+
+## `StreamPromise`
 
 The `StreamPromise` like a `Promise` is `write-only` and additionally places completed futures in the `FutureStream` and provides the interface to add completed futures to a `FutureStream`.
 

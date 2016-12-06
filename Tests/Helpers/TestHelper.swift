@@ -21,9 +21,9 @@ struct TestContext {
 
 class TestAsyncRequester {
 
-    var completion: ((Int, Swift.Error?) -> Void)?
+    var completion: ((Int?, Swift.Error?) -> Void)!
 
-    func asyncRequest(completion: @escaping (Int, Swift.Error?) -> Void) {
+    func request(completion: @escaping (Int?, Swift.Error?) -> Void) {
         self.completion = completion
     }
 
@@ -31,9 +31,27 @@ class TestAsyncRequester {
 
 extension TestAsyncRequester {
 
-    func futureRequest() -> Future<Int> {
-        return future(method: asyncRequest)
+    func futureRequest() -> Future<Int?> {
+        return future(method: request)
     }
 
 }
 
+
+class TestStreamRequester {
+
+    var completion: ((Int?, Swift.Error?) -> Void)!
+
+    func request(completion: @escaping (Int?, Swift.Error?) -> Void) {
+        self.completion = completion
+    }
+
+}
+
+extension TestStreamRequester {
+
+    func streamRequest() -> FutureStream<Int?> {
+        return futureStream(method: request)
+    }
+    
+}

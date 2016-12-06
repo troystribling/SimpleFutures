@@ -826,31 +826,16 @@ class FutureTests: XCTestCase {
     func testFuture_WithValueErrorCallbackCompletedWithValidValue_CompletesSuccessfully() {
         let requester = TestAsyncRequester()
         let result = requester.futureRequest()
-        requester.completion!(1, nil)
+        requester.completion(1, nil)
         XCTAssertFutureSucceeds(result, context: TestContext.immediate) { value in
             XCTAssertEqual(value, 1)
         }
     }
 
-    func testFuture_WithValueErrorCallbackCompletedWithNil_CompletesSuccessfully() {
-        var savedCompletion: ((Int?, Swift.Error?) -> Void)?
-        func testMethod(_ completion: @escaping (Int?, Swift.Error?) -> Void) {
-            savedCompletion = completion
-        }
-        let result = future(method: testMethod)
-        savedCompletion!(nil, nil)
-        XCTAssertFutureSucceeds(result, context: TestContext.immediate) { value in
-            XCTAssertNil(value)
-        }
-    }
-
     func testFuture_WithValueErrorCallbackCompletedWithWrror_CompletesWithError() {
-        var savedCompletion: ((Int?, Swift.Error?) -> Void)?
-        func testMethod(_ completion: @escaping (Int?, Swift.Error?) -> Void) {
-            savedCompletion = completion
-        }
-        let result = future(method: testMethod)
-        savedCompletion!(nil, TestFailure.error)
+        let requester = TestAsyncRequester()
+        let result = requester.futureRequest()
+        requester.completion(nil, TestFailure.error)
         XCTAssertFutureFails(result, context: TestContext.immediate) { error in
             XCTAssertEqualErrors(error, TestFailure.error)
         }

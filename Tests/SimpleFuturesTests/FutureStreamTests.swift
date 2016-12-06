@@ -1211,13 +1211,10 @@ class FutureStreamTests: XCTestCase {
     }
 
     func testFutureStream_WithValueErrorCallbackCompletedWithValidValue_CompletesSuccessfully() {
-        var savedCompletion: ((Int?, Swift.Error?) -> Void)?
-        func testMethod(_ completion: @escaping (Int?, Swift.Error?) -> Void) {
-            savedCompletion = completion
-        }
-        let result = futureStream(method: testMethod)
-        savedCompletion!(1, nil)
-        savedCompletion!(nil, nil)
+        let requester = TestStreamRequester()
+        let result = requester.streamRequest()
+        requester.completion(1, nil)
+        requester.completion(nil, nil)
         XCTAssertFutureStreamSucceeds(result, context: TestContext.immediate, validations: [
             { value in
                 XCTAssertEqual(value, 1)
@@ -1229,13 +1226,10 @@ class FutureStreamTests: XCTestCase {
     }
 
     func testFutureStream_WithValueErrorCallbackCompletedWithWrror_CompletesWithError() {
-        var savedCompletion: ((Int?, Swift.Error?) -> Void)?
-        func testMethod(_ completion: @escaping (Int?, Swift.Error?) -> Void) {
-            savedCompletion = completion
-        }
-        let result = futureStream(method: testMethod)
-        savedCompletion!(nil, TestFailure.error)
-        savedCompletion!(nil, TestFailure.error)
+        let requester = TestStreamRequester()
+        let result = requester.streamRequest()
+        requester.completion(nil, TestFailure.error)
+        requester.completion(nil, TestFailure.error)
         XCTAssertFutureStreamFails(result, context: TestContext.immediate, validations: [
             { error in
                 XCTAssertEqualErrors(error, TestFailure.error)
