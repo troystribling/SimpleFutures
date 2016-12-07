@@ -161,6 +161,9 @@ A `Future` can be created using either the `future` method, a `Promise` or initi
 `init` methods are provided that create a future with a specified result.
 
 ```swift
+// create an uncompleted future
+public init()
+
 // create a future with result of type T
 public init(value: T)
 
@@ -262,37 +265,139 @@ requestFuture.onFailure { error in
 }
 ```
 
+Multiple completion handlers can be defined for a single `Future`.
+
 ## completeWith
 
-A `Future` can be completed with `result` of another `Future` using `completeWith`.
+A `Future<T>` can be completed with `result` of another `Future<T>` using `completeWith`.
 
 ```swift
+public func completeWith(context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>)
+```
 
+For example,
+
+```swift
+let anotherFuture: Future<Int>
+let asyncRequest(): Void -> Int
+
+let dependentFuture = future { asyncRequest() }
+anotherFuture.completeWith(future: dependentFuture)
+```
+
+## Combinators
+
+Combinators are methods used to construct a serialized chain of `Futures` that perform asynchronous requests and apply mappings and filters. 
+
+### map 
+
+Apply a `mapping: (T) throws -> M` to the result of a successful `Future<T>` to produce a new `Future<M>` of a different type. 
+
+```swift
+public func map<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> M) -> Future<M>
+```
+
+### flatMap
+
+Apply a `mapping: (T) throws -> Future<M>` to the result of a successful `Future<T>` returning `Future<M>. `flatMap` is used to serialize asynchronous requests. 
+
+```swift
+public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> Future<M>) -> Future<M>
+```
+
+### withFilter
+
+Apply a `filter: : (T) throws -> Bool` to the result of a successful `Future<T>` returning the `Future<T>` if the `filter` succeeds and `throwing` `FuturesError.noSuchElement` if the `filter` fails.
+
+```swift
+public func withFilter(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), filter: @escaping (T) throws -> Bool) -> Future<T>
+```
+
+### forEach
+
+`apply: (T) -> Void` to a successful `Future<T>`. This is equivalent to using the completion handler `onSuccess`.
+
+```swift
+public func forEach(context:ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: @escaping (T) -> Void)
+```
+
+### andThen
+
+`apply: (T) -> Void` to a successful `Future<T>` and return a `Future<T>` completed with the result of the original future. This is equivalent to a pass through. Here data can be processed in a combinator chain but not effect the `Future` `result`.
+
+```swift
+public func andThen(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), completion: @escaping (T) -> Void) -> Future<T>
+```
+
+### recover
+
+Apply a recovery mapping `recovery: (Swift.Error) throws -> T` to a failed `Future<T>` returning a `Future<T>`.
+
+```swift
+public func recover(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> T) -> Future<T>
+```
+
+### recoverWith
+
+Apply a recovery mapping `recovery: (Swift.Error) throws -> Future<T>` to a failed `Future<T>` returning a `Future<T>`.
+
+```swift
+public func recoverWith(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> Future<T>) -> Future<T>
+```
+
+### mapError
+
+Apply a `mapping: (Swift.Error) -> Swift.Error` to a failed `Future<T>` and return `Future<T>` with the new error result.
+
+```swift
+public func mapError(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (Swift.Error) -> Swift.Error) -> Future<T>
+```
+
+### fold
+
+Apply a `mapping: (R, Iterator.Element.T) throws -> R` to an array `[Future<T>]` accumulating the results into a new `Future<R>`. If any `Future<T>` fails `Future<R>` fails.
+
+```swift
+ public func fold<R>(context: ExecutionContext = QueueContext.futuresDefault, initial: R,  combine: @escaping (R, Iterator.Element.T) throws -> R) -> Future<R> 
+```
+
+### sequence
+
+Transform `[Future<T>]` to `Future<[T]>` which completes with an array all results when `[Future<T>}` completes. `sequence` is used to accumulate the result of unrelated asynchronous requests.
+
+```swift
+public func sequence(context: ExecutionContext = QueueContext.futuresDefault) -> Future<[Iterator.Element.T]>
 ```
 
 ## cancel
 
-## Combinators
+A `Future` can be passed around an application to notify different components of an event. Multiple completion handler definitions and combinator chains can be specified. Not all application components will maintain an interest in the event and may want to 'unsubscribe'.
 
-### map 
+An application can `cancel` completion handler callbacks and combinator execution using a `CancelToken()`.
 
-### flatMap
+```swift
+fun asyncRequest() -> Int
+fun anotherAsyncRequest() -> Future<String>
 
-### withFilter
+let cancelToken = CancelToken()
+let cancelFuture = future {
+    asyncRequest() 
+}
 
-### forEach
+let mappedFuture = cancel.flatMap(cancelToken: cancelToken) {
+    anotherAsyncRequest()
+}
 
-### andThen
+mappedFuture.onSuccess(cancelToken: cancelToken) { value in
+    // process data
+}
 
-### recover
+mappedFuture.onFailure(cancelToken: cancelToken) { ==error in
+    // process data
+}
 
-### recoverWith
-
-### mapError
-
-### fold
-
-### sequence
+cancelFuture.cancel(cancelToken)
+```
 
 # FutureStream
 
@@ -419,8 +524,6 @@ accelrometerDataFuture.onFailure { error in
 
 ## completeWith
 
-## Cancel
-
 ## Combinators
 
 ### map 
@@ -439,35 +542,7 @@ accelrometerDataFuture.onFailure { error in
 
 ### mapError
 
-# Try
-
-`Future` results are of type `Try`. A `Try` is similar to an [`Optional`](https://developer.apple.com/library/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Types.html#//apple_ref/doc/uid/TP40014097-CH31-ID452) but instead of case `.none` has a failure case containing an `Swift.Error` object,
-
-## Create
-
-## Combinators
-
-### map 
-
-### flatMap
-
-### filter
-
-### forEach
-
-### andThen
-
-### recover
-
-### recoverWith
-
-### mapError
-
-### orElse
-
-### toOptional
-
-### getOrElse
+## cancel
 
 ## Test Cases
 
