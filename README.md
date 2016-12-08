@@ -297,6 +297,25 @@ Apply a `mapping: (T) throws -> M` to the result of a successful `Future<T>` to 
 public func map<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> M) -> Future<M>
 ```
 
+For example,
+
+```swift
+enum AppError: Error {
+    case invalidValue
+}
+
+let asyncTask: Void -> Int
+
+let mappedFuture = future { 
+    asyncTask()
+}.map { value -> String in
+    guard value < 0 else {
+        throw AppError.invalidValue
+    }
+    return "\(value)"
+}
+``` 
+
 ### flatMap
 
 Apply a `mapping: (T) throws -> Future<M>` to the result of a successful `Future<T>` returning `Future<M>. `flatMap` is used to serialize asynchronous requests. 
@@ -305,12 +324,46 @@ Apply a `mapping: (T) throws -> Future<M>` to the result of a successful `Future
 public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> Future<M>) -> Future<M>
 ```
 
+For example,
+
+```swift
+enum AppError: Error {
+    case invalidValue
+}
+
+let asyncTask: Void -> Int
+let asyncMapping: Int -> Future<String>
+
+let mappedFuture = future { 
+    asyncTask()
+}.flatMap { value -> String in
+    guard value < 0 else {
+        throw AppError.invalidValue
+    }
+    return asyncMapping(value)
+}
+```
+
+`flatMap` will usually require specification of the closure return type. It is an overloaded method and the compiler sometimes needs help in determining which to use.
+
 ### withFilter
 
 Apply a `filter: : (T) throws -> Bool` to the result of a successful `Future<T>` returning the `Future<T>` if the `filter` succeeds and `throwing` `FuturesError.noSuchElement` if the `filter` fails.
 
 ```swift
 public func withFilter(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), filter: @escaping (T) throws -> Bool) -> Future<T>
+```
+
+For example,
+
+```swift
+let asyncTask: Void -> Int
+
+let filteredFuture = future { 
+    asyncTask()
+}.withFilter { value in
+    value > 0
+}
 ```
 
 ### forEach
@@ -321,12 +374,38 @@ public func withFilter(context: ExecutionContext = QueueContext.futuresDefault, 
 public func forEach(context:ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: @escaping (T) -> Void)
 ```
 
+For example,
+
+```swift
+let asyncTask: Void -> Int
+let apply: Int -> Void
+
+let forEachFuture = future { 
+    asyncTask()
+}.forEach { value in
+    apply(value)
+}
+```
+
 ### andThen
 
 `apply: (T) -> Void` to a successful `Future<T>` and return a `Future<T>` completed with the result of the original future. This is equivalent to a pass through. Here data can be processed in a combinator chain but not effect the `Future` `result`.
 
 ```swift
 public func andThen(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), completion: @escaping (T) -> Void) -> Future<T>
+```
+
+For example,
+
+```swift
+let asyncTask: Void -> Int
+let apply: Int -> Void
+
+let andThenFuture = future { 
+    asyncTask()
+}.andThen { value in
+    apply(value)
+}
 ```
 
 ### recover
@@ -337,6 +416,25 @@ Apply a recovery mapping `recovery: (Swift.Error) throws -> T` to a failed `Futu
 public func recover(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> T) -> Future<T>
 ```
 
+For example,
+
+```swift
+enum AppError: Error {
+    case invalidValue
+}
+
+let recovery: Swift.Error -> Int
+
+let recoveryFuture = future { 
+    throw AppError.invalidValue
+}.recover { error in
+    guard let appError = error as? AppError else {
+        throw error
+    }
+    return recovery(appError)
+}
+```
+
 ### recoverWith
 
 Apply a recovery mapping `recovery: (Swift.Error) throws -> Future<T>` to a failed `Future<T>` returning a `Future<T>`.
@@ -345,12 +443,52 @@ Apply a recovery mapping `recovery: (Swift.Error) throws -> Future<T>` to a fail
 public func recoverWith(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> Future<T>) -> Future<T>
 ```
 
+For example,
+
+```swift
+enum AppError: Error {
+    case invalidValue
+}
+
+let recovery: Swift.Error -> Future<Int>
+
+let recoveryFuture = future { 
+    throw AppError.invalidValue
+}.recoverWith { error -> Future<Int> in
+    guard let appError = error as? AppError else {
+        throw error
+    }
+    return recovery(appError)
+}
+```
+
+`recoverWith` will usually require specification of the closure return type. It is an overloaded method and the compiler sometimes needs help in determining which to use.
+
 ### mapError
 
 Apply a `mapping: (Swift.Error) -> Swift.Error` to a failed `Future<T>` and return `Future<T>` with the new error result.
 
 ```swift
 public func mapError(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (Swift.Error) -> Swift.Error) -> Future<T>
+```
+
+For example,
+
+```swift
+enum AppError: Error {
+    case invalidValue
+}
+
+let mapping: Swift.Error -> Swift.Error
+
+let mapErrorFuture = future { 
+    throw AppError.invalidValue
+}.mapError { error in
+    guard let appError = error as? AppError else {
+       return error
+    }
+    return mapping(appError)
+}
 ```
 
 ### fold
@@ -361,12 +499,24 @@ Apply a `mapping: (R, Iterator.Element.T) throws -> R` to an array `[Future<T>]`
  public func fold<R>(context: ExecutionContext = QueueContext.futuresDefault, initial: R,  combine: @escaping (R, Iterator.Element.T) throws -> R) -> Future<R> 
 ```
 
+For example,
+
+```swift
+
+```
+
 ### sequence
 
 Transform `[Future<T>]` to `Future<[T]>` which completes with an array all results when `[Future<T>}` completes. `sequence` is used to accumulate the result of unrelated asynchronous requests.
 
 ```swift
 public func sequence(context: ExecutionContext = QueueContext.futuresDefault) -> Future<[Iterator.Element.T]>
+```
+
+For example,
+
+```swift
+
 ```
 
 ## cancel
