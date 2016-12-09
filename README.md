@@ -183,7 +183,7 @@ public func future<T>( _ task: @autoclosure @escaping (Void) -> T) -> Future<T>
 public func future<T>(context: ExecutionContext = QueueContext.futuresDefault, _ task: @escaping (Void) throws -> T) -> Future<T>
 ```
 
-Versions that take common completion block forms are also provided.
+Versions that take a closure parameter of a common completion block forms are also provided.
 
 ```swift
 public func future<T>(method: (@escaping (T, Swift.Error?) -> Void) -> Void) -> Future<T>
@@ -193,7 +193,7 @@ public func future<T>(method: (@escaping (T, Swift.Error?) -> Void) -> Void) -> 
 public func future<T>(method: (@escaping (T) -> Void) -> Void) -> Future<T>
 ```
 
-Adding a `Future` interface is simple. Consider the following class with an asynchronous request taking a completion block,
+Adding a `future` interface to existing code is simple. Consider the following class with an asynchronous request taking a completion block,
 
 ```swift
 class AsyncRequester {
@@ -502,7 +502,11 @@ Apply a `mapping: (R, Iterator.Element.T) throws -> R` to an array `[Future<T>]`
 For example,
 
 ```swift
+let asyncTask: Int -> Int
 
+let futures = [future { asyncTask(1) }, future { asyncTask(2) }, future { asyncTask(3) }] 
+
+let foldFuture = futures.fold(initial: 0) { $0 + $1 } 
 ```
 
 ### sequence
@@ -516,7 +520,11 @@ public func sequence(context: ExecutionContext = QueueContext.futuresDefault) ->
 For example,
 
 ```swift
+let asyncTask: Int -> Int
 
+let futures = [future { asyncTask(1) }, future { asyncTask(2) }, future { asyncTask(3) }] 
+
+let sequenceFuture = futures.sequence() 
 ```
 
 ## cancel
@@ -569,14 +577,31 @@ A `FutureStream` can be created using either the `futureStream` method, a `Strea
 `init` methods are provided that create a future with a specified result.
 
 ```swift
-// create a future with an Int result and capacity of 10
-FutureStream(value: 1, capacity: 10)
+// create an empty FutureStream with capacity
+public init(capacity: Int)
 
-// create a Future with an error result and capacity of 10
-FutureStream<Int>(error: MyError.failed, capacity: 10)
+// create a FutureStream with an Int result and capacity of 10
+public init(value: T, capacity: Int)
+
+// create a FutureStream with an error result and capacity of 10
+public init(error: Swift.Error, capacity: Int)
 ```
 
 ### `futureStream`
+
+Several versions of `futureStream` are provided to facilitate integration with existing code. Each take a closure parameter that is a different form of a common completion block.
+
+```swift
+public func futureStream<T>(context: ExecutionContext = QueueContext.futuresDefault, _ task: @escaping (Void) throws -> T) -> FutureStream<T>
+
+public func futureStream<T>(method: (@escaping (T, Swift.Error?) -> Void) -> Void) -> FutureStream<T> 
+
+public func futureStream(method: (@escaping (Swift.Error?) -> Void) -> Void) -> FutureStream<Void>
+
+public func futureStream<T>(method: (@escaping (T) -> Void) -> Void) -> FutureStream<T>
+```
+
+Adding a `futureStream` interface to existing code is simple. Consider the following class with an asynchronous request taking a completion block,
 
 ```swift
 class TestStreamRequester {
