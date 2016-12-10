@@ -218,9 +218,23 @@ extension AsyncRequester {
 
 A `Promise` instance is `one-time` writable and contains a `Future`. When completing its `Future` successfully a `Promise` will write a value to the `Future` result and when completing with failure will write an error to its `Future` result. 
 
-`Future` interface implementations will use a `Promise` to create a 'Future`.
+```swift
+    // Create and uncompleted Promise
+    public init()
 
-Here a simple `URLSession` `extension` is shown that adds a method performing `HTTP` `GET` request.
+    // Completed Promise with another Future
+    public func completeWith(context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>)
+    
+    // Complete Promise successfully with value
+    public func success(_ value: T)
+
+    // Complete Promise with error
+    public func failure(_ error: Swift.Error)
+```
+
+`Future` interface implementations can use a `Promise` to create and manage the 'Future`.
+
+Here a simple `URLSession` `extension` is shown that adds a method performing `HTTP` `GET` request returning a `Future`.
 
 ```swift
 extension URLSession {
@@ -559,14 +573,14 @@ cancelFuture.cancel(cancelToken)
 
 # FutureStream
 
-In frameworks such as `CoreLocation` the `CLLocationManagerDelegate` method,
+In frameworks such as `CoreLocation` the `CLLocationManagerDelegate` method can be called repeatedly for a single instantiation of `CLLocationManager`.
 
 ```swift
 func locationManager(_ manager: CLLocationManager!,
            didUpdateLocations locations: [AnyObject]!)
 ```
 
-can be called repeatedly for a single instantiation of `CLLocationManager`. Since `Futures` are immutable a new instance must be created for each call. `FutureStreams` are read-only completed `Future` containers that can be used to persist all past calls in situations such as this. `FutureStreams` support an interface similar to `Futures` and can be combined with them using combinators. 
+Since `Futures` are immutable a new instance must be created for each call. `FutureStreams` are read-only completed `Future` containers that can be used to persist all past calls up to a specified capacity in situations such as this. `FutureStreams` support an interface similar to `Futures` and can be combined with them using combinators. 
 
 ## Creation
 
@@ -621,9 +635,26 @@ extension TestStreamRequester {
 
 ## `StreamPromise`
 
-The `StreamPromise` like a `Promise` is `write-only` and additionally places completed futures in the `FutureStream` and provides the interface to add completed futures to a `FutureStream`.
+The `StreamPromise` like a `Promise` is `write-only` and places completed futures in the `FutureStream`. It also provides the interface to add completed futures to a `FutureStream`.
 
-`FutureStream` interface implementations will use a `StreamPromise` to create a 'FutureStream`.
+```swift
+    // Create and uncompleted StreamPromise with capacity
+     public init(capacity: Int = Int.max)
+
+    // Completed StreamPromise with another Future
+     public func completeWith(context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>)
+    
+    // Completed StreamPromise with another FutureStream
+    public func completeWith(context: ExecutionContext = QueueContext.futuresDefault, stream: FutureStream<T>)
+    
+    // Complete StreamPromise successfully with value
+    public func success(_ value: T)
+
+    // Complete StreamPromise with error
+    public func failure(_ error: Swift.Error)
+```
+
+`FutureStream` interface implementations can use a `StreamPromise` to create a 'FutureStream`.
 
 Here a simple `Accelerometer` service is shown. `Accelerometer` data updates are provided through a `FutureStream`.
  
