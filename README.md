@@ -283,7 +283,7 @@ Multiple completion handlers can be defined for a single `Future`.
 
 ## completeWith
 
-A `Future<T>` can be completed with `result` of another `Future<T>` using `completeWith`.
+A `Future` can be completed with `result` of another `Future` using `completeWith`.
 
 ```swift
 public func completeWith(context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>)
@@ -332,7 +332,7 @@ let mappedFuture = future {
 
 ### flatMap
 
-Apply a `mapping: (T) throws -> Future<M>` to the result of a successful `Future<T>` returning `Future<M>. `flatMap` is used to serialize asynchronous requests. 
+Apply a `mapping: (T) throws -> Future<M>` to the result of a successful `Future<T>` returning `Future<M>`. `flatMap` is used to serialize asynchronous requests. 
 
 ```swift
 public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> Future<M>) -> Future<M>
@@ -350,7 +350,7 @@ let asyncMapping: Int -> Future<String>
 
 let mappedFuture = future { 
     asyncTask()
-}.flatMap { value -> String in
+}.flatMap { value -> Future<String> in
     guard value < 0 else {
         throw AppError.invalidValue
     }
@@ -362,7 +362,7 @@ let mappedFuture = future {
 
 ### withFilter
 
-Apply a `filter: : (T) throws -> Bool` to the result of a successful `Future<T>` returning the `Future<T>` if the `filter` succeeds and `throwing` `FuturesError.noSuchElement` if the `filter` fails.
+Apply a `filter: (T) throws -> Bool` to the result of a successful `Future<T>` returning the `Future<T>` if the `filter` succeeds and `throwing` `FuturesError.noSuchElement` if the `filter` fails.
 
 ```swift
 public func withFilter(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), filter: @escaping (T) throws -> Bool) -> Future<T>
@@ -382,7 +382,7 @@ let filteredFuture = future {
 
 ### forEach
 
-`apply: (T) -> Void` to a successful `Future<T>`. This is equivalent to using the completion handler `onSuccess`.
+Apply a mapping `apply: (T) -> Void` to a successful `Future<T>`. This is equivalent to using the completion handler `onSuccess`.
 
 ```swift
 public func forEach(context:ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: @escaping (T) -> Void)
@@ -403,7 +403,7 @@ let forEachFuture = future {
 
 ### andThen
 
-`apply: (T) -> Void` to a successful `Future<T>` and return a `Future<T>` completed with the result of the original future. This is equivalent to a pass through. Here data can be processed in a combinator chain but not effect the `Future` `result`.
+Apply a mapping `apply: (T) -> Void` to a successful `Future<T>` and return a `Future<T>` completed with the result of the original future. This is equivalent to a pass through. Here data can be processed in a combinator chain but not effect the `Future` `result`.
 
 ```swift
 public func andThen(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), completion: @escaping (T) -> Void) -> Future<T>
@@ -656,7 +656,7 @@ The `StreamPromise` like a `Promise` is `write-only` and places completed future
 
 `FutureStream` interface implementations can use a `StreamPromise` to create a 'FutureStream`.
 
-Here a simple `Accelerometer` service is shown. `Accelerometer` data updates are provided through a `FutureStream`.
+Here a simple `Accelerometer` service implementation is shown. `Accelerometer` data updates are provided through a `FutureStream`.
  
 ```swift
 import UIKit
@@ -719,6 +719,8 @@ let accelrometerDataFuture = accelerometer.startAcceleromterUpdates()
 
 ## Handle Completion
 
+Setting the value of a `FutureStream` result completes it. The holder of a `FutureStream` reference is notified of completion by the methods `onSuccess` and `onFailure`. The `accelrometerDataFuture `of the previous section would handle completion events using,
+
 ```swift
 accelrometerDataFuture.onSuccess { data in
    // process data
@@ -728,23 +730,249 @@ accelrometerDataFuture.onFailure { error in
 }
 ```
 
+Multiple completion handlers can be defined for a single `FutureStream`.
+
 ## completeWith
+
+A `FutureStream` can be completed with result of another `Future` or `FutureStream` using `completeWith`.
+
+```swift
+func completeWith(context: ExecutionContext = QueueContext.futuresDefault, stream: FutureStream<T>)
+
+func completeWith(context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>)
+```
+
+For example,
+
+```swift
+let anotherFutureStream: FutureStream<Int>
+let asyncRequest(): Void -> Int
+let asyncStream(): Void -> Int
+
+let dependentFuture = future { asyncRequest() }
+anotherFutureStream.completeWith(future: dependentFuture)
+
+let dependentStream = futureStream { asyncStream() }
+anotherFutureStream.completeWith(future: dependentStream)
+```
 
 ## Combinators
 
+Combinators are methods used to construct a serialized chain of `FutureStreams` that perform asynchronous requests and apply mappings and filters.
+
 ### map 
+
+Apply a `mapping: (T) throws -> M` to the result of a successful `FutureStream<T>` to produce a new `FutureStream<M>` of a different type.
+
+```swift
+public func map<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> M) -> FutureStream<M>
+```
+
+For example,
+
+```swift
+enum AppError: Error {
+    case invalidValue
+}
+
+let asyncStream: Void -> Int
+
+let mappedStream = futureStream { 
+    asyncStream()
+}.map { value -> String in
+    guard value < 0 else {
+        throw AppError.invalidValue
+    }
+    return "\(value)"
+}
+```
+
+`mapping` is called each time the dependent `FutureStream` completes successfully.
 
 ### flatMap
 
+Apply a `futureMapping: (T) throws -> Future<M>` or `streamMapping: (T) throws -> FutureStream<M>`  to the result of a successful `FutureStream<T>` returning `FutureStream<M>`. `flatMap` is used to serialize asynchronous requests and streams.
+
+```swift
+// Apply a mapping to FutureStream returning a Future
+public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws  -> Future<M>) -> FutureStream<M>
+
+// Apply a mapping to FutureStream returning a FutureStream
+public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> FutureStream<M>) -> FutureStream<M>
+```
+ 
+For example,
+
+```swift
+enum AppError: Error {
+    case invalidValue
+}
+
+let asyncStream: Void -> Int
+let streamMapping: Int -> FutureStream<String>
+
+let mappedStream = futureStream { 
+    asyncStream()
+}.flatMap { value -> FutureStream<String> in
+    guard value < 0 else {
+        throw AppError.invalidValue
+    }
+    return streamMapping(value)
+}
+```
+
+and,
+
+```swift
+let asyncStream: Void -> Int
+let futureMapping: Int -> Future<String>
+
+let mappedStream = futureStream { 
+    asyncStream()
+}.flatMap { value -> Future<String> in
+    guard value < 0 else {
+        throw AppError.invalidValue
+    }
+    return futureMapping(value)
+}
+```
+
+A `streamMapping: (T) throws -> FutureStream<M>` can also be applied to the result of a successful `Future<T>`, returning a `FutureStream<M>`.
+
+```swift
+// Apply a mapping to Future returning a FutureStream
+public func flatMap<M>(capacity: Int = Int.max, context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> FutureStream<M>) -> FutureStream<M>   
+```
+
+For example,
+
+```swift
+let asyncTask: Void -> Int
+let streamMapping: Int -> FutureStream<String>
+
+let mappedFuture = future { 
+    asyncTask()
+}.flatMap { value -> FutureStream<String> in
+    guard value < 0 else {
+        throw AppError.invalidValue
+    }
+    return streamMapping(value)
+}
+```
+
+`flatMap` will usually require specification of the closure return type. It is an overloaded method and the compiler sometimes needs help in determining which to use.
+
 ### withFilter
+
+Apply a `filter: (T) throws -> Bool` to the result of a successful `FutureStream<T>` returning the `FutureStream<T>` if the filter succeeds and `throwing` `FuturesError.noSuchElement` if the filter fails.
+
+```swift
+public func withFilter(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), filter: @escaping (T) throws  -> Bool) -> FutureStream<T>
+```
+
+For example,
+
+```swift
+let asyncStream: Void -> Int
+
+let filteredStream = futureStream { 
+    asyncStream()
+}.withFilter { value in
+    value > 0
+}
+```
 
 ### forEach
 
+Apply a mapping `apply: (T) -> Void` to a successful `FutureStream<T>`. This is equivalent to using the completion handler `onSuccess`.
+
+```swift
+public func forEach(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), apply: @escaping (T) -> Void)
+```
+
+For example,
+
+```swift
+let asyncStream: Void -> Int
+let apply: Int -> Void
+
+let forEachStream = futureStream { 
+    asyncStream()
+}.forEach { value in
+    apply(value)
+}
+```
+
 ### andThen
+
+Apply a mapping `apply: (T) -> Void` to a successful `FutureStream<T>` and return a `FutureStream<T>` completed with the result of the original stream. This is equivalent to a pass through. Here data can be processed in a combinator chain but not effect the `FutureStream<T>` result.
+
+```swift
+public func andThen(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), completion: @escaping (T) -> Void) -> FutureStream<T>
+```
+
+For example,
+
+```swift
+let asyncStream: Void -> Int
+let apply: Int -> Void
+
+let andThenStream = futureStream { 
+    asyncStream()
+}.andThen { value in
+    apply(value)
+}
+```
 
 ### recover
 
+Apply a recovery mapping `recovery: (Swift.Error) throws -> T` to a `FutureStream<T>` failure returning a `FutureStream<T>`.
+
+```swift
+public func recover(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> T) -> FutureStream<T>
+```
+
+For example,
+
+```swift
+enum AppError: Error {
+    case invalidValue
+}
+
+let recovery: Swift.Error -> Int
+
+let recoveryStream = futureStream { 
+    throw AppError.invalidValue
+}.recover { error in
+    guard let appError = error as? AppError else {
+        throw error
+    }
+    return recovery(appError)
+}
+```
+
 ### recoverWith
+
+Apply a recovery mapping recovery: (Swift.Error) throws -> Future<T> to a failed Future<T> returning a Future<T>.
+
+public func recoverWith(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> Future<T>) -> Future<T>
+For example,
+
+enum AppError: Error {
+    case invalidValue
+}
+
+let recovery: Swift.Error -> Future<Int>
+
+let recoveryFuture = future { 
+    throw AppError.invalidValue
+}.recoverWith { error -> Future<Int> in
+    guard let appError = error as? AppError else {
+        throw error
+    }
+    return recovery(appError)
+}
+recoverWith will usually require specification of the closure return type. It is an overloaded method and the compiler sometimes needs help in determining which to use.
 
 ### mapError
 
