@@ -480,7 +480,7 @@ let recoveryFuture = future {
 
 ### mapError
 
-Apply a `mapping: (Swift.Error) -> Swift.Error` to a failed `Future<T>` and return `Future<T>` with the new error result.
+Apply a mapping `mapping: (Swift.Error) -> Swift.Error` to a failed `Future<T>` and return a `Future<T>` with the new error result.
 
 ```swift
 public func mapError(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (Swift.Error) -> Swift.Error) -> Future<T>
@@ -545,7 +545,7 @@ let sequenceFuture = futures.sequence()
 
 A `Future` can be passed around an application to notify different components of an event. Multiple completion handler definitions and combinator chains can be specified. Not all application components will maintain an interest in the event and may want to 'unsubscribe'.
 
-An application can `cancel` completion handler callbacks and combinator execution using a `CancelToken()`.
+An application can `cancel` multiple completion handler callbacks and combinator executions using a `CancelToken()`.
 
 ```swift
 fun asyncRequest() -> Int
@@ -556,7 +556,7 @@ let cancelFuture = future {
     asyncRequest() 
 }
 
-let mappedFuture = cancel.flatMap(cancelToken: cancelToken) {
+let mappedFuture = cancelFuture.flatMap(cancelToken: cancelToken) {
     anotherAsyncRequest()
 }
 
@@ -794,11 +794,11 @@ let mappedStream = futureStream {
 Apply a `futureMapping: (T) throws -> Future<M>` or `streamMapping: (T) throws -> FutureStream<M>`  to the result of a successful `FutureStream<T>` returning `FutureStream<M>`. `flatMap` is used to serialize asynchronous requests and streams.
 
 ```swift
-// Apply a mapping to FutureStream returning a Future
-public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws  -> Future<M>) -> FutureStream<M>
-
-// Apply a mapping to FutureStream returning a FutureStream
+// Apply a mapping returning a FutureStream to a FutureStream result
 public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> FutureStream<M>) -> FutureStream<M>
+
+// Apply a mapping returning a Future to a FutureStream result
+public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws  -> Future<M>) -> FutureStream<M>
 ```
  
 For example,
@@ -824,7 +824,6 @@ let mappedStream = futureStream {
 and,
 
 ```swift
-let asyncStream: Void -> Int
 let futureMapping: Int -> Future<String>
 
 let mappedStream = futureStream { 
@@ -837,7 +836,7 @@ let mappedStream = futureStream {
 }
 ```
 
-A `streamMapping: (T) throws -> FutureStream<M>` can also be applied to the result of a successful `Future<T>`, returning a `FutureStream<M>`.
+A mapping `streamMapping: (T) throws -> FutureStream<M>` can also be applied to the result of a successful `Future<T>`, returning a `FutureStream<M>`.
 
 ```swift
 // Apply a mapping to Future returning a FutureStream
@@ -847,10 +846,7 @@ public func flatMap<M>(capacity: Int = Int.max, context: ExecutionContext = Queu
 For example,
 
 ```swift
-let asyncTask: Void -> Int
-let streamMapping: Int -> FutureStream<String>
-
-let mappedFuture = future { 
+let mappedStream = future { 
     asyncTask()
 }.flatMap { value -> FutureStream<String> in
     guard value < 0 else {
@@ -953,32 +949,129 @@ let recoveryStream = futureStream {
 
 ### recoverWith
 
-Apply a recovery mapping recovery: (Swift.Error) throws -> Future<T> to a failed Future<T> returning a Future<T>.
+Apply a recovery mapping `futureRecovery: (Swift.Error) throws -> Future<T>` or `streamRecovery: (Swift.Error) throws -> FutureStream<T>` to a `FutureStream<T>` failure returning a FutureStream<T>.
 
-public func recoverWith(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> Future<T>) -> Future<T>
+```swift
+// Apply a recovery returning a FutureStream to a FutureStream result
+ public func recoverWith(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> FutureStream<T>) -> FutureStream<T>
+ 
+// Apply a recovery returning a Future to a FutureStream result
+public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws  -> Future<M>) -> FutureStream<M>
+```
+
 For example,
 
+```swift
 enum AppError: Error {
     case invalidValue
 }
 
-let recovery: Swift.Error -> Future<Int>
+let streamRecovery: Swift.Error -> FutureStream<Int>
 
-let recoveryFuture = future { 
+let recoveryStream = futureStream { 
     throw AppError.invalidValue
-}.recoverWith { error -> Future<Int> in
+}.recoverWith { error -> FutureStream<Int> in
     guard let appError = error as? AppError else {
         throw error
     }
     return recovery(appError)
 }
-recoverWith will usually require specification of the closure return type. It is an overloaded method and the compiler sometimes needs help in determining which to use.
+```
+
+and,
+
+```swift
+let futureRecovery: Swift.Error -> Future<Int>
+
+let recoveryStream = futureStream { 
+    throw AppError.invalidValue
+}.recoverWith { value -> Future<String> in
+    guard value < 0 else {
+        throw AppError.invalidValue
+    }
+    return futureRecovery(value)
+}
+```
+
+A `streamRecovery: (Swift.Error) throws -> FutureStream<T>` can also be applied to a failed `Future<T>`, returning a `FutureStream<M>`.
+
+```swift
+public func recoverWith(capacity: Int = Int.max, context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> FutureStream<T>) -> FutureStream<T>
+```
+
+For example,
+
+```swift
+let recoveryStream = future { 
+    throw AppError.invalidValue
+}.recoverWith { error -> FutureStream<Int> in
+    guard let appError = error as? AppError else {
+        throw error
+    }
+    return recovery(appError)
+}
+```
+
+`recoverWith` will usually require specification of the closure return type. It is an overloaded method and the compiler sometimes needs help in determining which to use.
 
 ### mapError
 
+Apply a mapping `mapping: (Swift.Error) -> Swift.Error` to a `FutureStream<T>` failure and return a `FutureStream<T>` with the mapped error result.
+
+```swift
+public func mapError(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (Swift.Error) -> Swift.Error) -> FutureStream<T>
+```
+
+For example,
+
+```swift
+enum AppError: Error {
+    case invalidValue
+}
+
+let mapping: Swift.Error -> Swift.Error
+
+let mapErrorStream = futureStream { 
+    throw AppError.invalidValue
+}.mapError { error in
+    guard let appError = error as? AppError else {
+       return error
+    }
+    return mapping(appError)
+}
+```
+
 ## cancel
 
-## Test Cases
+A `FutureStream` can be passed around an application to notify different components of an event. Multiple completion handler definitions and combinator chains can be specified. Not all application components will maintain an interest in the event and may want to 'unsubscribe'.
+
+An application can `cancel` multiple completion handler callbacks and combinator executions using a `CancelToken()`.
+
+```swift
+fun asyncStream() -> Int
+fun anotherAsyncStream() -> FutureStream<String>
+
+let cancelToken = CancelToken()
+let cancelStream = future {
+    asyncStream() 
+}
+
+let mappedStream = cancelStream.flatMap(cancelToken: cancelToken) {
+    anotherAsyncStream()
+}
+
+mappedStream.onSuccess(cancelToken: cancelToken) { value in
+    // process data
+}
+
+mappedStream.onFailure(cancelToken: cancelToken) { ==error in
+    // process data
+}
+
+cancelFuture.cancel(cancelToken)
+```
+
+# Test Cases
 
 [Test Cases](/Tests) are available. To build the `workspace`,
 
@@ -988,3 +1081,9 @@ pod install
 
 and run from `test` tab in generated `workspace`.
 
+# Projects
+
+The following projects use [SimpleFutures](https://github.com/troystribling/SimpleFutures). They can be used as guides in real application usage.
+
+1. [BlueCap](https://github.com/troystribling/BlueCap) provides a `Futures` based replacement for CoreBluetooth.
+2. [FutureLocation](https://github.com/troystribling/FutureLocation) provides a `Futures` based replacement for CoreLocation.
