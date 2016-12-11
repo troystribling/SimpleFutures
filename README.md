@@ -175,15 +175,17 @@ public init(error: Swift.Error)
 
 Several versions of `future` are provided to facilitate integration with existing code.
 
-The simplest takes an `@autoclosure` or closure that returns a result.
+The simplest take a synchronous `@autoclosure` or closure,
 
 ```swift
+// task is executed synchronously
 public func future<T>( _ task: @autoclosure @escaping (Void) -> T) -> Future<T>
 
+// task is executed in context which may be asynchronous
 public func future<T>(context: ExecutionContext = QueueContext.futuresDefault, _ task: @escaping (Void) throws -> T) -> Future<T>
 ```
 
-Versions that take a closure parameter of a common completion block forms are also provided.
+Versions that take an asynchronous closure parameter of common completion block forms are also provided.
 
 ```swift
 public func future<T>(method: (@escaping (T, Swift.Error?) -> Void) -> Void) -> Future<T>
@@ -193,12 +195,13 @@ public func future<T>(method: (@escaping (T, Swift.Error?) -> Void) -> Void) -> 
 public func future<T>(method: (@escaping (T) -> Void) -> Void) -> Future<T>
 ```
 
-Adding a `future` interface to existing code is simple. Consider the following class with an asynchronous request taking a completion block,
+Adding a `Future` interface to existing code is simple using `future`. Consider the following class with an asynchronous request taking a completion block,
 
 ```swift
 class AsyncRequester {
 
     func request(completion: @escaping (Int?, Swift.Error?) -> Void)
+    
 }
 ```
 
@@ -216,7 +219,7 @@ extension AsyncRequester {
 
 ### `Promise`
 
-A `Promise` instance is `one-time` writable and contains a `Future`. When completing its `Future` successfully a `Promise` will write a value to the `Future` result and when completing with failure will write an error to its `Future` result. 
+A `Promise` instance is *one-time* writable and contains a `Future`. When *completing* its `Future` *successfully* a `Promise` will write a value to the `Future` result and when *completing* with *failure* will write an error to its `Future` result. 
 
 ```swift
     // Create and uncompleted Promise
@@ -264,7 +267,7 @@ let requestFuture = URLSession.get(with: URL(string: "http://troystribling.com")
 
 ## Handle Completion
 
-Setting the value of a `Future` `result` completes it. The holder of a `Future` reference is notified of completion by the methods `onSuccess` and `onFailure`. The `requestFuture` of the previous section would handle completion events using,
+Setting the value of a `Future` result *completes* it. The holder of a `Future` reference is notified of *completion* by the methods `onSuccess` and `onFailure`. The `requestFuture` of the previous section would handle *completion* events using,
 
 ```swift
 requestFuture.onSuccess { (data, response) in
@@ -283,7 +286,7 @@ Multiple completion handlers can be defined for a single `Future`.
 
 ## completeWith
 
-A `Future` can be completed with `result` of another `Future` using `completeWith`.
+A `Future` can be *completed* with result of another `Future` using `completeWith`.
 
 ```swift
 public func completeWith(context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>)
@@ -292,16 +295,16 @@ public func completeWith(context: ExecutionContext = QueueContext.futuresDefault
 For example,
 
 ```swift
-let anotherFuture: Future<Int>
-let asyncRequest(): Void -> Int
+let anotherFuture = Future<Int>()
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
 
-let dependentFuture = future { asyncRequest() }
+let dependentFuture = future(method: asyncRequest)
 anotherFuture.completeWith(future: dependentFuture)
 ```
 
 ## Combinators
 
-Combinators are methods used to construct a serialized chain of `Futures` that perform asynchronous requests and apply mappings and filters. 
+Combinators are methods used to construct a serialized chain of `Futures` that perform asynchronous requests and apply mappings and filters to request results. 
 
 ### map 
 
@@ -318,11 +321,9 @@ enum AppError: Error {
     case invalidValue
 }
 
-let asyncTask: Void -> Int
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
 
-let mappedFuture = future { 
-    asyncTask()
-}.map { value -> String in
+let mappedFuture = future(method: asyncRequest).map { value -> String in
     guard value < 0 else {
         throw AppError.invalidValue
     }
@@ -345,12 +346,10 @@ enum AppError: Error {
     case invalidValue
 }
 
-let asyncTask: Void -> Int
-let asyncMapping: Int -> Future<String>
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func asyncMapping(Int) -> Future<String>
 
-let mappedFuture = future { 
-    asyncTask()
-}.flatMap { value -> Future<String> in
+let mappedFuture = future(method: asyncRequest).flatMap { value -> Future<String> in
     guard value < 0 else {
         throw AppError.invalidValue
     }
@@ -371,11 +370,9 @@ public func withFilter(context: ExecutionContext = QueueContext.futuresDefault, 
 For example,
 
 ```swift
-let asyncTask: Void -> Int
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
 
-let filteredFuture = future { 
-    asyncTask()
-}.withFilter { value in
+let filteredFuture = future(method: asyncRequest).withFilter { value in
     value > 0
 }
 ```
@@ -391,12 +388,10 @@ public func forEach(context:ExecutionContext = QueueContext.futuresDefault, canc
 For example,
 
 ```swift
-let asyncTask: Void -> Int
-let apply: Int -> Void
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func apply(Int) -> Void
 
-let forEachFuture = future { 
-    asyncTask()
-}.forEach { value in
+let forEachFuture = future(method: asyncRequest).forEach { value in
     apply(value)
 }
 ```
@@ -412,12 +407,10 @@ public func andThen(context: ExecutionContext = QueueContext.futuresDefault, can
 For example,
 
 ```swift
-let asyncTask: Void -> Int
-let apply: Int -> Void
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func apply(Int) -> Void
 
-let andThenFuture = future { 
-    asyncTask()
-}.andThen { value in
+let andThenFuture = future(method: asyncRequest).andThen { value in
     apply(value)
 }
 ```
@@ -437,11 +430,10 @@ enum AppError: Error {
     case invalidValue
 }
 
-let recovery: Swift.Error -> Int
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func recovery(Swift.Error) -> Int
 
-let recoveryFuture = future { 
-    throw AppError.invalidValue
-}.recover { error in
+let recoveryFuture = future(method: asyncRequest).recover { error in
     guard let appError = error as? AppError else {
         throw error
     }
@@ -464,11 +456,10 @@ enum AppError: Error {
     case invalidValue
 }
 
-let recovery: Swift.Error -> Future<Int>
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func recovery(Swift.Error) -> Future<Int>
 
-let recoveryFuture = future { 
-    throw AppError.invalidValue
-}.recoverWith { error -> Future<Int> in
+let recoveryFuture = future(method: asyncRequest).recoverWith { error -> Future<Int> in
     guard let appError = error as? AppError else {
         throw error
     }
@@ -486,22 +477,21 @@ Apply a mapping `mapping: (Swift.Error) -> Swift.Error` to a failed `Future<T>` 
 public func mapError(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (Swift.Error) -> Swift.Error) -> Future<T>
 ```
 
-For example,
+For example, to convert any `Swift.Error` to an `AppError`,
 
 ```swift
 enum AppError: Error {
     case invalidValue
 }
 
-let mapping: Swift.Error -> Swift.Error
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func mapping(Swift.Error) -> AppError.Error
 
-let mapErrorFuture = future { 
-    throw AppError.invalidValue
-}.mapError { error in
+let mapErrorFuture = future(method: asyncRequest).mapError { error in
     guard let appError = error as? AppError else {
-       return error
+    return mapping(error)
     }
-    return mapping(appError)
+   return appError
 }
 ```
 
@@ -516,9 +506,9 @@ Apply a `mapping: (R, Iterator.Element.T) throws -> R` to an array `[Future<T>]`
 For example,
 
 ```swift
-let asyncTask: Int -> Int
+fun asyncTask(Int) -> Future<Int>
 
-let futures = [future { asyncTask(1) }, future { asyncTask(2) }, future { asyncTask(3) }] 
+let futures = [asyncTask(1), asyncTask(1), asyncTask(1)] 
 
 let foldFuture = futures.fold(initial: 0) { $0 + $1 } 
 ```
@@ -534,9 +524,9 @@ public func sequence(context: ExecutionContext = QueueContext.futuresDefault) ->
 For example,
 
 ```swift
-let asyncTask: Int -> Int
+fun asyncTask(Int) -> Future<Int>
 
-let futures = [future { asyncTask(1) }, future { asyncTask(2) }, future { asyncTask(3) }] 
+let futures = [asyncTask(1), asyncTask(1), asyncTask(1)] 
 
 let sequenceFuture = futures.sequence() 
 ```
@@ -552,9 +542,7 @@ fun asyncRequest() -> Int
 fun anotherAsyncRequest() -> Future<String>
 
 let cancelToken = CancelToken()
-let cancelFuture = future {
-    asyncRequest() 
-}
+let cancelFuture = future(method: asyncRequest)
 
 let mappedFuture = cancelFuture.flatMap(cancelToken: cancelToken) {
     anotherAsyncRequest()
@@ -603,11 +591,17 @@ public init(error: Swift.Error, capacity: Int)
 
 ### `futureStream`
 
-Several versions of `futureStream` are provided to facilitate integration with existing code. Each take a closure parameter that is a different form of a common completion block.
+Several versions of `futureStream` are provided to facilitate integration with existing code. 
+
+The simplest takes a synchronous closure and executes it in the specified context.
 
 ```swift
 public func futureStream<T>(context: ExecutionContext = QueueContext.futuresDefault, _ task: @escaping (Void) throws -> T) -> FutureStream<T>
+```
 
+Versions that take a closure parameter of a common completion block forms are also provided.
+
+```swift
 public func futureStream<T>(method: (@escaping (T, Swift.Error?) -> Void) -> Void) -> FutureStream<T> 
 
 public func futureStream(method: (@escaping (Swift.Error?) -> Void) -> Void) -> FutureStream<Void>
@@ -615,7 +609,7 @@ public func futureStream(method: (@escaping (Swift.Error?) -> Void) -> Void) -> 
 public func futureStream<T>(method: (@escaping (T) -> Void) -> Void) -> FutureStream<T>
 ```
 
-Adding a `futureStream` interface to existing code is simple. Consider the following class with an asynchronous request taking a completion block,
+Adding a `FutureStream` interface to existing code is simple using `futureStream`. Consider the following class with an asynchronous request taking a completion block,
 
 ```swift
 class TestStreamRequester {
@@ -635,26 +629,27 @@ extension TestStreamRequester {
 
 ## `StreamPromise`
 
-The `StreamPromise` like a `Promise` is `write-only` and places completed futures in the `FutureStream`. It also provides the interface to add completed futures to a `FutureStream`.
+The `StreamPromise` like a `Promise` is *write-only*. It creates and *completes* `Futures` and adds them to the `FutureStream`.
+ 
 
 ```swift
-    // Create and uncompleted StreamPromise with capacity
-     public init(capacity: Int = Int.max)
+// Create and uncompleted StreamPromise with capacity
+public init(capacity: Int = Int.max)
 
-    // Completed StreamPromise with another Future
-     public func completeWith(context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>)
+// Complete StreamPromise with another Future
+public func completeWith(context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>)
     
-    // Completed StreamPromise with another FutureStream
-    public func completeWith(context: ExecutionContext = QueueContext.futuresDefault, stream: FutureStream<T>)
+// Complete StreamPromise with another FutureStream
+public func completeWith(context: ExecutionContext = QueueContext.futuresDefault, stream: FutureStream<T>)
     
-    // Complete StreamPromise successfully with value
-    public func success(_ value: T)
+// Complete StreamPromise successfully with value
+public func success(_ value: T)
 
-    // Complete StreamPromise with error
-    public func failure(_ error: Swift.Error)
+// Complete StreamPromise with error
+public func failure(_ error: Swift.Error)
 ```
 
-`FutureStream` interface implementations can use a `StreamPromise` to create a 'FutureStream`.
+`FutureStream` interface implementations can use a `StreamPromise` to create a `FutureStream`.
 
 Here a simple `Accelerometer` service implementation is shown. `Accelerometer` data updates are provided through a `FutureStream`.
  
@@ -719,7 +714,7 @@ let accelrometerDataFuture = accelerometer.startAcceleromterUpdates()
 
 ## Handle Completion
 
-Setting the value of a `FutureStream` result completes it. The holder of a `FutureStream` reference is notified of completion by the methods `onSuccess` and `onFailure`. The `accelrometerDataFuture `of the previous section would handle completion events using,
+Adding a *completed* `Future` to  `FutureStream` calls its *completion* handlers. The holder of a `FutureStream` reference is notified when a *completed* `Future` is added to `FutureStream` by the methods `onSuccess` and `onFailure`. The `accelrometerDataFuture `of the previous section would handle *completion* events using,
 
 ```swift
 accelrometerDataFuture.onSuccess { data in
@@ -745,14 +740,15 @@ func completeWith(context: ExecutionContext = QueueContext.futuresDefault, futur
 For example,
 
 ```swift
-let anotherFutureStream: FutureStream<Int>
-let asyncRequest(): Void -> Int
-let asyncStream(): Void -> Int
+let anotherFutureStream = FutureStream<Int>()
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
 
-let dependentFuture = future { asyncRequest() }
+// Complete FutureStream with dependent Future
+let dependentFuture = future(method: asyncRequest)
 anotherFutureStream.completeWith(future: dependentFuture)
 
-let dependentStream = futureStream { asyncStream() }
+// Complete FutureStream with dependent FutureStream
+let dependentStream = futureStream(method: asyncRequest)
 anotherFutureStream.completeWith(future: dependentStream)
 ```
 
@@ -775,11 +771,9 @@ enum AppError: Error {
     case invalidValue
 }
 
-let asyncStream: Void -> Int
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
 
-let mappedStream = futureStream { 
-    asyncStream()
-}.map { value -> String in
+let mappedStream = futureStream(method: asyncRequest).map { value -> String in
     guard value < 0 else {
         throw AppError.invalidValue
     }
@@ -808,12 +802,10 @@ enum AppError: Error {
     case invalidValue
 }
 
-let asyncStream: Void -> Int
-let streamMapping: Int -> FutureStream<String>
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func streamMapping(Int) -> FutureStream<String>
 
-let mappedStream = futureStream { 
-    asyncStream()
-}.flatMap { value -> FutureStream<String> in
+let mappedStream = futureStream(method: asyncRequest).flatMap { value -> FutureStream<String> in
     guard value < 0 else {
         throw AppError.invalidValue
     }
@@ -824,11 +816,10 @@ let mappedStream = futureStream {
 and,
 
 ```swift
-let futureMapping: Int -> Future<String>
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func futureMapping(Int) -> Future<String>
 
-let mappedStream = futureStream { 
-    asyncStream()
-}.flatMap { value -> Future<String> in
+let mappedStream = futureStream(method: asyncRequest).flatMap { value -> Future<String> in
     guard value < 0 else {
         throw AppError.invalidValue
     }
@@ -846,9 +837,7 @@ public func flatMap<M>(capacity: Int = Int.max, context: ExecutionContext = Queu
 For example,
 
 ```swift
-let mappedStream = future { 
-    asyncTask()
-}.flatMap { value -> FutureStream<String> in
+let mappedStream = futureStream(method: asyncRequest).flatMap { value -> FutureStream<String> in
     guard value < 0 else {
         throw AppError.invalidValue
     }
@@ -869,11 +858,9 @@ public func withFilter(context: ExecutionContext = QueueContext.futuresDefault, 
 For example,
 
 ```swift
-let asyncStream: Void -> Int
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
 
-let filteredStream = futureStream { 
-    asyncStream()
-}.withFilter { value in
+let filteredStream = futureStream(method: asyncRequest).withFilter { value in
     value > 0
 }
 ```
@@ -889,12 +876,10 @@ public func forEach(context: ExecutionContext = QueueContext.futuresDefault, can
 For example,
 
 ```swift
-let asyncStream: Void -> Int
-let apply: Int -> Void
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func apply(Int) -> Void
 
-let forEachStream = futureStream { 
-    asyncStream()
-}.forEach { value in
+let forEachStream = futureStream(method: asyncRequest).forEach { value in
     apply(value)
 }
 ```
@@ -910,12 +895,10 @@ public func andThen(context: ExecutionContext = QueueContext.futuresDefault, can
 For example,
 
 ```swift
-let asyncStream: Void -> Int
-let apply: Int -> Void
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func apply(Int) -> Void
 
-let andThenStream = futureStream { 
-    asyncStream()
-}.andThen { value in
+let andThenStream = futureStream(method: asyncRequest).andThen { value in
     apply(value)
 }
 ```
@@ -935,11 +918,10 @@ enum AppError: Error {
     case invalidValue
 }
 
-let recovery: Swift.Error -> Int
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func recovery(Swift.Error) -> Int
 
-let recoveryStream = futureStream { 
-    throw AppError.invalidValue
-}.recover { error in
+let recoveryStream = futureStream(method: asyncRequest).recover { error in
     guard let appError = error as? AppError else {
         throw error
     }
@@ -966,26 +948,24 @@ enum AppError: Error {
     case invalidValue
 }
 
-let streamRecovery: Swift.Error -> FutureStream<Int>
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func streamRecovery(Swift.Error) -> FutureStream<Int>
 
-let recoveryStream = futureStream { 
-    throw AppError.invalidValue
-}.recoverWith { error -> FutureStream<Int> in
+let recoveryStream = futureStream(method: asyncRequest).recoverWith { error -> FutureStream<Int> in
     guard let appError = error as? AppError else {
         throw error
     }
-    return recovery(appError)
+    return streamRecovery(appError)
 }
 ```
 
 and,
 
 ```swift
-let futureRecovery: Swift.Error -> Future<Int>
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func futureRecovery(Swift.Error) -> Future<Int>
 
-let recoveryStream = futureStream { 
-    throw AppError.invalidValue
-}.recoverWith { value -> Future<String> in
+let recoveryStream = futureStream(method: asyncRequest).recoverWith { value -> Future<String> in
     guard value < 0 else {
         throw AppError.invalidValue
     }
@@ -1002,13 +982,11 @@ public func recoverWith(capacity: Int = Int.max, context: ExecutionContext = Que
 For example,
 
 ```swift
-let recoveryStream = future { 
-    throw AppError.invalidValue
-}.recoverWith { error -> FutureStream<Int> in
+let recoveryStream = futureStream(method: asyncRequest).recoverWith { error -> FutureStream<Int> in
     guard let appError = error as? AppError else {
         throw error
     }
-    return recovery(appError)
+    return streamRecovery(appError)
 }
 ```
 
@@ -1022,22 +1000,21 @@ Apply a mapping `mapping: (Swift.Error) -> Swift.Error` to a `FutureStream<T>` f
 public func mapError(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (Swift.Error) -> Swift.Error) -> FutureStream<T>
 ```
 
-For example,
+For example, to convert any `Swift.Error` to an `AppError`,
 
 ```swift
 enum AppError: Error {
     case invalidValue
 }
 
-let mapping: Swift.Error -> Swift.Error
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+func mapping(Swift.Error) -> AppError
 
-let mapErrorStream = futureStream { 
-    throw AppError.invalidValue
-}.mapError { error in
+let mapErrorStream = futureStream(method: asyncRequest).mapError { error in
     guard let appError = error as? AppError else {
-       return error
+	    return mapping(error)
     }
-    return mapping(appError)
+    return appError
 }
 ```
 
@@ -1048,16 +1025,14 @@ A `FutureStream` can be passed around an application to notify different compone
 An application can `cancel` multiple completion handler callbacks and combinator executions using a `CancelToken()`.
 
 ```swift
-fun asyncStream() -> Int
-fun anotherAsyncStream() -> FutureStream<String>
+func asyncRequest(_ completion: @escaping (Int, Swift.Error?) -> Void)
+fun asyncStream() -> FutureStream<String>
 
 let cancelToken = CancelToken()
-let cancelStream = future {
-    asyncStream() 
-}
+let cancelStream = futureStream(method: asyncRequest)
 
 let mappedStream = cancelStream.flatMap(cancelToken: cancelToken) {
-    anotherAsyncStream()
+    asyncStream()
 }
 
 mappedStream.onSuccess(cancelToken: cancelToken) { value in
