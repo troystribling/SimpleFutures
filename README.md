@@ -222,17 +222,17 @@ extension AsyncRequester {
 A `Promise` instance is *one-time* writable and contains a `Future`. When *completing* its `Future` *successfully* a `Promise` will write a value to the `Future` result and when *completing* with *failure* will write an error to its `Future` result. 
 
 ```swift
-    // Create and uncompleted Promise
-    public init()
+// Create and uncompleted Promise
+public init()
 
-    // Completed Promise with another Future
-    public func completeWith(context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>)
+// Completed Promise with another Future
+public func completeWith(context: ExecutionContext = QueueContext.futuresDefault, future: Future<T>)
     
-    // Complete Promise successfully with value
-    public func success(_ value: T)
+// Complete Promise successfully with value
+public func success(_ value: T)
 
-    // Complete Promise with error
-    public func failure(_ error: Swift.Error)
+// Complete Promise with error
+public func failure(_ error: Swift.Error)
 ```
 
 `Future` interface implementations can use a `Promise` to create and manage the 'Future`.
@@ -489,7 +489,7 @@ func mapping(Swift.Error) -> AppError.Error
 
 let mapErrorFuture = future(method: asyncRequest).mapError { error in
     guard let appError = error as? AppError else {
-    return mapping(error)
+        return mapping(error)
     }
    return appError
 }
@@ -1012,7 +1012,7 @@ func mapping(Swift.Error) -> AppError
 
 let mapErrorStream = futureStream(method: asyncRequest).mapError { error in
     guard let appError = error as? AppError else {
-	    return mapping(error)
+	      return mapping(error)
     }
     return appError
 }
