@@ -10,7 +10,7 @@ A Swift implementation of [Scala Futures](http://docs.scala-lang.org/overviews/c
 
 # Motivation
 
-`Futures` provide an interface for performing nonblocking asynchronous requests and combinator interfaces for serializing the processing of requests, error recovery and filtering. In most iOS libraries asynchronous interfaces are supported through the delegate-protocol pattern or in some cases with a callback. Even simple implementations of these interfaces can lead to business logic distributed over many files or deeply nested callbacks that can be hard to follow. It will be seen that `Futures` very nicely solve this problem. 
+`Futures` provide an interface for performing nonblocking asynchronous requests and combinator interfaces for serializing the processing of requests, error recovery and filtering. In most iOS libraries asynchronous interfaces are supported through the delegate-protocol pattern or with a callback. Even simple implementations of these interfaces can lead to business logic distributed over many files or deeply nested callbacks that can be hard to follow.  
 
 SimpleFutures is an implementation of [Scala Futures](http://docs.scala-lang.org/overviews/core/futures.html) in Swift and was influenced by [BrightFutures](https://github.com/Thomvis/BrightFutures).
 
@@ -146,11 +146,9 @@ Completion handlers and combinators for both `Futures` and `FutureStreams` run w
 
 # Future
 
-A `Future` instance is a `read-only` encapsulation of an immutable result that can be computed anytime in the future. When the result is computed the `Future` is said to be completed. A `Future` may be completed successfully with a value or failed with an error. 
+A `Future` instance is a *read-only* encapsulation of an immutable *result* that can be computed anytime in the future. When the *result* is computed the `Future` is said to be *completed*. A `Future` may be *completed* successfully with a value or failed with an error. 
 
 A `Future` also has combinator methods that allow multiple instances to be chained together and executed serially and container methods are provided that can evaluate multiple `Futures` simultaneously.
-
-Each of these topics are discussed in this section.
 
 ## Creation
 
@@ -158,7 +156,7 @@ A `Future` can be created using either the `future` method, a `Promise` or initi
 
 ### `init`
 
-`init` methods are provided that create a future with a specified result.
+`init` methods are provided that create a `Future<T>` with a specified result.
 
 ```swift
 // create an uncompleted future
@@ -185,7 +183,7 @@ public func future<T>( _ task: @autoclosure @escaping (Void) -> T) -> Future<T>
 public func future<T>(context: ExecutionContext = QueueContext.futuresDefault, _ task: @escaping (Void) throws -> T) -> Future<T>
 ```
 
-Versions that take an asynchronous closure parameter of common completion block forms are also provided.
+Versions that take an asynchronous closure parameter of common completion block types are also provided.
 
 ```swift
 public func future<T>(method: (@escaping (T, Swift.Error?) -> Void) -> Void) -> Future<T>
@@ -219,7 +217,7 @@ extension AsyncRequester {
 
 ### `Promise`
 
-A `Promise` instance is *one-time* writable and contains a `Future`. When *completing* its `Future` *successfully* a `Promise` will write a value to the `Future` result and when *completing* with *failure* will write an error to its `Future` result. 
+A `Promise` instance is *one-time* writable and contains a `Future`. When *completing* its `Future` successfully a `Promise` will write a value to the `Future` result and when *completing* with failure will write an error to its `Future` result. 
 
 ```swift
 // Create and uncompleted Promise
@@ -235,9 +233,9 @@ public func success(_ value: T)
 public func failure(_ error: Swift.Error)
 ```
 
-`Future` interface implementations can use a `Promise` to create and manage the 'Future`.
+`Future` interface implementations can use a `Promise` to create and manage the `Future`.
 
-Here a simple `URLSession` `extension` is shown that adds a method performing `HTTP` `GET` request returning a `Future`.
+Here a simple `URLSession` `extension` is shown that adds a method performing an `HTTP` `GET` request returning a `Future`.
 
 ```swift
 extension URLSession {
@@ -308,7 +306,7 @@ Combinators are methods used to construct a serialized chain of `Futures` that p
 
 ### map 
 
-Apply a `mapping: (T) throws -> M` to the result of a successful `Future<T>` to produce a new `Future<M>` of a different type. 
+Apply a `mapping: (T) throws -> M` to the result of a successful `Future<T>` to produce a new `Future<M>`. 
 
 ```swift
 public func map<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> M) -> Future<M>
@@ -491,7 +489,7 @@ let mapErrorFuture = future(method: asyncRequest).mapError { error in
     guard let appError = error as? AppError else {
         return mapping(error)
     }
-   return appError
+    return appError
 }
 ```
 
@@ -506,7 +504,7 @@ Apply a `mapping: (R, Iterator.Element.T) throws -> R` to an array `[Future<T>]`
 For example,
 
 ```swift
-fun asyncTask(Int) -> Future<Int>
+func asyncTask(Int) -> Future<Int>
 
 let futures = [asyncTask(1), asyncTask(1), asyncTask(1)] 
 
@@ -515,7 +513,7 @@ let foldFuture = futures.fold(initial: 0) { $0 + $1 }
 
 ### sequence
 
-Transform `[Future<T>]` to `Future<[T]>` which completes with an array all results when `[Future<T>}` completes. `sequence` is used to accumulate the result of unrelated asynchronous requests.
+Transform `[Future<T>]` to `Future<[T]>` which completes with an array all results when all `[Future<T>]` completes. `sequence` is used to accumulate the result of unrelated asynchronous requests.
 
 ```swift
 public func sequence(context: ExecutionContext = QueueContext.futuresDefault) -> Future<[Iterator.Element.T]>
@@ -533,7 +531,7 @@ let sequenceFuture = futures.sequence()
 
 ## cancel
 
-A `Future` can be passed around an application to notify different components of an event. Multiple completion handler definitions and combinator chains can be specified. Not all application components will maintain an interest in the event and may want to 'unsubscribe'.
+A `Future` can be passed around an application to notify different components of an event. Multiple completion handler definitions and combinator chains can be specified. Not all application components will maintain an interest in the event and may want to *unsubscribe*.
 
 An application can `cancel` multiple completion handler callbacks and combinator executions using a `CancelToken()`.
 
@@ -561,7 +559,7 @@ cancelFuture.cancel(cancelToken)
 
 # FutureStream
 
-In frameworks such as `CoreLocation` the `CLLocationManagerDelegate` method can be called repeatedly for a single instantiation of `CLLocationManager`.
+In frameworks such as `CoreLocation` some `CLLocationManagerDelegate` methods can be called repeatedly for a single instantiation of `CLLocationManager`. For example,
 
 ```swift
 func locationManager(_ manager: CLLocationManager!,
@@ -599,7 +597,7 @@ The simplest takes a synchronous closure and executes it in the specified contex
 public func futureStream<T>(context: ExecutionContext = QueueContext.futuresDefault, _ task: @escaping (Void) throws -> T) -> FutureStream<T>
 ```
 
-Versions that take a closure parameter of a common completion block forms are also provided.
+Versions that take a closure parameter of a common completion block types are also provided.
 
 ```swift
 public func futureStream<T>(method: (@escaping (T, Swift.Error?) -> Void) -> Void) -> FutureStream<T> 
@@ -720,6 +718,7 @@ Adding a *completed* `Future` to  `FutureStream` calls its *completion* handlers
 accelrometerDataFuture.onSuccess { data in
    // process data
 }
+
 accelrometerDataFuture.onFailure { error in
   // handle error
 }
@@ -788,10 +787,10 @@ let mappedStream = futureStream(method: asyncRequest).map { value -> String in
 Apply a `futureMapping: (T) throws -> Future<M>` or `streamMapping: (T) throws -> FutureStream<M>`  to the result of a successful `FutureStream<T>` returning `FutureStream<M>`. `flatMap` is used to serialize asynchronous requests and streams.
 
 ```swift
-// Apply a mapping returning a FutureStream to a FutureStream result
+// Apply a mapping to a FutureStream returning a FutureStream
 public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws -> FutureStream<M>) -> FutureStream<M>
 
-// Apply a mapping returning a Future to a FutureStream result
+// Apply a mapping to a FutureStream returning a Future
 public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws  -> Future<M>) -> FutureStream<M>
 ```
  
@@ -931,13 +930,13 @@ let recoveryStream = futureStream(method: asyncRequest).recover { error in
 
 ### recoverWith
 
-Apply a recovery mapping `futureRecovery: (Swift.Error) throws -> Future<T>` or `streamRecovery: (Swift.Error) throws -> FutureStream<T>` to a `FutureStream<T>` failure returning a FutureStream<T>.
+Apply a recovery mapping `futureRecovery: (Swift.Error) throws -> Future<T>` or `streamRecovery: (Swift.Error) throws -> FutureStream<T>` to a `FutureStream<T>` failure returning a `FutureStream<T>`.
 
 ```swift
-// Apply a recovery returning a FutureStream to a FutureStream result
- public func recoverWith(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> FutureStream<T>) -> FutureStream<T>
+// Apply a recovery to a FutureStream returning a FutureStream
+public func recoverWith(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), recovery: @escaping (Swift.Error) throws -> FutureStream<T>) -> FutureStream<T>
  
-// Apply a recovery returning a Future to a FutureStream result
+// Apply a recovery to a FutureStream returning a Future
 public func flatMap<M>(context: ExecutionContext = QueueContext.futuresDefault, cancelToken: CancelToken = CancelToken(), mapping: @escaping (T) throws  -> Future<M>) -> FutureStream<M>
 ```
 
