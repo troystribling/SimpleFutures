@@ -554,7 +554,7 @@ mappedFuture.onFailure(cancelToken: cancelToken) { ==error in
     // process data
 }
 
-cancelFuture.cancel(cancelToken)
+_ = cancelFuture.cancel(cancelToken)
 ```
 
 # FutureStream
@@ -1042,7 +1042,7 @@ mappedStream.onFailure(cancelToken: cancelToken) { ==error in
     // process data
 }
 
-cancelFuture.cancel(cancelToken)
+_ = cancelFuture.cancel(cancelToken)
 ```
 
 # Test Cases
