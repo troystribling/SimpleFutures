@@ -16,8 +16,8 @@ SimpleFutures is an implementation of [Scala Futures](http://docs.scala-lang.org
 
 # Requirements
 
-- iOS 9.0+
-- Xcode 8.1
+- iOS 11.0+
+- Xcode 11.3.1
 
 # Installation
 
